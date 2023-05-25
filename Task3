@@ -1,0 +1,60 @@
+sudo su
+apt install fsarchiver -y
+pvcreate /dev/sdb
+vgcreate vg_root /dev/sdb
+lvcreate -n lv_root -l +100%FREE vg_root -y
+mkdir /broot
+fsarchiver -v -a -A savefs /broot/bt.fsa /dev/mapper/debian--vg-root
+fsarchiver  archinfo /broot/bt.fsa
+fsarchiver restfs /broot/bt.fsa id=0,dest=/dev/mapper/vg_root-lv_root
+mount /dev/vg_root/lv_root /mnt
+for i in /proc/ /sys/ /dev/ /run/ /boot/; do mount --bind $i /mnt/$i; done
+chroot /mnt
+grub-mkconfig -o /boot/grub/grub.cfg
+cp /etc/fstab /etc/fstab.bak
+sed -i 's|/dev/mapper/debian--vg-root |/dev/mapper/vg_root-lv_root |g' /etc/fstab
+exit
+reboot now
+sudo su
+lvremove /dev/mapper/debian--vg-root -y
+lvcreate -n root -L +8G debian-vg -y
+mkfs.ext4  /dev/mapper/debian--vg-root
+mount /dev/debian-vg/root /mnt
+mkdir broot
+fsarchiver -v -a -A savefs broot/bt.fsa /dev/mapper//vg_root-lv_root 
+umount /mnt
+fsarchiver restfs broot/bt.fsa id=0,dest=/dev/mapper/debian--vg-root 
+mount /dev/mapper/debian--vg-root /mnt
+for i in /proc/ /sys/ /dev/ /run/ /boot/; do mount --bind $i /mnt/$i; done
+chroot /mnt
+grub-mkconfig -o /boot/grub/grub.cfg
+pvcreate /dev/sdc /dev/sdd
+vgcreate vg_var /dev/sdc /dev/sdd
+lvcreate -L 950M -m1 -n lv_var vg_var
+mkfs.ext4 /dev/vg_var/lv_va
+mount /dev/vg_var/lv_var /mnt
+cp -aR /var/* /mnt/ 
+mkdir /tmp/oldvar && mv /var/* /tmp/oldvar
+umount /mnt
+rm /etc/fstab
+mv /etc/fstab.bak /etc/fstab
+exit
+reboot now
+sudo su
+lvremove /dev/vg_root/lv_root -y
+vgremove /dev/vg_root
+pvremove /dev/sdb
+lvcreate -n LogVol_Home -L 2G debian-vg
+mkfs.ext4 /dev/mapper/debian--vg-LogVol_Home
+mount /dev/debian-vg/LogVol_Home /mnt/
+cp -aR /home/* /mnt/
+rm -rf /home/*
+umount /mnt
+mount /dev/debian-vg/LogVol_Home /home/
+echo "`blkid | grep Home | awk '{print $2}'` /home ext4 defaults 0 0" >> /etc/fstab
+touch /home/file{1..20}
+lvcreate -L 100MB -s -n home_snap /dev/debian-vg/LogVol_Home
+rm -f /home/file{11..20}
+umount /home
+lvconvert --merge /dev/debian-vg/home_snap
+mount /home
