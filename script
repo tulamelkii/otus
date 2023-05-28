@@ -1,0 +1,41 @@
+#!/bin/bash
+sudo su
+sudo apt install ntp -y
+sudo systemctl restart ntp
+echo "deb https://deb.debian.org/debian unstable main" >> /etc/apt/sources.list
+echo "deb https://deb.debian.org/debian sid main contrib non-free" >> /etc/apt/sources.list
+apt update
+echo "zfs-dkms zfs-dkms/note-incompatible-licenses boolean true" | debconf-set-selections
+apt install zfs-dkms -y
+apt install zfsutils-linux -y
+apt install wget -y
+modprobe zfs
+zpool create otus1 mirror /dev/sdb /dev/sdc
+zpool create otus2 mirror /dev/sdd /dev/sde
+zpool create otus3 mirror /dev/sdf /dev/sdg
+zpool create otus4 mirror /dev/sdh /dev/sdi
+zpool list
+zfs set compression=lzjb otus1
+zfs set compression=lz4 otus2
+zfs set compression=gzip-9 otus3
+zfs set compression=zle otus4
+zfs get all | grep compression
+for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log; done
+ls -l /otus*
+zfs list
+zfs get all | grep compressratio | grep -v ref
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1Gw3biulsvjzUZTsNMSAOqILGRko3SoKO' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1Gw3biulsvjzUZTsNMSAOqILGRko3SoKO" -O archive.tar.gz && rm -rf /tmp/cookies.txt
+tar -xzvf archive.tar.gz
+zpool import -d zpoolexport/
+zpool import -d zpoolexport/ otus
+zpool status
+zfs get all otus
+zfs get available otus
+zfs get readonly otus
+zfs get recordsize otus
+zfs get compression otus
+zfs get checksum otus
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1gH8gCL9y7Nd5Ti3IRmplZPF1XjzxeRAG" -O otus_task2.file && rm -rf /tmp/cookies.txt
+zfs receive otus/test@today < otus_task2.file
+find /otus/test -name "secret_message"
+cat /otus/test/task1/file_mess/secret_message
