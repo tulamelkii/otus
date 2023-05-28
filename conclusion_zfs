@@ -1,0 +1,144 @@
+------------create mirror------------------
+zpool create otus1 mirror /dev/sdb /dev/sdc
+zpool create otus2 mirror /dev/sdd /dev/sde
+zpool create otus3 mirror /dev/sdf /dev/sdg
+zpool create otus4 mirror /dev/sdh /dev/sdi
+zpool list
+---------------------------------------------
+root@VDebian:/home/vagrant# zpool list
+NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+otus1   480M   100K   480M        -         -     0%     0%  1.00x    ONLINE  -
+otus2   480M   100K   480M        -         -     0%     0%  1.00x    ONLINE  -
+otus3   480M   102K   480M        -         -     0%     0%  1.00x    ONLINE  -
+otus4   480M   100K   480M        -         -     0%     0%  1.00x    ONLINE  -
+-------create compression zfs-----------------
+zfs set compression=lzjb otus1
+zfs set compression=lz4 otus2
+zfs set compression=gzip-9 otus3
+zfs set compression=zle otus4
+-----------------------------------------------
+root@VDebian:/home/vagrant# zfs get all | grep compression
+otus1  compression           lzjb                   local
+otus2  compression           lz4                    local
+otus3  compression           gzip-9                 local
+otus4  compression           zle                    local
+-----------download file------------------------
+for i in {1..4}; do wget -P /otus$i https://gutenberg.org/cache/epub/2600/pg2600.converter.log; done
+-------------------------------------------------
+root@VDebian:/home/vagrant# ls -l /otus*
+/otus1:
+total 22048
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+/otus2:
+total 17985
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+/otus3:
+total 10955
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+/otus4:
+total 40000
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+root@VDebian:/home/vagrant# ls -l /otus*
+/otus1:
+total 22048
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+/otus2:
+total 17985
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+/otus3:
+total 10955
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+/otus4:
+total 40000
+-rw-r--r-- 1 root root 40931771 May  2 08:18 pg2600.converter.log
+--------wath compression-------------------------
+root@VDebian:/home/vagrant# zfs list
+NAME    USED  AVAIL     REFER  MOUNTPOINT
+otus1  21.7M   330M     21.6M  /otus1
+otus2  18.1M   334M     17.6M  /otus2
+otus3  10.8M   341M     10.7M  /otus3   ******gzip best*******
+otus4  39.2M   313M     39.1M  /otus4
+---------------------------------------------------
+root@VDebian:/home/vagrant# zfs get all | grep compressratio | grep -v ref
+otus1  compressratio         1.81x                  -
+otus2  compressratio         2.21x                  -
+otus3  compressratio         3.65x                  -
+otus4  compressratio         1.00x                  -
+--------------import folder------------------------
+root@VDebian:/home/vagrant# zpool import -d zpoolexport/
+   pool: otus
+     id: 6554193320433390805
+  state: ONLINE
+status: Some supported features are not enabled on the pool.
+	(Note that they may be intentionally disabled if the
+	'compatibility' property is set.)
+ action: The pool can be imported using its name or numeric identifier, though
+	some features will not be available without an explicit 'zpool upgrade'.
+ config:
+
+	otus                                 ONLINE
+	  mirror-0                           ONLINE
+	    /home/vagrant/zpoolexport/filea  ONLINE
+	    /home/vagrant/zpoolexport/fileb  ONLINE
+
+------------------------------------------------------
+zpool import -d zpoolexport/ otus
+-----------------------status zpool-------------------
+root@VDebian:/home/vagrant# zpool status
+  pool: otus
+ state: ONLINE
+  NAME                                 STATE     READ WRITE CKSUM
+	otus                                 ONLINE       0     0     0
+	  mirror-0                           ONLINE       0     0     0
+	    /home/vagrant/zpoolexport/filea  ONLINE       0     0     0
+	    /home/vagrant/zpoolexport/fileb  ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus1
+ state: ONLINE
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus1       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdb     ONLINE       0     0     0
+	    sdc     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus2
+ state: ONLINE
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus2       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdd     ONLINE       0     0     0
+	    sde     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus3
+ state: ONLINE
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus3       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdf     ONLINE       0     0     0
+	    sdg     ONLINE       0     0     0
+
+errors: No known data errors
+
+  pool: otus4
+ state: ONLINE
+config:
+
+	NAME        STATE     READ WRITE CKSUM
+	otus4       ONLINE       0     0     0
+	  mirror-0  ONLINE       0     0     0
+	    sdh     ONLINE       0     0     0
+	    sdi     ONLINE       0     0     0
+--------------------------------------------------------------
+
