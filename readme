@@ -1,0 +1,201 @@
+This is vagrant file
+First step: downloads virtual maschine  on Debian12 from my vagrant repository 
+Second step: sets characteristics vm-memory 256 and virtual cpu 1
+Third step :set up cоfigurations for our nfs server and client mashines.I create interfaces for private network 192.168.56.10 and 192.168.56.11
+Fourth: naming virtual mashines: nfss(this is server) and nfsc(client) 
+Fift:for each virtul mashine i created my sript (nfss_script.sh) and (nfsc_script.sh)
+--------------------------------------------------------------------------------------
+# -*- mode: ruby -*- 
+# vi: set ft=ruby : vsa
+Vagrant.configure(2) do |config| 
+ config.vm.box = "tulamelkii/VDebian12" 
+ config.vm.box_version = "6.1.0.9.1" 
+ config.vm.provider "virtualbox" do |v| 
+ v.memory = 256 
+ v.cpus = 1 
+end 
+ config.vm.define "nfss" do |nfss| 
+ nfss.vm.network "private_network", ip: "192.168.56.10", virtualbox__intnet: "net1"
+ nfss.vm.hostname = "nfss"
+ nfss.vm.provision "shell", path: "nfss_script.sh" 
+end 
+ config.vm.define "nfsc" do |nfsc| 
+ nfsc.vm.network "private_network", ip: "192.168.56.11",  virtualbox__intnet: "net1" 
+ nfsc.vm.hostname = "nfsc" 
+ nfsc.vm.provision "shell", path: "nfsc_script.sh"
+ end 
+end
+--------------------nfss_script.sh-----------------------------------------------
+This is skrip creates virtual server. I grant privileged access rigts and install applets for nfs servers(this is nfs-common nfs-kernel-server and ufw)
+Second step: start services ufw (this firewall) and enable for boot system.Allow ssh and nfs for firewall and checking open ports. 
+Third step: create folder /srv/share for my repository and grant privelege (read and write and execute) 0777.
+Fourth: write characteristic for main config /etc/exports. Shared folder /srv/share for client ip 192.168.56.11 (permision read and write,syncrony mode,
+defaul client root don't have permision and i allow access to a shared repository (no_root_squash) and do not check for user attempts to go outside the exported folder
+(no_subtree_check)
+check export directory 
+------------------------------------------------------------------------------
+sudo su
+apt install nfs-common nfs-kernel-server ufw -y
+systemctl enable nfs-server
+systemctl start ufw
+systemctl enable ufw
+ufw allow ssh
+ufw allow nfs
+ss -tuln
+mkdir -p /srv/share
+chmod 0777 /srv/share 
+echo "/srv/share 192.168.56.11(rw,sync,no_root_squash,no_subtree_check)" >> /etc/exports
+systemctl restart nfs-server
+exportfs -s
+exportfs -r
+exportfs
+***********************************check************************************************************
+root@nfss:/home/vagrant# ss -tuln
+Netid    State     Recv-Q    Send-Q         Local Address:Port          Peer Address:Port    Process    
+udp      UNCONN    0         0                    0.0.0.0:53736              0.0.0.0:*                  
+udp      UNCONN    0         0                    0.0.0.0:52242              0.0.0.0:*                  
+udp      UNCONN    0         0                    0.0.0.0:38954              0.0.0.0:*                  
+udp      UNCONN    0         0                    0.0.0.0:39987              0.0.0.0:*                  
+udp      UNCONN    0         0                    0.0.0.0:68                 0.0.0.0:*                  
+udp      UNCONN    0         0                    0.0.0.0:111                0.0.0.0:*                  
+udp      UNCONN    0         0                    0.0.0.0:45176              0.0.0.0:*                  
+udp      UNCONN    0         0                  127.0.0.1:901                0.0.0.0:*                  
+udp      UNCONN    0         0                       [::]:53162                 [::]:*                  
+udp      UNCONN    0         0                       [::]:58831                 [::]:*                  
+udp      UNCONN    0         0                       [::]:58366                 [::]:*                  
+udp      UNCONN    0         0                       [::]:55651                 [::]:*                  
+udp      UNCONN    0         0                       [::]:111                   [::]:*                  
+udp      UNCONN    0         0                       [::]:35187                 [::]:*                  
+tcp      LISTEN    0         64                   0.0.0.0:2049               0.0.0.0:*                  
+tcp      LISTEN    0         128                  0.0.0.0:22                 0.0.0.0:*                  
+tcp      LISTEN    0         4096                 0.0.0.0:33367              0.0.0.0:*                  
+tcp      LISTEN    0         4096                 0.0.0.0:111                0.0.0.0:*                  
+tcp      LISTEN    0         4096                 0.0.0.0:56725              0.0.0.0:*                  
+tcp      LISTEN    0         4096                 0.0.0.0:60309              0.0.0.0:*                  
+tcp      LISTEN    0         64                   0.0.0.0:35007              0.0.0.0:*                  
+tcp      LISTEN    0         4096                 0.0.0.0:60149              0.0.0.0:*                  
+tcp      LISTEN    0         64                      [::]:2049                  [::]:*                  
+tcp      LISTEN    0         128                     [::]:22                    [::]:*                  
+tcp      LISTEN    0         4096                    [::]:39963                 [::]:*                  
+tcp      LISTEN    0         64                      [::]:41325                 [::]:*                  
+tcp      LISTEN    0         4096                    [::]:111                   [::]:*                  
+tcp      LISTEN    0         4096                    [::]:53403                 [::]:*                  
+tcp      LISTEN    0         4096                    [::]:36307                 [::]:*                  
+tcp      LISTEN    0         4096                    [::]:51423                 [::]:* 
+root@nfss:/home/vagrant# exportfs -s
+/srv/share  192.168.56.11(sync,wdelay,hide,no_subtree_check,sec=sys,rw,secure,no_root_squash,no_all_squash)
+root@nfss:/home/vagrant# exportfs
+/srv/share    	192.168.56.11
+**************************************************************************************************************
+This is script made simmillar, but we do not install servers utills, we onli install client part nfs-common
+Mount folder /mnt for autoload and reload demon 
+Restart mount proces (ystemctl restart remote-fs.target)
+Copy /var/log on the remote server and delete all files in follder.
+--------------------------------------------------------------------------------------------------------------
+apt install nfs-common ufw -y
+systemctl start ufw
+systemctl enable ufw
+ufw allow ssh
+ufw allow nfs
+echo "192.168.56.10:/srv/share    /mnt    nfs    defaults    0 0" >> /etc/fstab
+systemctl daemon-reload
+systemctl restart remote-fs.target
+cp -rv /var/log* /mnt
+rm -rv /mnt
+*******************************************check copy client****************************************************************
+vagrant@nfsc:~$ sudo cp -rv /var/log* /mnt
+'/var/log/btmp' -> '/mnt/log/btmp'
+'/var/log/installer/cdebconf/questions.dat' -> '/mnt/log/installer/cdebconf/questions.dat'
+'/var/log/installer/cdebconf/templates.dat' -> '/mnt/log/installer/cdebconf/templates.dat'
+'/var/log/installer/partman' -> '/mnt/log/installer/partman'
+'/var/log/installer/syslog' -> '/mnt/log/installer/syslog'
+'/var/log/installer/hardware-summary' -> '/mnt/log/installer/hardware-summary'
+'/var/log/installer/status' -> '/mnt/log/installer/status'
+'/var/log/installer/lsb-release' -> '/mnt/log/installer/lsb-release'
+'/var/log/syslog' -> '/mnt/log/syslog'
+'/var/log/kern.log' -> '/mnt/log/kern.log'
+'/var/log/cron.log' -> '/mnt/log/cron.log'
+'/var/log/auth.log' -> '/mnt/log/auth.log'
+'/var/log/debug' -> '/mnt/log/debug'
+'/var/log/messages' -> '/mnt/log/messages'
+'/var/log/daemon.log' -> '/mnt/log/daemon.log'
+'/var/log/user.log' -> '/mnt/log/user.log'
+'/var/log/apt/eipp.log.xz' -> '/mnt/log/apt/eipp.log.xz'
+'/var/log/apt/term.log' -> '/mnt/log/apt/term.log'
+'/var/log/apt/history.log' -> '/mnt/log/apt/history.log'
+'/var/log/dpkg.log' -> '/mnt/log/dpkg.log'
+'/var/log/wtmp' -> '/mnt/log/wtmp'
+'/var/log/lastlog' -> '/mnt/log/lastlog'
+'/var/log/alternatives.log' -> '/mnt/log/alternatives.log'
+'/var/log/faillog' -> '/mnt/log/faillog'
+'/var/log/journal/18f65d610fa34231b71644ca3e31a802/user-1000.journal' -> '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/user-1000.journal'
+'/var/log/journal/18f65d610fa34231b71644ca3e31a802/system@10d747fd232c4141adccce57a3e9047e-0000000000000001-0005fc383ab293a9.journal' -> '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/system@10d747fd232c4141adccce57a3e9047e-0000000000000001-0005fc383ab293a9.journal'
+'/var/log/journal/18f65d610fa34231b71644ca3e31a802/user-1000@0a15a917e85f41d7860362c4188cce7f-0000000000000262-0005fc383b67d000.journal' -> '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/user-1000@0a15a917e85f41d7860362c4188cce7f-0000000000000262-0005fc383b67d000.journal'
+'/var/log/journal/18f65d610fa34231b71644ca3e31a802/system.journal' -> '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/system.journal'
+removed '/mnt/log/README'
+'/var/log/README' -> '/mnt/log/README'
+**************************************************check folder server***********************************************
+drwxr-xr-x 7 vagrant vagrant   4096 May 30 21:37 .
+drwxrwxrwx 3 root    root      4096 May 30 21:36 ..
+-rw-r--r-- 1 vagrant vagrant  16342 May 30 21:37 alternatives.log
+drwxr-xr-x 2 vagrant vagrant   4096 May 30 21:37 apt
+-rw-r----- 1 root    root     14124 May 30 21:37 auth.log
+-rw-r----- 1 root    root         0 May 30 21:37 btmp
+-rw-r----- 1 root    root       380 May 30 21:37 cron.log
+-rw-r----- 1 root    root     27893 May 30 21:37 daemon.log
+-rw-r----- 1 root    root      4065 May 30 21:37 debug
+-rw-r--r-- 1 vagrant vagrant 299546 May 30 21:37 dpkg.log
+-rw-r--r-- 1 vagrant vagrant  32032 May 30 21:37 faillog
+drwxr-xr-x 3 vagrant vagrant   4096 May 30 21:37 installer
+drwxr-xr-x 3 vagrant vagrant   4096 May 30 21:36 journal
+-rw-r----- 1 root    root     50049 May 30 21:37 kern.log
+-rw-r--r-- 1 vagrant vagrant 292292 May 30 21:37 lastlog
+-rw-r----- 1 root    root     81184 May 30 21:37 messages
+drwx------ 2 vagrant vagrant   4096 May 30 21:36 private
+lrwxrwxrwx 1 root    root        39 May 30 21:37 README -> ../../usr/share/doc/systemd/README.logs
+drwxr-xr-x 3 vagrant vagrant   4096 May 30 21:36 runit
+-rw-r----- 1 root    root     81746 May 30 21:37 syslog
+-rw-r----- 1 root    root      2633 May 30 21:37 user.log
+-rw-r--r-- 1 vagrant vagrant   5760 May 30 21:37 wtmp
+------------------------------------------------------------------------------------------------------------------
+vagrant@nfsc:~$ sudo rm -rfv /mnt
+removed '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/system.journal'
+removed '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/user-1000.journal'
+removed '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/system@10d747fd232c4141adccce57a3e9047e-0000000000000001-0005fc383ab293a9.journal'
+removed '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802/user-1000@0a15a917e85f41d7860362c4188cce7f-0000000000000262-0005fc383b67d000.journal'
+removed directory '/mnt/log/journal/18f65d610fa34231b71644ca3e31a802'
+removed directory '/mnt/log/journal'
+removed '/mnt/log/cron.log'
+removed '/mnt/log/faillog'
+removed '/mnt/log/lastlog'
+removed '/mnt/log/debug'
+removed '/mnt/log/wtmp'
+removed '/mnt/log/README'
+removed '/mnt/log/btmp'
+removed '/mnt/log/alternatives.log'
+removed '/mnt/log/messages'
+removed directory '/mnt/log/private'
+removed '/mnt/log/kern.log'
+removed '/mnt/log/installer/hardware-summary'
+removed '/mnt/log/installer/cdebconf/questions.dat'
+removed '/mnt/log/installer/cdebconf/templates.dat'
+removed directory '/mnt/log/installer/cdebconf'
+removed '/mnt/log/installer/lsb-release'
+removed '/mnt/log/installer/status'
+removed '/mnt/log/installer/syslog'
+removed '/mnt/log/installer/partman'
+removed directory '/mnt/log/installer'
+removed '/mnt/log/daemon.log'
+removed '/mnt/log/dpkg.log'
+removed '/mnt/log/syslog'
+removed '/mnt/log/apt/term.log'
+removed '/mnt/log/apt/history.log'
+removed '/mnt/log/apt/eipp.log.xz'
+removed directory '/mnt/log/apt'
+removed directory '/mnt/log/runit/ssh'
+removed directory '/mnt/log/runit'
+removed '/mnt/log/auth.log'
+removed '/mnt/log/user.log'
+removed directory '/mnt/log'
+
+
