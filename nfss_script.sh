@@ -13,4 +13,4 @@ systemctl restart nfs-server
 exportfs -s
 exportfs -r
 exportfs
-systemctl status rpcbind nfs-server
+
