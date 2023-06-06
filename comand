@@ -1,1 +1,42 @@
+NAME                  MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sda                     8:0    0 24.4G  0 disk 
+├─sda1                  8:1    0  487M  0 part /boot
+├─sda2                  8:2    0    1K  0 part 
+└─sda5                  8:5    0 23.9G  0 part 
+  ├─debian--vg-root   254:0    0   23G  0 lvm  /
+  └─debian--vg-swap_1 254:1    0  980M  0 lvm  [SWAP]
+----------------------------------------------------------------------------------
+vagrant@debian:~$ df -h
+Filesystem                   Size  Used Avail Use% Mounted on
+udev                          84M     0   84M   0% /dev
+tmpfs                         21M  428K   21M   3% /run
+/dev/mapper/debian--vg-root   23G  1.6G   20G   8% /
+tmpfs                        104M     0  104M   0% /dev/shm
+tmpfs                        5.0M     0  5.0M   0% /run/lock
+/dev/sda1                    470M  126M  320M  29% /boot
+tmpfs                         21M     0   21M   0% /run/user/1000
+vagrant                      185G   81G  104G  44% /vagrant
+------------------------------------------------------------------------------------
 
+vagrant@debian:~$ sudo vgdisplay
+  --- Volume group ---
+  VG Name               debian-vg
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               23.93 GiB
+  PE Size               4.00 MiB
+  Total PE              6127
+  Alloc PE / Size       6127 / 23.93 GiB
+  Free  PE / Size       0 / 0   
+  VG UUID               R1xyB4-ygfM-6LBV-zkee-lfWI-nzjZ-fGZkQf
+---------------------------------------------------------------------------------------
