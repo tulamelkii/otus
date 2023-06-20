@@ -1,0 +1,199 @@
+***************************watchlog.service *****************************************
+vagrant@debian:~$ cat /etc/systemd/system/watchlog.service 
+[Unit]
+  Description=My watchlog service
+[Service]
+  Type=oneshot
+  EnvironmentFile=/etc/watchlog
+  ExecStart=/bin/sh /opt/watchlog.sh $WORD $LOG
+ 
+  vagrant@debian:~$ systemctl status watchlog.service
+○ watchlog.service - My watchlog service
+     Loaded: loaded (/etc/systemd/system/watchlog.service; static)
+     Active: inactive (dead)
+TriggeredBy: ● watchlog.timer
+
+************************watchlog.timer************************************************
+vagrant@debian:~$ cat /etc/systemd/system/watchlog.timer 
+[Unit]
+  Description=Run watchlog script every 30 second
+[Timer]
+  OnUnitActiveSec=30
+  Unit=watchlog.service
+[Install]
+  WantedBy=multi-user.target
+  
+  agrant@debian:~$ systemctl status watchlog.timer
+● watchlog.timer - Run watchlog script every 30 second
+     Loaded: loaded (/etc/systemd/system/watchlog.timer; disabled; preset: enabled)
+     Active: active (elapsed) since Tue 2023-06-20 21:27:20 UTC; 28min ago
+      Until: Tue 2023-06-20 21:27:20 UTC; 28min ago
+    Trigger: n/a
+   Triggers: ● watchlog.service
+
+----------------------------------LOGS----------------------------------------------------
+vagrant@debian:~$ sudo journalctl -u watchlog.service
+Jun 20 21:27:20 debian systemd[1]: Starting watchlog.service - My watchlog service...
+Jun 20 21:27:20 debian sh[915]: /opt/watchlog.sh: 4: Jun: not found
+Jun 20 21:27:20 debian sh[916]: Usage: grep [OPTION]... PATTERNS [FILE]...
+Jun 20 21:27:20 debian root[917]: : I found word, Master!
+Jun 20 21:27:20 debian sh[916]: Try 'grep --help' for more information.
+Jun 20 21:27:20 debian systemd[1]: watchlog.service: Deactivated successfully.
+Jun 20 21:27:20 debian systemd[1]: Finished watchlog.service - My watchlog service.
+Jun 20 21:57:12 debian systemd[1]: Starting watchlog.service - My watchlog service...
+Jun 20 21:57:12 debian sh[10420]: /opt/watchlog.sh: 4: Jun: not found
+Jun 20 21:57:12 debian root[10422]: : I found word, Master!
+Jun 20 21:57:12 debian sh[10421]: Usage: grep [OPTION]... PATTERNS [FILE]...
+Jun 20 21:57:12 debian systemd[1]: watchlog.service: Deactivated successfully.
+Jun 20 21:57:12 debian systemd[1]: Finished watchlog.service - My watchlog service.
+Jun 20 21:58:02 debian systemd[1]: Starting watchlog.service - My watchlog service...
+Jun 20 21:58:02 debian sh[10429]: /opt/watchlog.sh: 4: Jun: not found
+-----------------------------------------------------------------------------------------------
+                                   Part 2
+  
+*************************************** spawn-fcgi.socket ***************************************
+vagrant@debian:~$ cat /etc/systemd/system/spawn-fcgi.socket 
+[Unit]
+   Description=Spawn-fcgi socket
+[Socket]
+   ListenStream=/var/run/spawn-fcgi.socket
+   SocketMode=9000
+[Install]
+   WantedBy=sockets.target
+
+  agrant@debian:~$ systemctl status spawn-fcgi.socket
+○ spawn-fcgi.socket - Spawn-fcgi socket
+     Loaded: loaded (/etc/systemd/system/spawn-fcgi.socket; disabled; preset: enabled)
+     Active: inactive (dead)
+   Triggers: ● spawn-fcgi.service
+     Listen: /run/spawn-fcgi.socket (Stream)
+
+*******************************************  spawn-fcgi.service**********************************
+vagrant@debian:~$ cat /etc/systemd/system/spawn-fcgi.service 
+[Unit]
+   Description=Spawn FastCGI Service
+   After=spawn-fcgi.socket
+[Service]
+   PIDFile=/var/run/spawn-fcgi.pid
+   Type=forking
+   EnvironmentFile=/etc/systemd/spawn-fcgi
+   ExecStart=/usr/bin/spawn-fcgi $Options
+   KillMode=process
+   Restart=on-failure
+
+[Install]
+   WantedBy=multi-user.target
+    
+  
+  vagrant@debian:~$ systemctl status spawn-fcgi.service
+● spawn-fcgi.service - Spawn FastCGI Service
+     Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2023-06-20 21:27:39 UTC; 33min ago
+TriggeredBy: ○ spawn-fcgi.socket
+   Main PID: 10153 (php-cgi)
+      Tasks: 1 (limit: 199)
+     Memory: 15.3M
+        CPU: 29ms
+     CGroup: /system.slice/spawn-fcgi.service
+             └─10153 /usr/bin/php-cgi
+                        
+**********************************************LOGS***************************************************
+vagrant@debian:~$ sudo journalctl -u spawn-fcgi.service
+Jun 20 21:27:38 debian systemd[1]: /etc/systemd/system/spawn-fcgi.service:5: PIDFile= references a path below legacy directory /var/run/, updating /var/run/spawn-fcgi.pid → /run/spawn-fcgi.pid; please update th>
+Jun 20 21:27:38 debian systemd[1]: Starting spawn-fcgi.service - Spawn FastCGI Service...
+Jun 20 21:27:38 debian spawn-fcgi[10152]: spawn-fcgi: child spawned successfully: PID: 10153
+Jun 20 21:27:39 debian systemd[1]: Started spawn-fcgi.service - Spawn FastCGI Service.
+                               
+vagrant@debian:~$ sudo journalctl -u spawn-fcgi.socket
+Jun 20 21:27:38 debian systemd[1]: /etc/systemd/system/spawn-fcgi.socket:4: ListenStream= references a path below legacy directory /var/run/, updating /var/run/spawn-fcgi.socket → /run/spawn-fcgi.socket; please>
+
+*******************************************************************************************************
+
+                                                                              Part 3
+  **********************************************************apache2.service******************************
+root@debian:/home/vagrant# cat /lib/systemd/system/apache2.service 
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+Documentation=https://httpd.apache.org/docs/2.4/
+
+[Service]
+Type=forking
+Environment=APACHE_STARTED_BY_SYSTEMD=true
+ExecStart=/usr/sbin/apachectl start
+ExecStop=/usr/sbin/apachectl graceful-stop
+ExecReload=/usr/sbin/apachectl graceful
+KillMode=mixed
+PrivateTmp=true
+Restart=on-abort
+OOMPolicy=continue
+
+[Install]
+WantedBy=multi-user.target
+root@debian:/home/vagrant# 
+
+ vagrant@debian:~$ systemctl status apache2.service
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2023-06-20 21:27:39 UTC; 46min ago
+       Docs: https://httpd.apache.org/docs/2.4/
+    Process: 10198 ExecStart=/usr/sbin/apachectl start (code=exited, status=0/SUCCESS)
+   Main PID: 10202 (apache2)
+      Tasks: 6 (limit: 199)
+     Memory: 9.9M
+        CPU: 320ms
+     CGroup: /system.slice/apache2.service
+             ├─10202 /usr/sbin/apache2 -k start
+             ├─10205 /usr/sbin/apache2 -k start
+             ├─10206 /usr/sbin/apache2 -k start
+             ├─10207 /usr/sbin/apache2 -k start
+             ├─10208 /usr/sbin/apache2 -k start
+             └─10209 /usr/sbin/apache2 -k start
+
+**************************************************apache2@.service**************************************
+root@debian:/home/vagrant# cat /lib/systemd/system/apache2@.service
+[Unit]
+Description=The Apache HTTP Server
+After=network.target remote-fs.target nss-lookup.target
+ConditionPathIsDirectory=/etc/apache2-%i
+Documentation=https://httpd.apache.org/docs/2.4/
+
+[Service]
+Type=forking
+Environment=APACHE_CONFDIR=/etc/apache2-%i APACHE_STARTED_BY_SYSTEMD=true
+ExecStart=/usr/sbin/apachectl start
+ExecStop=/usr/sbin/apachectl graceful-stop
+ExecReload=/usr/sbin/apachectl graceful
+KillMode=mixed
+PrivateTmp=true
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
+vagrant@debian:~$ systemctl status apache2@9999.service
+● apache2@9999.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2@.service; disabled; preset: enabled)
+     Active: active (running) since Tue 2023-06-20 21:27:39 UTC; 46min ago
+       Docs: https://httpd.apache.org/docs/2.4/
+    Process: 10204 ExecStart=/usr/sbin/apachectl start (code=exited, status=0/SUCCESS)
+   Main PID: 10226 (apache2)
+      Tasks: 6 (limit: 199)
+     Memory: 10.0M
+        CPU: 314ms
+     CGroup: /system.slice/system-apache2.slice/apache2@9999.service
+             ├─10226 /usr/sbin/apache2 -d /etc/apache2-9999 -k start
+             ├─10229 /usr/sbin/apache2 -d /etc/apache2-9999 -k start
+             ├─10230 /usr/sbin/apache2 -d /etc/apache2-9999 -k start
+             ├─10231 /usr/sbin/apache2 -d /etc/apache2-9999 -k start
+             ├─10232 /usr/sbin/apache2 -d /etc/apache2-9999 -k start
+             └─10233 /usr/sbin/apache2 -d /etc/apache2-9999 -k start
+
+************************************************Logs***************************************************
+root@debian:/home/vagrant# journalctl -u apache2.service
+Jun 20 21:27:39 debian systemd[1]: Started apache2.service - The Apache HTTP Server.
+
+root@debian:/home/vagrant# journalctl -u apache2@9999.service
+Jun 20 21:27:39 debian systemd[1]: Started apache2@9999.service - The Apache HTTP Server.
+
+ 
