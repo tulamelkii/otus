@@ -546,11 +546,278 @@ href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
 </html>
 
 *******************************************************nis_enabled --> on*******************************
-[root@selinux vagrant]# getsebool -a | grep nis_enabled
+[root@selinux vagrant]# getsebool -a | grep nis_enabled      #check status nis_enabled 
 nis_enabled --> on
                                                           
                                                           ------->2 Step<------
 
 ******************************************************close nis_enabled off***************************
 setsebool -P nis_enabled off
-****************************************************************************************************
+****************************************************Allow port http************************************
+[root@selinux vagrant]# semanage port -l | grep http            # find allow port http
+
+http_cache_port_t              tcp      8080, 8118, 8123, 10001-10010
+http_cache_port_t              udp      3130
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t            tcp      5988
+pegasus_https_port_t           tcp      5989
+**********************************************************************************************************
+semanage port -a -t http_port_t -p tcp 4881                               # add access port in http_port_t
+***********************************************************************************************************
+[root@selinux vagrant]# semanage port -l | grep  http_port_t
+http_port_t                    tcp      4881, 80, 81, 443, 488, 8008, 8009, 8443, 9000   # see port added 
+pegasus_http_port_t            tcp      5988
+
+***************************************Restart and Status nginx*******************************************
+
+[root@selinux vagrant]# systemctl restart nginx                           # restart service 
+root@selinux vagrant]# systemctl status nginx                             # status  
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Tue 2023-07-04 11:07:04 UTC; 9s ago
+  Process: 21692 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 21689 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 21688 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 21694 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─21694 nginx: master process /usr/sbin/nginx
+           └─21696 nginx: worker process
+
+Jul 04 11:07:04 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Jul 04 11:07:04 selinux nginx[21689]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Jul 04 11:07:04 selinux nginx[21689]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Jul 04 11:07:04 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
+
+***********************************************nginx.service html in port 4881 *****************************
+[root@selinux vagrant]# curl http://10.0.2.15:4881
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css"> 
+
+	html {
+	background-image:url(img/html-background.png);
+	background-color: white;
+	font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+	font-size: 0.85em;
+	line-height: 1.25em;
+	margin: 0 4% 0 4%;
+	}
+
+	body {
+	border: 10px solid #fff;
+	margin:0;
+	padding:0;
+	background: #fff;
+	}
+
+	/* Links */
+
+	a:link { border-bottom: 1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+	a:active {  border-bottom:1px dotted #ccc; text-decoration: underline; color: #204d92; }
+	a:visited { border-bottom:1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:visited:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+ 
+	.logo a:link,
+	.logo a:hover,
+	.logo a:visited { border-bottom: none; }
+
+	.mainlinks a:link { border-bottom: 1px dotted #ddd; text-decoration: none; color: #eee; }
+	.mainlinks a:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:active { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:visited { border-bottom:1px dotted #ddd; text-decoration: none; color: white; }
+	.mainlinks a:visited:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+
+	/* User interface styles */
+
+	#header {
+	margin:0;
+	padding: 0.5em;
+	background: #204D8C url(img/header-background.png);
+	text-align: left;
+	}
+
+	.logo {
+	padding: 0;
+	/* For text only logo */
+	font-size: 1.4em;
+	line-height: 1em;
+	font-weight: bold;
+	}
+
+	.logo img {
+	vertical-align: middle;
+	padding-right: 1em;
+	}
+
+	.logo a {
+	color: #fff;
+	text-decoration: none;
+	}
+
+	p {
+	line-height:1.5em;
+	}
+
+	h1 { 
+		margin-bottom: 0;
+		line-height: 1.9em; }
+	h2 { 
+		margin-top: 0;
+		line-height: 1.7em; }
+
+	#content {
+	clear:both;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-bottom: 30px;
+	border-bottom: 5px solid #eee;
+	}
+
+    .mainlinks {
+        float: right;
+        margin-top: 0.5em;
+        text-align: right;
+    }
+
+    ul.mainlinks > li {
+    border-right: 1px dotted #ddd;
+    padding-right: 10px;
+    padding-left: 10px;
+    display: inline;
+    list-style: none;
+    }
+
+    ul.mainlinks > li.last,
+    ul.mainlinks > li.first {
+    border-right: none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div id="header">
+
+    <ul class="mainlinks">
+        <li> <a href="http://www.centos.org/">Home</a> </li>
+        <li> <a href="http://wiki.centos.org/">Wiki</a> </li>
+        <li> <a href="http://wiki.centos.org/GettingHelp/ListInfo">Mailing Lists</a></li>
+        <li> <a href="http://www.centos.org/download/mirrors/">Mirror List</a></li>
+        <li> <a href="http://wiki.centos.org/irc">IRC</a></li>
+        <li> <a href="https://www.centos.org/forums/">Forums</a></li>
+        <li> <a href="http://bugs.centos.org/">Bugs</a> </li>
+        <li class="last"> <a href="http://wiki.centos.org/Donate">Donate</a></li>
+    </ul>
+
+	<div class="logo">
+		<a href="http://www.centos.org/"><img src="img/centos-logo.png" border="0"></a>
+	</div>
+
+</div>
+
+<div id="content">
+
+	<h1>Welcome to CentOS</h1>
+
+	<h2>The Community ENTerprise Operating System</h2>
+
+	<p><a href="http://www.centos.org/">CentOS</a> is an Enterprise-class Linux Distribution derived from sources freely provided
+to the public by Red Hat, Inc. for Red Hat Enterprise Linux.  CentOS conforms fully with the upstream vendors
+redistribution policy and aims to be functionally compatible. (CentOS mainly changes packages to remove upstream vendor
+branding and artwork.)</p>
+
+	<p>CentOS is developed by a small but growing team of core
+developers.&nbsp; In turn the core developers are supported by an active user community
+including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.</p>
+
+	<p>CentOS has numerous advantages including: an active and growing user community, quickly rebuilt, tested, and QA'ed errata packages, an extensive <a href="http://www.centos.org/download/mirrors/">mirror network</a>, developers who are contactable and responsive, Special Interest Groups (<a href="http://wiki.centos.org/SpecialInterestGroup/">SIGs</a>) to add functionality to the core CentOS distribution, and multiple community support avenues including a <a href="http://wiki.centos.org/">wiki</a>, <a
+href="http://wiki.centos.org/irc">IRC Chat</a>, <a href="http://wiki.centos.org/GettingHelp/ListInfo">Email Lists</a>, <a href="https://www.centos.org/forums/">Forums</a>, <a href="http://bugs.centos.org/">Bugs Database</a>, and an <a
+href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
+
+	</div>
+
+</div>
+</body>
+
+</html>
+***********************************************************dell port again and restart nginx *****************************
+semanage port -d -t http_port_t -p tcp 4881                                          # Delete port with  
+[root@selinux vagrant]#  semanage port -l | grep  http_port_t             
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000     # Port deleted
+pegasus_http_port_t            tcp      5988
+systemctl restart nginx
+
+****************************************************************************************************************************
+                                                       ------->3 Step<------
+***************************************Failed status nginx-ok ****************************************************
+[root@selinux vagrant]# systemctl status nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Tue 2023-07-04 11:21:11 UTC; 13s ago
+  Process: 21692 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 21720 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=1/FAILURE)
+  Process: 21719 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 21694 (code=exited, status=0/SUCCESS)
+
+Jul 04 11:21:11 selinux systemd[1]: Stopped The nginx HTTP and reverse proxy server.
+Jul 04 11:21:11 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Jul 04 11:21:11 selinux nginx[21720]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Jul 04 11:21:11 selinux nginx[21720]: nginx: [emerg] bind() to 0.0.0.0:4881 failed (13: Permissio...ied)
+Jul 04 11:21:11 selinux nginx[21720]: nginx: configuration file /etc/nginx/nginx.conf test failed
+Jul 04 11:21:11 selinux systemd[1]: nginx.service: control process exited, code=exited status=1
+Jul 04 11:21:11 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
+Jul 04 11:21:11 selinux systemd[1]: Unit nginx.service entered failed state.
+Jul 04 11:21:11 selinux systemd[1]: nginx.service failed.
+Hint: Some lines were ellipsized, use -l to show in full.
+
+*********************************************************Failed-ok*********************************************************
+[root@selinux vagrant]# systemctl start nginx
+Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details
+**********************************************************LOG-Failed*************************************************
+[root@selinux vagrant]# grep nginx /var/log/audit/audit.log
+type=SOFTWARE_UPDATE msg=audit(1688457970.999:823): pid=2729 uid=0 auid=1000 ses=2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 msg='sw="nginx-filesystem-1:1.20.1-10.el7.noarch" sw_type=rpm key_enforce=0 gpg_res=1 root_dir="/" comm="yum" exe="/usr/bin/python2.7" hostname=? addr=? terminal=? res=success'
+type=SOFTWARE_UPDATE msg=audit(1688457971.177:824): pid=2729 uid=0 auid=1000 ses=2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 msg='sw="nginx-1:1.20.1-10.el7.x86_64" sw_type=rpm key_enforce=0 gpg_res=1 root_dir="/" comm="yum" exe="/usr/bin/python2.7" hostname=? addr=? terminal=? res=success'
+type=AVC msg=audit(1688457971.353:825): avc:  denied  { name_bind } for  pid=2807 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+*************************************************Create module fore Selinux allow port**********************************
+
+[root@selinux vagrant]# grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+******************** IMPORTANT ***********************
+To make this policy package active, execute:
+
+semodule -i nginx.pp
+********************************************************Activated module nginx.pp***************************************
+ semodule -i nginx.pp                                        # activation module -i
+***********************************************start and restart service ******************************************
+[root@selinux vagrant]# systemctl start nginx
+[root@selinux vagrant]# systemctl status nginx
+
+● nginx.service - The nginx HTTP and reverse proxy server                                      # Service UP 
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Tue 2023-07-04 11:34:26 UTC; 1min 47s ago
+  Process: 21782 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 21779 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 21778 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 21784 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─21784 nginx: master process /usr/sbin/nginx
+           └─21786 nginx: worker process
+
+Jul 04 11:34:26 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Jul 04 11:34:26 selinux nginx[21779]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Jul 04 11:34:26 selinux nginx[21779]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Jul 04 11:34:26 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
+******************************************************modules**************************************************************
+[root@selinux vagrant]# semodule -l |grep nginx
+nginx	1.0
+-------*******************************************delleted module nginx*****************************************************
+[root@selinux vagrant]# semodule -r nginx                                              # Comand delelete modul
+libsemanage.semanage_direct_remove_key: Removing last nginx module (no other nginx module exists at another priority).
+
