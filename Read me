@@ -1,3 +1,63 @@
+First create virtual mashine Centos7 in Vagrant & SElinux
+Second install nginx, change port 80 => 4881 and check lissten port
+------------------------------------------------------------------------
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+
+
+MACHINES = {
+  :selinux => {
+        :box_name => "centos/7",
+        :box_version => "2004.01",
+        #:provision => "test.sh",       
+  },
+}
+
+
+Vagrant.configure("2") do |config|
+
+
+  MACHINES.each do |boxname, boxconfig|
+
+
+      config.vm.define boxname do |box|
+
+
+        box.vm.box = boxconfig[:box_name]
+        box.vm.box_version = boxconfig[:box_version]
+
+
+        box.vm.host_name = "selinux"
+        box.vm.network "forwarded_port", guest: 4881, host: 4881
+
+
+        box.vm.provider :virtualbox do |vb|
+              vb.customize ["modifyvm", :id, "--memory", "1024"]
+              needsController = false
+        end
+
+
+        box.vm.provision "shell", inline: <<-SHELL
+          #install epel-release
+          yum install -y epel-release
+          #install nginx
+          yum install -y nginx
+          #change nginx port
+          sed -ie 's/:80/:4881/g' /etc/nginx/nginx.conf
+          sed -i 's/listen       80;/listen       4881;/' /etc/nginx/nginx.conf
+          #disable SELinux
+          #setenforce 0
+          #start nginx
+          systemctl start nginx
+          systemctl status nginx
+          #check nginx port
+          ss -tlpn | grep 4881
+        SHELL
+    end
+  end
+end
+
+
 ***************************************************Vagrant UP****************************************
 localadm@DEB:~/otus$ vagrant up
 Bringing machine 'selinux' up with 'virtualbox' provider...
@@ -182,26 +242,27 @@ Bringing machine 'selinux' up with 'virtualbox' provider...
     selinux: Jul 03 21:18:37 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
     selinux: Jul 03 21:18:37 selinux systemd[1]: Unit nginx.service entered failed state.
     selinux: Jul 03 21:18:37 selinux systemd[1]: nginx.service failed.
-*******************************************************************************************
-
-vagrant@selinux ~]$ sudo su
-*****************************************************firewall inactive*********************
-[root@selinux vagrant]# systemctl status firewalld
+**************************************************************************************
+vagrant@selinux ~]$ sudo su                                                # raise privilege untill root
+*******************************************Status firewall inactive*********************
+[root@selinux vagrant]# systemctl status firewalld                         # Check status firewall 
 ● firewalld.service - firewalld - dynamic firewall daemon
    Loaded: loaded (/usr/lib/systemd/system/firewalld.service; disabled; vendor preset: enabled)
    Active: inactive (dead)
      Docs: man:firewalld(1)
 ***************************************************nginx conf ok*************************
+nginx -t                                                                    # Enter comand and check config nginx 
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ***************************************************getenforce ***************************
-[root@selinux vagrant]#  getenforce
+[root@selinux vagrant]#  getenforce                                          # Getenforce reports whether SELinux is enforcing
 Enforcing
 ****************************** find logs port deny*************************************
-[root@selinux vagrant]# cat /var/log/audit/audit.log |grep denied
+[root@selinux vagrant]# cat /var/log/audit/audit.log |grep denied            # grep block port nginx for key word "deniend"  
 type=AVC msg=audit(1688419117.933:854): avc:  denied  { name_bind } for  pid=2889 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 ***********************************************************install policycoreutils-python *****************************************
-[root@selinux vagrant]# yum install policycoreutils-python
+[root@selinux vagrant]# yum install policycoreutils-python -y   # install policycoreutils-python package contains the management tools use to manage an SELinux environmen
+
 Loaded plugins: fastestmirror
 Loading mirror speeds from cached hostfile
  * base: ftp.jaist.ac.jp
@@ -292,7 +353,7 @@ Dependency Installed:
 
 Complete!
 **********************************************Find problem with setsebool -P nis_enabled 1 **************
-root@selinux vagrant]# grep 1688419117.933:854 /var/log/audit/audit.log | audit2why
+root@selinux vagrant]# grep 1688419117.933:854 /var/log/audit/audit.log | audit2why       # We find problem utilyty audit2why
 type=AVC msg=audit(1688419117.933:854): avc:  denied  { name_bind } for  pid=2889 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
 
 	Was caused by:
@@ -303,10 +364,10 @@ type=AVC msg=audit(1688419117.933:854): avc:  denied  { name_bind } for  pid=288
 	Allow access by executing:
 	# setsebool -P nis_enabled 1
 ************************************************************ON-nis_enabled******************************
-setsebool -P nis_enabled on
+setsebool -P nis_enabled on         #enable parametr nis_enabled
 ************************************************************Restart Service and Status Nginx -OK****************************************************************************
-[root@selinux vagrant]# systemctl restart nginx
-[root@selinux vagrant]# systemctl status nginx
+[root@selinux vagrant]# systemctl restart nginx         # Restart service nginx
+[root@selinux vagrant]# systemctl status nginx          # Status nginix
 ● nginx.service - The nginx HTTP and reverse proxy server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
    Active: active (running) since Mon 2023-07-03 21:42:19 UTC; 8s ago
@@ -324,8 +385,9 @@ Jul 03 21:42:19 selinux nginx[3071]: nginx: the configuration file /etc/nginx/ng
 Jul 03 21:42:19 selinux nginx[3071]: nginx: configuration file /etc/nginx/nginx.con...ful
 Jul 03 21:42:19 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
 Hint: Some lines were ellipsized, use -l to show in full.
-************************************************show run html in port 4881 ********************
-[root@selinux vagrant]# curl http://10.0.2.15:4881
+************************************************nginx.service html in port 4881 ********************
+                                                                        
+[root@selinux vagrant]# curl http://10.0.2.15:4881                           #Look itis working html site
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
