@@ -158,6 +158,19 @@ ns01.dns.lab.		3600	IN	A	192.168.50.10
 ;; WHEN: Thu Jul 06 18:02:39 UTC 2023
 ;; MSG SIZE  rcvd: 96
 
+--------------------------------------------------------------------------------------------------------------------------------------------
+First step we acess all folders structure type and subfolders, second step i change type only subfolders.
+In configure files /etc/named.conf where lie config file dns and if i wana be shage very fast access,may be i change all path /opt and fixit this problem)))
+But this bad idea=)
+
+Config path where lie preference zonetransfer.key 
+// labs ddns zone
+    zone "ddns.lab" {
+        type master;
+        allow-transfer { key "zonetransfer.key"; };
+        allow-update { key "zonetransfer.key"; };
+        file "/etc/named/dynamic/named.ddns.lab";
+    };
 
 
 
