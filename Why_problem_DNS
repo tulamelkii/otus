@@ -1,0 +1,45 @@
+First problem we watch type category this structure etc_t its wrong  and we change type : sudo chcon -R -t named_zone_t /etc/named
+
+
+------------------------------------------------------------------------------1----------------------------------------------------
+
+[vagrant@ns01 ~]$ sudo su
+[root@ns01 vagrant]# ls -laZ /etc/named
+drw-rwx---. root named system_u:object_r:etc_t:s0       .
+drwxr-xr-x. root root  system_u:object_r:etc_t:s0       ..
+drw-rwx---. root named unconfined_u:object_r:etc_t:s0   dynamic
+-rw-rw----. root named system_u:object_r:etc_t:s0       named.50.168.192.rev
+-rw-rw----. root named system_u:object_r:etc_t:s0       named.dns.lab
+-rw-rw----. root named system_u:object_r:etc_t:s0       named.dns.lab.view1
+-rw-rw----. root named system_u:object_r:etc_t:s0       named.newdns.lab
+[root@ns01 vagrant]# cat /var/log/audit/audit.log | audit2why
+
+
+------------------------------------------------change type /etc/named-------------------------------------------
+[root@ns01 vagrant]# sudo chcon -R -t named_zone_t /etc/named
+-----------------------------------------------------------------------------------------------------------------
+[root@ns01 vagrant]# ls -laZ /etc/named
+drw-rwx---. root named system_u:object_r:named_zone_t:s0 .
+drwxr-xr-x. root root  system_u:object_r:etc_t:s0       ..
+drw-rwx---. root named unconfined_u:object_r:named_zone_t:s0 dynamic
+-rw-rw----. root named system_u:object_r:named_zone_t:s0 named.50.168.192.rev
+-rw-rw----. root named system_u:object_r:named_zone_t:s0 named.dns.lab
+-rw-rw----. root named system_u:object_r:named_zone_t:s0 named.dns.lab.view1
+-rw-rw----. root named system_u:object_r:named_zone_t:s0 named.newdns.lab
+
+
+-----------------------------------------------------------------------------------------------------------------
+------------------------------------------enter A zone for client------------------------------------------------
+[root@client ~]# nsupdate -k /etc/named.zonetransfer.key
+> server 192.168.50.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.50.15
+> send
+>  quit 
+
+-----------------------------------------ok-change apply -------------------------------------------------------------------
+------------------------------------------------------------2-----------------------------------------------------------
+
+
+
+
