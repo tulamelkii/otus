@@ -1,0 +1,467 @@
+Download branchess github
+git clone --single-branch -b Ansible https://github.com/tulamelkii/otus.git
+cd directory otus
+vagrant up
+Downloads and create 2 mashines with diferent os "Debian and Sentos" (debs, sosc)
+After Ansible install nginx with port 8080
+************************************************************************************************************************************
+localadm@DEB:~/ansible/otus$ vagrant up
+Bringing machine 'debs' up with 'virtualbox' provider...
+Bringing machine 'sosc' up with 'virtualbox' provider...
+==> debs: Importing base box 'tulamelkii/VDebian12'...
+==> debs: Matching MAC address for NAT networking...
+==> debs: Checking if box 'tulamelkii/VDebian12' version '6.1.0.9.1' is up to date...
+==> debs: There was a problem while downloading the metadata for your box
+==> debs: to check for updates. This is not an error, since it is usually due
+==> debs: to temporary network problems. This is just a warning. The problem
+==> debs: encountered was:
+==> debs: 
+==> debs: The requested URL returned error: 404
+==> debs: 
+==> debs: If you want to check for box updates, verify your network connection
+==> debs: is valid and try again.
+==> debs: Setting the name of the VM: otus_debs_1688818258849_94506
+==> debs: Clearing any previously set network interfaces...
+==> debs: Preparing network interfaces based on configuration...
+    debs: Adapter 1: nat
+    debs: Adapter 2: hostonly
+==> debs: Forwarding ports...
+    debs: 22 (guest) => 2222 (host) (adapter 1)
+==> debs: Running 'pre-boot' VM customizations...
+==> debs: Booting VM...
+==> debs: Waiting for machine to boot. This may take a few minutes...
+    debs: SSH address: 127.0.0.1:2222
+    debs: SSH username: vagrant
+    debs: SSH auth method: private key
+    debs: 
+    debs: Vagrant insecure key detected. Vagrant will automatically replace
+    debs: this with a newly generated keypair for better security.
+    debs: 
+    debs: Inserting generated public key within guest...
+    debs: Removing insecure key from the guest if it's present...
+    debs: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> debs: Machine booted and ready!
+==> debs: Checking for guest additions in VM...
+    debs: The guest additions on this VM do not match the installed version of
+    debs: VirtualBox! In most cases this is fine, but in rare cases it can
+    debs: prevent things such as shared folders from working properly. If you see
+    debs: shared folder errors, please make sure the guest additions within the
+    debs: virtual machine match the version of VirtualBox you have installed on
+    debs: your host and reload your VM.
+    debs: 
+    debs: Guest Additions Version: 6.0.0 r127566
+    debs: VirtualBox Version: 6.1
+==> debs: Setting hostname...
+==> debs: Configuring and enabling network interfaces...
+==> debs: Mounting shared folders...
+    debs: /vagrant => /home/localadm/ansible/otus
+==> debs: Running provisioner: shell...
+    debs: Running: /tmp/vagrant-shell20230708-42172-xltsm8.sh
+    debs: 
+    debs: WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+    debs: 
+    debs: Reading package lists...
+    debs: Building dependency tree...
+    debs: Reading state information...
+    debs: The following packages were automatically installed and are no longer required:
+    debs:   libcbor0 libldap-2.4-2 libusb-0.1-4 linux-image-5.10.0-22-amd64
+    debs: Use 'sudo apt autoremove' to remove them.
+    debs: The following additional packages will be installed:
+    debs:   libpython3-stdlib libpython3.11-minimal libpython3.11-stdlib libsqlite3-0
+    debs:   media-types python3-minimal python3.11 python3.11-minimal
+    debs: Suggested packages:
+    debs:   python3-doc python3-tk python3-venv python3.11-venv python3.11-doc binutils
+    debs:   binfmt-support
+    debs: The following NEW packages will be installed:
+    debs:   libpython3-stdlib libpython3.11-minimal libpython3.11-stdlib libsqlite3-0
+    debs:   media-types python3 python3-minimal python3.11 python3.11-minimal
+    debs: 0 upgraded, 9 newly installed, 0 to remove and 2 not upgraded.
+    debs: Need to get 6,171 kB of archives.
+    debs: After this operation, 23.5 MB of additional disk space will be used.
+    debs: Get:1 https://deb.debian.org/debian bookworm/main amd64 libpython3.11-minimal amd64 3.11.2-6 [813 kB]
+    debs: Get:2 https://deb.debian.org/debian bookworm/main amd64 python3.11-minimal amd64 3.11.2-6 [2,064 kB]
+    debs: Get:3 https://deb.debian.org/debian bookworm/main amd64 python3-minimal amd64 3.11.2-1+b1 [26.3 kB]
+    debs: Get:4 https://deb.debian.org/debian bookworm/main amd64 media-types all 10.0.0 [26.1 kB]
+    debs: Get:5 https://deb.debian.org/debian bookworm/main amd64 libsqlite3-0 amd64 3.40.1-2 [837 kB]
+    debs: Get:6 https://deb.debian.org/debian bookworm/main amd64 libpython3.11-stdlib amd64 3.11.2-6 [1,796 kB]
+    debs: Get:7 https://deb.debian.org/debian bookworm/main amd64 python3.11 amd64 3.11.2-6 [572 kB]
+    debs: Get:8 https://deb.debian.org/debian bookworm/main amd64 libpython3-stdlib amd64 3.11.2-1+b1 [9,312 B]
+    debs: Get:9 https://deb.debian.org/debian bookworm/main amd64 python3 amd64 3.11.2-1+b1 [26.3 kB]
+    debs: dpkg-preconfigure: unable to re-open stdin: No such file or directory
+    debs: Fetched 6,171 kB in 1s (6,176 kB/s)
+    debs: Selecting previously unselected package libpython3.11-minimal:amd64.
+(Reading database ... 32941 files and directories currently installed.)
+    debs: Preparing to unpack .../libpython3.11-minimal_3.11.2-6_amd64.deb ...
+    debs: Unpacking libpython3.11-minimal:amd64 (3.11.2-6) ...
+    debs: Selecting previously unselected package python3.11-minimal.
+    debs: Preparing to unpack .../python3.11-minimal_3.11.2-6_amd64.deb ...
+    debs: Unpacking python3.11-minimal (3.11.2-6) ...
+    debs: Setting up libpython3.11-minimal:amd64 (3.11.2-6) ...
+    debs: Setting up python3.11-minimal (3.11.2-6) ...
+    debs: Selecting previously unselected package python3-minimal.
+(Reading database ... 33247 files and directories currently installed.)
+    debs: Preparing to unpack .../0-python3-minimal_3.11.2-1+b1_amd64.deb ...
+    debs: Unpacking python3-minimal (3.11.2-1+b1) ...
+    debs: Selecting previously unselected package media-types.
+    debs: Preparing to unpack .../1-media-types_10.0.0_all.deb ...
+    debs: Unpacking media-types (10.0.0) ...
+    debs: Selecting previously unselected package libsqlite3-0:amd64.
+    debs: Preparing to unpack .../2-libsqlite3-0_3.40.1-2_amd64.deb ...
+    debs: Unpacking libsqlite3-0:amd64 (3.40.1-2) ...
+    debs: Selecting previously unselected package libpython3.11-stdlib:amd64.
+    debs: Preparing to unpack .../3-libpython3.11-stdlib_3.11.2-6_amd64.deb ...
+    debs: Unpacking libpython3.11-stdlib:amd64 (3.11.2-6) ...
+    debs: Selecting previously unselected package python3.11.
+    debs: Preparing to unpack .../4-python3.11_3.11.2-6_amd64.deb ...
+    debs: Unpacking python3.11 (3.11.2-6) ...
+    debs: Selecting previously unselected package libpython3-stdlib:amd64.
+    debs: Preparing to unpack .../5-libpython3-stdlib_3.11.2-1+b1_amd64.deb ...
+    debs: Unpacking libpython3-stdlib:amd64 (3.11.2-1+b1) ...
+    debs: Setting up python3-minimal (3.11.2-1+b1) ...
+    debs: Selecting previously unselected package python3.
+(Reading database ... 33664 files and directories currently installed.)
+    debs: Preparing to unpack .../python3_3.11.2-1+b1_amd64.deb ...
+    debs: Unpacking python3 (3.11.2-1+b1) ...
+    debs: Setting up media-types (10.0.0) ...
+    debs: Setting up libsqlite3-0:amd64 (3.40.1-2) ...
+    debs: Setting up libpython3.11-stdlib:amd64 (3.11.2-6) ...
+    debs: Setting up libpython3-stdlib:amd64 (3.11.2-1+b1) ...
+    debs: Setting up python3.11 (3.11.2-6) ...
+    debs: Setting up python3 (3.11.2-1+b1) ...
+    debs: running python rtupdate hooks for python3.11...
+    debs: running python post-rtupdate hooks for python3.11...
+    debs: Processing triggers for libc-bin (2.36-9) ...
+    debs: Processing triggers for systemd (252.6-1) ...
+==> debs: Running provisioner: ansible...
+    debs: Running ansible-playbook...
+
+PLAY [install EPEL Repo] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [debs]
+
+TASK [print linux] *************************************************************
+ok: [debs] => {
+    "ansible_os_family": "Debian"
+}
+
+TASK [Install EPEL Repo package from standard repo] ****************************
+skipping: [debs]
+
+TASK [NGINX | Install NGINX package from EPEL Repo] ****************************
+skipping: [debs]
+
+TASK [NGINX for Deb] ***********************************************************
+changed: [debs]
+
+TASK [NGINX | Create NGINX config file from template] **************************
+changed: [debs]
+
+RUNNING HANDLER [restart nginx] ************************************************
+changed: [debs]
+
+PLAY RECAP *********************************************************************
+debs                       : ok=5    changed=3    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   
+
+==> debs: Running provisioner: shell...
+    debs: Running: /tmp/vagrant-shell20230708-42172-5b4g5g.sh
+    debs: 
+    debs: WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+    debs: 
+    debs: Reading package lists...
+    debs: Building dependency tree...
+    debs: Reading state information...
+    debs: python3 is already the newest version (3.11.2-1+b1).
+    debs: The following packages were automatically installed and are no longer required:
+    debs:   libcbor0 libldap-2.4-2 libusb-0.1-4 linux-image-5.10.0-22-amd64
+    debs: Use 'sudo apt autoremove' to remove them.
+    debs: 0 upgraded, 0 newly installed, 0 to remove and 34 not upgraded.
+==> sosc: Importing base box 'centos/7'...
+==> sosc: Matching MAC address for NAT networking...
+==> sosc: Checking if box 'centos/7' version '2004.01' is up to date...
+==> sosc: There was a problem while downloading the metadata for your box
+==> sosc: to check for updates. This is not an error, since it is usually due
+==> sosc: to temporary network problems. This is just a warning. The problem
+==> sosc: encountered was:
+==> sosc: 
+==> sosc: The requested URL returned error: 404
+==> sosc: 
+==> sosc: If you want to check for box updates, verify your network connection
+==> sosc: is valid and try again.
+==> sosc: Setting the name of the VM: otus_sosc_1688818321375_72463
+==> sosc: Fixed port collision for 22 => 2222. Now on port 2200.
+==> sosc: Clearing any previously set network interfaces...
+==> sosc: Preparing network interfaces based on configuration...
+    sosc: Adapter 1: nat
+    sosc: Adapter 2: hostonly
+==> sosc: Forwarding ports...
+    sosc: 22 (guest) => 2200 (host) (adapter 1)
+==> sosc: Running 'pre-boot' VM customizations...
+==> sosc: Booting VM...
+==> sosc: Waiting for machine to boot. This may take a few minutes...
+    sosc: SSH address: 127.0.0.1:2200
+    sosc: SSH username: vagrant
+    sosc: SSH auth method: private key
+    sosc: 
+    sosc: Vagrant insecure key detected. Vagrant will automatically replace
+    sosc: this with a newly generated keypair for better security.
+    sosc: 
+    sosc: Inserting generated public key within guest...
+    sosc: Removing insecure key from the guest if it's present...
+    sosc: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> sosc: Machine booted and ready!
+==> sosc: Checking for guest additions in VM...
+    sosc: No guest additions were detected on the base box for this VM! Guest
+    sosc: additions are required for forwarded ports, shared folders, host only
+    sosc: networking, and more. If SSH fails on this machine, please install
+    sosc: the guest additions and repackage the box to continue.
+    sosc: 
+    sosc: This is not an error message; everything may continue to work properly,
+    sosc: in which case you may ignore this message.
+==> sosc: Setting hostname...
+==> sosc: Configuring and enabling network interfaces...
+==> sosc: Rsyncing folder: /home/localadm/ansible/otus/ => /vagrant
+==> sosc: Running provisioner: ansible...
+    sosc: Running ansible-playbook...
+
+PLAY [install EPEL Repo] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [sosc]
+
+TASK [print linux] *************************************************************
+ok: [sosc] => {
+    "ansible_os_family": "RedHat"
+}
+
+TASK [Install EPEL Repo package from standard repo] ****************************
+changed: [sosc]
+
+TASK [NGINX | Install NGINX package from EPEL Repo] ****************************
+changed: [sosc]
+
+TASK [NGINX for Deb] ***********************************************************
+skipping: [sosc]
+
+TASK [NGINX | Create NGINX config file from template] **************************
+changed: [sosc]
+
+RUNNING HANDLER [restart nginx] ************************************************
+changed: [sosc]
+
+PLAY RECAP *********************************************************************
+sosc                       : ok=6    changed=4    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+
+***************************************************************************Check nginx debs*************************************************
+vagrant@debs:~$ systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; preset: enable>
+     Active: active (running) since Sat 2023-07-08 12:11:53 UTC; 10min ago
+       Docs: man:nginx(8)
+    Process: 1782 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_proce>
+    Process: 1783 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (c>
+   Main PID: 1784 (nginx)
+      Tasks: 2 (limit: 199)
+     Memory: 1.7M
+        CPU: 11ms
+     CGroup: /system.slice/nginx.service
+             ├─1784 "nginx: master process /usr/sbin/nginx -g daemon on; master>
+             └─1785 "nginx: worker process"
+
+*********************************************************************************************************************************************
+vagrant@debs:~$ curl http://192.168.56.10:8080
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+******************************************************************check enginx sosc*********************************************************
+[vagrant@sosc ~]$ systemctl status nginx
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor preset: disabled)
+   Active: active (running) since Sat 2023-07-08 12:13:24 UTC; 12min ago
+  Process: 4096 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 4094 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 4092 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 4098 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─4098 nginx: master process /usr/sbin/nginx
+           └─4100 nginx: worker process
+**************************************************************************************************************************************************
+[vagrant@sosc ~]$ curl http://192.168.56.11:8080
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css"> 
+
+	html {
+	background-image:url(img/html-background.png);
+	background-color: white;
+	font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+	font-size: 0.85em;
+	line-height: 1.25em;
+	margin: 0 4% 0 4%;
+	}
+
+	body {
+	border: 10px solid #fff;
+	margin:0;
+	padding:0;
+	background: #fff;
+	}
+
+	/* Links */
+
+	a:link { border-bottom: 1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+	a:active {  border-bottom:1px dotted #ccc; text-decoration: underline; color: #204d92; }
+	a:visited { border-bottom:1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:visited:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+ 
+	.logo a:link,
+	.logo a:hover,
+	.logo a:visited { border-bottom: none; }
+
+	.mainlinks a:link { border-bottom: 1px dotted #ddd; text-decoration: none; color: #eee; }
+	.mainlinks a:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:active { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:visited { border-bottom:1px dotted #ddd; text-decoration: none; color: white; }
+	.mainlinks a:visited:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+
+	/* User interface styles */
+
+	#header {
+	margin:0;
+	padding: 0.5em;
+	background: #204D8C url(img/header-background.png);
+	text-align: left;
+	}
+
+	.logo {
+	padding: 0;
+	/* For text only logo */
+	font-size: 1.4em;
+	line-height: 1em;
+	font-weight: bold;
+	}
+
+	.logo img {
+	vertical-align: middle;
+	padding-right: 1em;
+	}
+
+	.logo a {
+	color: #fff;
+	text-decoration: none;
+	}
+
+	p {
+	line-height:1.5em;
+	}
+
+	h1 { 
+		margin-bottom: 0;
+		line-height: 1.9em; }
+	h2 { 
+		margin-top: 0;
+		line-height: 1.7em; }
+
+	#content {
+	clear:both;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-bottom: 30px;
+	border-bottom: 5px solid #eee;
+	}
+
+    .mainlinks {
+        float: right;
+        margin-top: 0.5em;
+        text-align: right;
+    }
+
+    ul.mainlinks > li {
+    border-right: 1px dotted #ddd;
+    padding-right: 10px;
+    padding-left: 10px;
+    display: inline;
+    list-style: none;
+    }
+
+    ul.mainlinks > li.last,
+    ul.mainlinks > li.first {
+    border-right: none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div id="header">
+
+    <ul class="mainlinks">
+        <li> <a href="http://www.centos.org/">Home</a> </li>
+        <li> <a href="http://wiki.centos.org/">Wiki</a> </li>
+        <li> <a href="http://wiki.centos.org/GettingHelp/ListInfo">Mailing Lists</a></li>
+        <li> <a href="http://www.centos.org/download/mirrors/">Mirror List</a></li>
+        <li> <a href="http://wiki.centos.org/irc">IRC</a></li>
+        <li> <a href="https://www.centos.org/forums/">Forums</a></li>
+        <li> <a href="http://bugs.centos.org/">Bugs</a> </li>
+        <li class="last"> <a href="http://wiki.centos.org/Donate">Donate</a></li>
+    </ul>
+
+	<div class="logo">
+		<a href="http://www.centos.org/"><img src="img/centos-logo.png" border="0"></a>
+	</div>
+
+</div>
+
+<div id="content">
+
+	<h1>Welcome to CentOS</h1>
+
+	<h2>The Community ENTerprise Operating System</h2>
+
+	<p><a href="http://www.centos.org/">CentOS</a> is an Enterprise-class Linux Distribution derived from sources freely provided
+to the public by Red Hat, Inc. for Red Hat Enterprise Linux.  CentOS conforms fully with the upstream vendors
+redistribution policy and aims to be functionally compatible. (CentOS mainly changes packages to remove upstream vendor
+branding and artwork.)</p>
+
+	<p>CentOS is developed by a small but growing team of core
+developers.&nbsp; In turn the core developers are supported by an active user community
+including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.</p>
+
+	<p>CentOS has numerous advantages including: an active and growing user community, quickly rebuilt, tested, and QA'ed errata packages, an extensive <a href="http://www.centos.org/download/mirrors/">mirror network</a>, developers who are contactable and responsive, Special Interest Groups (<a href="http://wiki.centos.org/SpecialInterestGroup/">SIGs</a>) to add functionality to the core CentOS distribution, and multiple community support avenues including a <a href="http://wiki.centos.org/">wiki</a>, <a
+href="http://wiki.centos.org/irc">IRC Chat</a>, <a href="http://wiki.centos.org/GettingHelp/ListInfo">Email Lists</a>, <a href="https://www.centos.org/forums/">Forums</a>, <a href="http://bugs.centos.org/">Bugs Database</a>, and an <a
+href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
+
+	</div>
+
+</div>
+
+
+</body>
+</html>
+
+
