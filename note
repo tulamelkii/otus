@@ -1,0 +1,24 @@
+Structure folder Packer
+├── Packer
+│   ├── debian.json
+│   ├── http
+│   │   └── preseed.cfg
+│   ├── packer_cache
+│   │   ├── 26fb5ce50fc4b178e2f2ab9965e7b69240ae8239.iso.lock
+│   │   ├── e73698f2f8a22bc7471e055859b89481a5883799.iso
+│   │   ├── e73698f2f8a22bc7471e055859b89481a5883799.iso.lock
+│   │   └── port
+│   │       ├── 2246
+│   │       ├── 2591
+│   ├── scripts
+│   │   ├── clean.sh
+│   │   └── kernel.sh
+│   └── VDebian-kernel-6.1.X.box
+├── run.sh
+├── skript.sh
+└── Vagrantfile
+----------------------------------------------------------------------
+Vagrant login: 
+VAGRANT_SERVER_URL=https://app.vagrantup.com
+vagrant cloud auth login --token cwMTmMb****** #login
+vagrant cloud publish tulamelkii/VDebian12 6.1.0.9.2 virtualbox /home/localadm/otus/Packer/VDebian-kernel-6.1.X.box #publish
