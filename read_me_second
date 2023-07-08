@@ -1,0 +1,577 @@
+------------------local mashine---------------------------
+  install ansible      # local mashine
+  mkdir ansible        #create directory for ansible
+------------------install ansible-------------------------
+
+localadm@DEB:~/ansible$ ansible --version
+ansible [core 2.14.6]
+  config file = None
+  configured module search path = ['/home/localadm/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python3/dist-packages/ansible
+  ansible collection location = /home/localadm/.ansible/collections:/usr/share/ansible/collections
+  executable location = /usr/bin/ansible
+  python version = 3.11.4 (main, Jun  7 2023, 10:13:09) [GCC 12.2.0] (/usr/bin/python3)
+  jinja version = 3.1.2
+  libyaml = True
+----------------copy vagrant file in ansible dir-----------
+  cp otus/* ansible/   
+  vagrant ssh-config   
+------------watch to configuration virtual hosts------------
+
+  Host debs
+    HostName 127.0.0.1
+    User vagrant
+    Port 2222
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    PasswordAuthentication no
+    IdentityFile /home/localadm/ansible/.vagrant/machines/debs/virtualbox/private_key
+    IdentitiesOnly yes
+    LogLevel FATAL
+
+  Host sosc
+    HostName 127.0.0.1
+    User vagrant
+    Port 2200
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
+    PasswordAuthentication no
+    IdentityFile /home/localadm/ansible/.vagrant/machines/sosc/virtualbox/private_key
+    IdentitiesOnly yes
+    LogLevel FATAL
+----------enter aliases, port and path to private_key---------
+  echo               
+  "[web]
+  Debian ansible_host=127.0.0.1 ansible_port=2222 ansible_user=vagrant ansible_private_key_file=/home/localadm/ansible/.vagrant/machines/debs/virtualbox/private_key
+  S:wqentos ansible_host=127.0.0.1 ansible_port=2200 ansible_user=vagrant ansible_private_key_file=/home/localadm/ansible/.vagrant/machines/sosc/virtualbox/private_key" >> /home/localadm/ansible/inventory
+  sudo apt install python3 ***(debs)Debian Vm(without not work)**
+  localadm@DEB:~/ansible$ ansible -i inventory all -m ping
+-----------------ping pong))----------------------------------
+Sentos | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+Debian | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+-------add user vagrant,add path to inventory, add host_key_checking-----
+echo "[defaults] 
+inventory = /home/localadm/ansible/inventory
+remote_user = vagrant
+host_key_checking = False
+retry_files_enabled = False" >> ansible.cfg
+
+------------------------------------------------------------
+# edit inventory and delete ansible_user=vagrant
+------------------------OS Version--------------------------
+
+localadm@DEB:~/ansible$ ansible all -m command -a "uname -r"
+Sentos | CHANGED | rc=0 >>
+3.10.0-1127.el7.x86_64
+Debian | CHANGED | rc=0 >>
+6.1.0-9-amd64
+-----------------------Firewall inactive-------------------
+localadm@DEB:~/ansible$ ansible all -m systemd -a name=firewalld |grep ActiveState
+        "ActiveState": "inactive",
+        "ActiveState": "inactive",
+
+--------------------create playbook----------------------
+touch /home/localadm/ansible/main.yml # create playbook
+
+------------------install EPEL Repo playbook-------------
+- name: install EPEL Repo
+  become: true
+  hosts: all
+  tasks:
+    - name: print linux
+      ansible.builtin.debug:
+        var: "ansible_os_family"
+
+    - name: Install EPEL Repo package from standard repo
+      ansible.builtin.yum:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat"
+
+-------------------------------Install EPEL ansible-------------------------------
+      localadm@DEB:~/ansible$ ansible-playbook main.yml
+
+PLAY [install EPEL Repo] *******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [Sentos]
+ok: [Debian]
+
+TASK [print linux] *************************************************************
+ok: [Debian] => {
+    "ansible_os_family": "Debian"
+}
+ok: [Sentos] => {
+    "ansible_os_family": "RedHat"
+}
+
+TASK [Install EPEL Repo package from standard repo] ****************************
+skipping: [Debian]
+changed: [Sentos]
+
+PLAY RECAP *********************************************************************
+Debian                     : ok=2    changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
+Sentos                     : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+--------------------------------------------------------------------------------
+                             Delete EPEL
+                             ----------
+localadm@DEB:~/ansible$ ansible Sentos -m yum -a "name=epel-release state=absent" -b
+
+Sentos | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": true,
+    "changes": {
+        "removed": [
+            "epel-release"
+        ]
+    },
+    "msg": "",
+    "rc": 0,
+    "results": [
+        "Loaded plugins: fastestmirror\nResolving Dependencies\n--> Running transaction check\n---> Package epel-release.noarch 0:7-11 will be erased\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package                Arch             Version        Repository         Size\n================================================================================\nRemoving:\n epel-release           noarch           7-11           @extras            24 k\n\nTransaction Summary\n================================================================================\nRemove  1 Package\n\nInstalled size: 24 k\nDownloading packages:\nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Erasing    : epel-release-7-11.noarch                                     1/1 \n  Verifying  : epel-release-7-11.noarch                                     1/1 \n\nRemoved:\n  epel-release.noarch 0:7-11                                                    \n\nComplete!\n"
+    ]
+}
+
+--------------------------------------------------------------------------------
+                                          2-Home work
+mv main.yml nginx.yml
+# edit nginx.yml
+---------------------part install nginx-----------------------------------------
+
+
+    - name: NGINX | Install NGINX package from EPEL Repo
+      ansible.builtin.yum:
+        name: nginx
+        state: latest
+      tags:
+        - nginx-package
+        - packages
+      when: ansible_os_family == "RedHat"
+
+    - name: NGINX for Deb
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+      when: ansible_os_family == "Debian"
+-----------------------------------tags-----------------------------------------
+localadm@DEB:~/ansible$ ansible-playbook nginx.yml --list-tags
+
+playbook: nginx.yml
+
+  play #1 (all): install EPEL Repo	TAGS: []
+      TASK TAGS: [epel-package, nginx-package, packages]
+----------------------------------t nginx-package (tags)------------------------
+localadm@DEB:~/ansible$ ansible-playbook nginx.yml -t nginx-package
+
+PLAY [install EPEL Repo] ***********************************************************************
+
+TASK [Gathering Facts] *************************************************************************
+ok: [Sentos]
+ok: [Debian]
+
+TASK [NGINX | Install NGINX package from EPEL Repo] ********************************************
+skipping: [Debian]
+ok: [Sentos]
+
+PLAY RECAP *************************************************************************************
+Debian                     : ok=1    changed=0    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
+Sentos                     : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+----------------------------create template--------------------------------------
+
+- name: NGINX | Create NGINX config file from template
+  ansible.builtin.template:
+    src: /home/localadm/ansible/templates/nginx.conf.j2
+    dest: etc/nginx/nginx.conf
+ tags:                 
+ - nginx-configuration
+
+-------------------------------add listen ports-----------------------------
+vars:
+  nginx_listen_port: 8080
+  -----------------------------Create templates j2-------------------------
+  mkdir templates
+  vim nginx.conf.j2
+  #add templates
+  -------------------------------------------------------------------------
+  events {
+worker_connections 1024;
+}
+
+http {
+server {
+listen {{ nginx_listen_port }} default_server;
+server_name default_server;
+root /usr/share/nginx/html;
+
+location / {
+}
+}
+}
+-------------------------add heandlers---------------------------------------
+handlers:
+- name: restart nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+    enabled: yes
+
+- name: reload nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: reloaded
+-----------------------end log ansible--------------------------------------
+
+localadm@DEB:~/ansible$ ansible-playbook nginx.yml
+
+PLAY [install EPEL Repo] ***************************************************************************************
+
+TASK [Gathering Facts] *****************************************************************************************
+ok: [Sentos]
+ok: [Debian]
+
+TASK [print linux] *********************************************************************************************
+ok: [Debian] => {
+    "ansible_os_family": "Debian"
+}
+ok: [Sentos] => {
+    "ansible_os_family": "RedHat"
+}
+
+TASK [Install EPEL Repo package from standard repo] ************************************************************
+skipping: [Debian]
+changed: [Sentos]
+
+TASK [NGINX | Install NGINX package from EPEL Repo] ************************************************************
+skipping: [Debian]
+changed: [Sentos]
+
+TASK [NGINX for Deb] *******************************************************************************************
+skipping: [Sentos]
+changed: [Debian]
+
+TASK [NGINX | Create NGINX config file from template] **********************************************************
+changed: [Sentos]
+changed: [Debian]
+
+RUNNING HANDLER [restart nginx] ********************************************************************************
+changed: [Debian]
+changed: [Sentos]
+
+PLAY RECAP *****************************************************************************************************
+Debian                     : ok=5    changed=3    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0
+Sentos                     : ok=6    changed=4    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0
+--------------------------------------------Site nginx---------------------------------------------------------------
+vagrant@debian:~$ curl http://192.168.56.10:8080
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+---------------------------------------Site CENTOS-----------------------------------------
+[vagrant@sosc ~]$ curl http://192.168.56.11:8080
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css"> 
+
+	html {
+	background-image:url(img/html-background.png);
+	background-color: white;
+	font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+	font-size: 0.85em;
+	line-height: 1.25em;
+	margin: 0 4% 0 4%;
+	}
+
+	body {
+	border: 10px solid #fff;
+	margin:0;
+	padding:0;
+	background: #fff;
+	}
+
+	/* Links */
+
+	a:link { border-bottom: 1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+	a:active {  border-bottom:1px dotted #ccc; text-decoration: underline; color: #204d92; }
+	a:visited { border-bottom:1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:visited:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+ 
+	.logo a:link,
+	.logo a:hover,
+	.logo a:visited { border-bottom: none; }
+
+	.mainlinks a:link { border-bottom: 1px dotted #ddd; text-decoration: none; color: #eee; }
+	.mainlinks a:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:active { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:visited { border-bottom:1px dotted #ddd; text-decoration: none; color: white; }
+	.mainlinks a:visited:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+
+	/* User interface styles */
+
+	#header {
+	margin:0;
+	padding: 0.5em;
+	background: #204D8C url(img/header-background.png);
+	text-align: left;
+	}
+
+	.logo {
+	padding: 0;
+	/* For text only logo */
+	font-size: 1.4em;
+	line-height: 1em;
+	font-weight: bold;
+	}
+
+	.logo img {
+	vertical-align: middle;
+	padding-right: 1em;
+	}
+
+	.logo a {
+	color: #fff;
+	text-decoration: none;
+	}
+
+	p {
+	line-height:1.5em;
+	}
+
+	h1 { 
+		margin-bottom: 0;
+		line-height: 1.9em; }
+	h2 { 
+		margin-top: 0;
+		line-height: 1.7em; }
+
+	#content {
+	clear:both;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-bottom: 30px;
+	border-bottom: 5px solid #eee;
+	}
+
+    .mainlinks {
+        float: right;
+        margin-top: 0.5em;
+        text-align: right;
+    }
+
+    ul.mainlinks > li {
+    border-right: 1px dotted #ddd;
+    padding-right: 10px;
+    padding-left: 10px;
+    display: inline;
+    list-style: none;
+    }
+
+    ul.mainlinks > li.last,
+    ul.mainlinks > li.first {
+    border-right: none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div id="header">
+
+    <ul class="mainlinks">
+        <li> <a href="http://www.centos.org/">Home</a> </li>
+        <li> <a href="http://wiki.centos.org/">Wiki</a> </li>
+        <li> <a href="http://wiki.centos.org/GettingHelp/ListInfo">Mailing Lists</a></li>
+        <li> <a href="http://www.centos.org/download/mirrors/">Mirror List</a></li>
+        <li> <a href="http://wiki.centos.org/irc">IRC</a></li>
+        <li> <a href="https://www.centos.org/forums/">Forums</a></li>
+        <li> <a href="http://bugs.centos.org/">Bugs</a> </li>
+        <li class="last"> <a href="http://wiki.centos.org/Donate">Donate</a></li>
+    </ul>
+
+	<div class="logo">
+		<a href="http://www.centos.org/"><img src="img/centos-logo.png" border="0"></a>
+	</div>
+
+</div>
+
+<div id="content">
+
+	<h1>Welcome to CentOS</h1>
+
+	<h2>The Community ENTerprise Operating System</h2>
+
+	<p><a href="http://www.centos.org/">CentOS</a> is an Enterprise-class Linux Distribution derived from sources freely provided
+to the public by Red Hat, Inc. for Red Hat Enterprise Linux.  CentOS conforms fully with the upstream vendors
+redistribution policy and aims to be functionally compatible. (CentOS mainly changes packages to remove upstream vendor
+branding and artwork.)</p>
+
+	<p>CentOS is developed by a small but growing team of core
+developers.&nbsp; In turn the core developers are supported by an active user community
+including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.</p>
+
+	<p>CentOS has numerous advantages including: an active and growing user community, quickly rebuilt, tested, and QA'ed errata packages, an extensive <a href="http://www.centos.org/download/mirrors/">mirror network</a>, developers who are contactable and responsive, Special Interest Groups (<a href="http://wiki.centos.org/SpecialInterestGroup/">SIGs</a>) to add functionality to the core CentOS distribution, and multiple community support avenues including a <a href="http://wiki.centos.org/">wiki</a>, <a
+href="http://wiki.centos.org/irc">IRC Chat</a>, <a href="http://wiki.centos.org/GettingHelp/ListInfo">Email Lists</a>, <a href="https://www.centos.org/forums/">Forums</a>, <a href="http://bugs.centos.org/">Bugs Database</a>, and an <a
+href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
+
+	</div>
+
+</div>
+
+
+</body>
+</html>
+-----------------------------------------------------create roles------------------------------------------------------------------------
+mkdir roles & cd roles/
+ansible-galaxy init nginx_otus
+-----------------------------------------------------treee dir---------------------------------------------------------------------------
+localadm@VBD:~/ansible/roles$ tree
+.
+└── nginx_otus
+    ├── files
+    ├── handlers
+    │   └── main.yml
+    ├── README.md
+    ├── tasks
+    │   └── main.yml
+    ├── templates
+    │   └── nginx.conf.j2
+    └── vars
+        └── main.yml
+
+
+
+--------------------------------------/handlers/main.yml-----------------------------------------------------
+---
+# handlers file for nginx_otus
+- name: restart nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+    enabled: yes
+    
+- name: reload nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: reloaded
+------------------------------------------------tasks/main.yml-----------------------------------------------
+---
+# tasks file for nginx_otus
+    - name: print linux
+      ansible.builtin.debug:
+        var: "ansible_os_family"
+    
+    - name: Install EPEL Repo package from standard repo
+      ansible.builtin.yum:
+        name: epel-release
+        state: present
+      tags:
+        - epel-package
+        - packages     
+      when: ansible_os_family == "RedHat"
+      
+    - name: NGINX | Install NGINX package from EPEL Repo
+      ansible.builtin.yum:
+        name: nginx
+        state: latest
+      notify:
+        - restart nginx
+      tags:
+        - nginx-package
+        - packages
+      when: ansible_os_family == "RedHat"
+      
+    - name: NGINX for Deb
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+      notify:
+        - restart nginx  
+      when: ansible_os_family == "Debian"
+
+    - name: NGINX | Create NGINX config file from template
+      ansible.builtin.template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf 
+      notify:
+        - restart nginx  
+      tags:
+        - nginx-configuration
+
+-----------------------------templates/nginx.conf.j2---------------------------------------
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen       {{ nginx_listen_port }} default_server;
+        server_name  default_server;
+        root         /usr/share/nginx/html;
+
+        location / {
+        }
+    }
+}
