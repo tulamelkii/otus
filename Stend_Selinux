@@ -1,4 +1,4 @@
-First create virtual mashine Centos7 in Vagrant & SElinux
+create virtual mashine Centos7 in Vagrant & SElinux
 ------------------------------------------------------------------------
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
