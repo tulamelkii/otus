@@ -91,7 +91,9 @@ drw-rwx---. root named unconfined_u:object_r:etc_t:s0   dynamic
 -rw-rw----. root named system_u:object_r:etc_t:s0       named.dns.lab.view1
 -rw-rw----. root named system_u:object_r:etc_t:s0       named.newdns.lab
 ------------------------------------------------------------------------------------------------
--->The semanage fcontext command is used to change the SELinux context of files. When using targeted policy, changes are written to files located i
+-->The semanage fcontext - this is SELinux policy management utility designed to work with file contexts<--
+--> We grep "named" service and saw correct type, what type should the file be named_zone_t " <--
+--> We find problem(wrong type)!!<--
 
 root@ns01 vagrant]# semanage fcontext -l | grep named
 /etc/rndc.*                                        regular file       system_u:object_r:named_conf_t:s0 
@@ -128,8 +130,12 @@ root@ns01 vagrant]# semanage fcontext -l | grep named
 /var/named/chroot/etc/named\.rfc1912.zones         regular file       system_u:object_r:named_conf_t:s0 
 /var/named/chroot/var/named/dynamic(/.*)?          all files          system_u:object_r:named_cache_t:s0 
 ------------------------------------------------change type /etc/named-------------------------------------------
+--> This is comand "chcon -R -t named_zone_t" change type for filder /etc/named <--
+
 [root@ns01 vagrant]# sudo chcon -R -t named_zone_t /etc/named
 -----------------------------------------------------------------------------------------------------------------
+-->We saw type changed <--
+
 [root@ns01 vagrant]# ls -laZ /etc/named
 drw-rwx---. root named system_u:object_r:named_zone_t:s0 .
 drwxr-xr-x. root root  system_u:object_r:etc_t:s0       ..
@@ -142,6 +148,9 @@ drw-rwx---. root named unconfined_u:object_r:named_zone_t:s0 dynamic
 
 -----------------------------------------------------------------------------------------------------------------
 ------------------------------------------enter A zone for client------------------------------------------------
+--> Connect to client machine <--
+--> Zone has been changed and there are no errors <--
+
 [root@client ~]# nsupdate -k /etc/named.zonetransfer.key
 > server 192.168.50.10
 > zone ddns.lab
@@ -150,7 +159,7 @@ drw-rwx---. root named unconfined_u:object_r:named_zone_t:s0 dynamic
 >  quit 
 
 -----------------------------------------ok-change apply -------------------------------------------------------------------
-we connection to site www.ddns.lab and look change preference for dns zone
+--> We connection to site www.ddns.lab and look change preference for dns zone <-- 
 
 [root@client ~]# dig www.ddns.lab
 
@@ -179,33 +188,12 @@ ns01.dns.lab.		3600	IN	A	192.168.50.10
 ;; WHEN: Wed Jul 05 13:50:27 UTC 2023
 ;; MSG SIZE  rcvd: 96
 -------------------------------------------------------Reboot-2 hosts-----------------------------------------------------------
+--> After i reboot 2 virtual hosts and check access to www.ddns.lab <--
+
 [root@client ~]# reboot now
 Connection to 127.0.0.1 closed by remote host.
 
--------------------------------------------------After reboot hostst up--------------------------------------------------------
-localadm@VBD:~/ansible/otus-linux-adm/selinux_dns_problems$ vagrant ssh client
-Last login: Tue Jul  4 14:35:07 2023 from 10.0.2.2
-###############################
-### Welcome to the DNS lab! ###
-###############################
 
-- Use this client to test the enviroment
-- with dig or nslookup. Ex:
-    dig @192.168.50.10 ns01.dns.lab
-
-- nsupdate is available in the ddns.lab zone. Ex:
-    nsupdate -k /etc/named.zonetransfer.key
-    server 192.168.50.10
-    zone ddns.lab 
-    update add www.ddns.lab. 60 A 192.168.50.15
-    send
-
-- rndc is also available to manage the servers
-    rndc -c ~/rndc.conf reload
-
-###############################
-### Enjoy! ####################
-###############################
 [vagrant@client ~]$ dig @192.168.50.10 www.ddns.lab
 
 ; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.13 <<>> @192.168.50.10 www.ddns.lab
@@ -234,4 +222,4 @@ ns01.dns.lab.		3600	IN	A	192.168.50.10
 ;; WHEN: Wed Jul 05 13:58:34 UTC 2023
 ;; MSG SIZE  rcvd: 96
 ------------------------------------------------------------------------------------------------------
-
+This is example in which we changed the security type for folders and access
