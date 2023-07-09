@@ -1,7 +1,7 @@
-First:
-we watch  category type, this structure: "etc_t" it's wrong  and we change type : sudo chcon -R -t named_zone_t /etc/named
-Thisis step is metodical information:it's not my  fixed problem))
+                                                                 1 - Example problem
 
+We watch  category type, this structure: "etc_t" it's wrong  and we change type : sudo chcon -R -t named_zone_t /etc/named
+Thisis step is metodical information:it's not my 
 ------------------------------------------------------------------------------1 Fixed ----------------------------------------------------
 
 [vagrant@ns01 ~]$ sudo su
@@ -38,10 +38,16 @@ drw-rwx---. root named unconfined_u:object_r:named_zone_t:s0 dynamic
 > send
 >  quit 
 
+
 -----------------------------------------ok-change apply -------------------------------------------------------------------
--------------------------------------------------------------2- Fixed -----------------------------------------------------------
-If i trableshooting this problem:
----> First my step,i saw systemctl status service named
+-------------------------------------------------------------2- example ----------------------------------------------------------
+First Examle we acess all folders structure type and subfolders, second step i change type only subfolders.
+In configure files /etc/named.conf where lie config file dns and if i wana be shage very fast access, may be i change all path /opt and fixit this problem)))
+But this bad idea=)
+
+--------------------------------------------------------------------------------------------------------------------------------
+-->  If i trableshooting this problem: <--
+--> First my step,i saw systemctl status service named <--
 
 named.service - Berkeley Internet Name Domain (DNS)
    Loaded: loaded (/usr/lib/systemd/system/named.service; enabled; vendor preset: disabled)
@@ -53,8 +59,8 @@ named.service - Berkeley Internet Name Domain (DNS)
    CGroup: /system.slice/named.service
            └─5508 /usr/sbin/named -u named -c /etc/named.conf
 
----->Second i saw error named.ddns.lab.view1.jnl: create: permission denied
----->Third step i want be looked full log journalctl -u named
+--> Second i saw error named.ddns.lab.view1.jnl: create: permission denied <--
+--> Third step i want be looked full log journalctl -u named <--
 
 Jul 06 17:10:18 ns01 named[5226]: managed-keys-zone/view1: Key 20326 for zone . acceptance timer complet
 Jul 06 17:10:18 ns01 named[5226]: resolver priming query complete
@@ -64,16 +70,18 @@ Jul 06 17:28:48 ns01 named[5226]: client @0x7f031003c3e0 192.168.50.15#39342/key
 Jul 06 17:28:48 ns01 named[5226]: client @0x7f031003c3e0 192.168.50.15#39342/key zonetransfer.key: view 
 Jul 06 17:28:48 ns01 named[5226]: /etc/named/dynamic/named.ddns.lab.view1.jnl: create: permission denied
 Jul 06 17:28:48 ns01 named[5226]: client @0x7f031003c3e0 192.168.50.15#39342/key zonetransfer.key: view 
----->Fourth: i saw one error only permission deny.This is file don't have permission. 
-Client connettion for this server:  client @0x7f031003c3e0 192.168.50.15#39342/key zonetransfer.key: view -its ok
-This case don't have trable connections,this only permisions.
-i saw "/etc/named/dynamic" and this simmilar config type incorrect
--
-----> Fouth: I change this folder type: sudo chcon -R -t named_zone_t /etc/named/dynamic and reset named service
+
+--> i saw one error only permission deny.This is file don't have permission <--
+--> Client conneted for this server:  client @0x7f031003c3e0 192.168.50.15#39342/key zonetransfer.key:coneccted <--
+--> This case don't have trable connections,this only permisions <--
+--> i saw "/etc/named/dynamic" and this simmilar config type incorrect <--
+--> I change this folder type: sudo chcon -R -t named_zone_t /etc/named/dynamic and reset named service <--
+
+
 -rw-rw----. named named system_u:object_r:named_zone_t:s0 named.ddns.lab
 -rw-rw----. named named system_u:object_r:named_zone_t:s0 named.ddns.lab.view1
 
------>Sixt: i saw problem fixit (only information not configured ipv6, the main think work)
+--> problem fixit (only information not configured ipv6, the main think work)
 
 ● named.service - Berkeley Internet Name Domain (DNS)
    Loaded: loaded (/usr/lib/systemd/system/named.service; enabled; vendor preset: disabled)
@@ -94,14 +102,17 @@ Jul 06 17:56:42 ns01 named[5508]: managed-keys-zone/default: Key 20326 for zone 
 Jul 06 17:56:42 ns01 named[5508]: resolver priming query complete
 Jul 06 17:56:42 ns01 named[5508]: network unreachable resolving './DNSKEY/IN': 2001:500:2f::f#53
 Jul 06 17:56:42 ns01 named[5508]: managed-keys-zone/view1: Key 20326 for zone . acceptance timer complete: key now
------->Sevent:i check in client 
+
+-->  check client <--
+--> it's ok changes saved and work <--
+
 nsupdate -k /etc/named.zonetransfer.key
 > server 192.168.50.10
 >  zone ddns.lab
 > update add www.ddns.lab. 60 A 192.168.50.15
 > send
 > quit
-its ok changes saved and work.
+it's ok changes saved and work.
 _______________________________________________________________________________
 [root@client ~]# dig www.ddns.lab
 
@@ -159,9 +170,7 @@ ns01.dns.lab.		3600	IN	A	192.168.50.10
 ;; MSG SIZE  rcvd: 96
 
 --------------------------------------------------------------------------------------------------------------------------------------------
-First step we acess all folders structure type and subfolders, second step i change type only subfolders.
-In configure files /etc/named.conf where lie config file dns and if i wana be shage very fast access,may be i change all path /opt and fixit this problem)))
-But this bad idea=)
+
 
 Config path where lie preference zonetransfer.key 
 // labs ddns zone
