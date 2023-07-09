@@ -1,0 +1,586 @@
+Change port nginx default port 80 => 4881   
+
+
+                                                                    ---   
+                                                              -----> 1 <----
+                                                                    ---   
+****************************** find logs port deny*************************************
+--> grep audit.log <--
+--> Find error "avc:denied  { name_bind }" src=4881 <--
+
+[root@selinux vagrant]# cat /var/log/audit/audit.log |grep denied            
+type=AVC msg=audit(1688419117.933:854): avc:  denied  { name_bind } for  pid=2889 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+***********************************************************install policycoreutils-python *****************************************
+--> install policycoreutils-python package contains the management tools use to manage an SELinux environmen <--
+
+[root@selinux vagrant]# yum install policycoreutils-python -y   
+
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: ftp.jaist.ac.jp
+ * epel: mirror-hnd.yuki.net.uk
+ * extras: ftp.jaist.ac.jp
+ * updates: ftp.jaist.ac.jp
+Resolving Dependencies
+--> Running transaction check
+---> Package policycoreutils-python.x86_64 0:2.5-34.el7 will be installed
+--> Processing Dependency: setools-libs >= 3.3.8-4 for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libsemanage-python >= 2.5-14 for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: audit-libs-python >= 2.1.3-4 for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: python-IPy for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libqpol.so.1(VERS_1.4)(64bit) for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libqpol.so.1(VERS_1.2)(64bit) for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libcgroup for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libapol.so.4(VERS_4.0)(64bit) for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: checkpolicy for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libqpol.so.1()(64bit) for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Processing Dependency: libapol.so.4()(64bit) for package: policycoreutils-python-2.5-34.el7.x86_64
+--> Running transaction check
+---> Package audit-libs-python.x86_64 0:2.8.5-4.el7 will be installed
+---> Package checkpolicy.x86_64 0:2.5-8.el7 will be installed
+---> Package libcgroup.x86_64 0:0.41-21.el7 will be installed
+---> Package libsemanage-python.x86_64 0:2.5-14.el7 will be installed
+---> Package python-IPy.noarch 0:0.75-6.el7 will be installed
+---> Package setools-libs.x86_64 0:3.3.8-4.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=========================================================================================
+ Package                        Arch           Version                Repository    Size
+=========================================================================================
+Installing:
+ policycoreutils-python         x86_64         2.5-34.el7             base         457 k
+Installing for dependencies:
+ audit-libs-python              x86_64         2.8.5-4.el7            base          76 k
+ checkpolicy                    x86_64         2.5-8.el7              base         295 k
+ libcgroup                      x86_64         0.41-21.el7            base          66 k
+ libsemanage-python             x86_64         2.5-14.el7             base         113 k
+ python-IPy                     noarch         0.75-6.el7             base          32 k
+ setools-libs                   x86_64         3.3.8-4.el7            base         620 k
+
+Transaction Summary
+=========================================================================================
+Install  1 Package (+6 Dependent packages)
+
+Total download size: 1.6 M
+Installed size: 5.3 M
+Is this ok [y/d/N]: y
+Downloading packages:
+(1/7): libcgroup-0.41-21.el7.x86_64.rpm                           |  66 kB  00:00:01     
+(2/7): audit-libs-python-2.8.5-4.el7.x86_64.rpm                   |  76 kB  00:00:02     
+(3/7): python-IPy-0.75-6.el7.noarch.rpm                           |  32 kB  00:00:00     
+(4/7): policycoreutils-python-2.5-34.el7.x86_64.rpm               | 457 kB  00:00:03     
+(5/7): checkpolicy-2.5-8.el7.x86_64.rpm                           | 295 kB  00:00:03     
+(6/7): setools-libs-3.3.8-4.el7.x86_64.rpm                        | 620 kB  00:00:01     
+(7/7): libsemanage-python-2.5-14.el7.x86_64.rpm                   | 113 kB  00:00:03     
+-----------------------------------------------------------------------------------------
+Total                                                       414 kB/s | 1.6 MB  00:04     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : libcgroup-0.41-21.el7.x86_64                                          1/7 
+  Installing : setools-libs-3.3.8-4.el7.x86_64                                       2/7 
+  Installing : audit-libs-python-2.8.5-4.el7.x86_64                                  3/7 
+  Installing : python-IPy-0.75-6.el7.noarch                                          4/7 
+  Installing : libsemanage-python-2.5-14.el7.x86_64                                  5/7 
+  Installing : checkpolicy-2.5-8.el7.x86_64                                          6/7 
+  Installing : policycoreutils-python-2.5-34.el7.x86_64                              7/7 
+  Verifying  : checkpolicy-2.5-8.el7.x86_64                                          1/7 
+  Verifying  : libsemanage-python-2.5-14.el7.x86_64                                  2/7 
+  Verifying  : python-IPy-0.75-6.el7.noarch                                          3/7 
+  Verifying  : policycoreutils-python-2.5-34.el7.x86_64                              4/7 
+  Verifying  : audit-libs-python-2.8.5-4.el7.x86_64                                  5/7 
+  Verifying  : setools-libs-3.3.8-4.el7.x86_64                                       6/7 
+  Verifying  : libcgroup-0.41-21.el7.x86_64                                          7/7 
+
+Installed:
+  policycoreutils-python.x86_64 0:2.5-34.el7                                             
+
+Dependency Installed:
+  audit-libs-python.x86_64 0:2.8.5-4.el7      checkpolicy.x86_64 0:2.5-8.el7             
+  libcgroup.x86_64 0:0.41-21.el7              libsemanage-python.x86_64 0:2.5-14.el7     
+  python-IPy.noarch 0:0.75-6.el7              setools-libs.x86_64 0:3.3.8-4.el7          
+
+Complete!
+**********************************************Find problem with setsebool -P nis_enabled 1 **************
+-->find problem with utilyty audit2why <--
+
+root@selinux vagrant]# grep 1688419117.933:854 /var/log/audit/audit.log | audit2why       
+type=AVC msg=audit(1688419117.933:854): avc:  denied  { name_bind } for  pid=2889 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+	Was caused by:
+	The boolean nis_enabled was set incorrectly. 
+	Description:
+	Allow nis to enabled
+
+	Allow access by executing:
+	# setsebool -P nis_enabled 1
+************************************************************ON-nis_enabled******************************
+--> enable parametr nis_enabled <--
+
+setsebool -P nis_enabled on         
+************************************************************Restart Service and Status Nginx -OK****************************************************************************
+--> Restart service nginx <--
+--> Status nginix <--
+
+[root@selinux vagrant]# systemctl restart nginx         
+[root@selinux vagrant]# systemctl status nginx          
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Mon 2023-07-03 21:42:19 UTC; 8s ago
+  Process: 3073 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 3071 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 3070 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 3075 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─3075 nginx: master process /usr/sbin/nginx
+           └─3076 nginx: worker process
+
+Jul 03 21:42:19 selinux systemd[1]: Stopped The nginx HTTP and reverse proxy server.
+Jul 03 21:42:19 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Jul 03 21:42:19 selinux nginx[3071]: nginx: the configuration file /etc/nginx/nginx... ok
+Jul 03 21:42:19 selinux nginx[3071]: nginx: configuration file /etc/nginx/nginx.con...ful
+Jul 03 21:42:19 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
+************************************************nginx.service html in port 4881 ********************
+--> check this html site in 4881 port <--                                                                   
+--> nginx work port 481 <--
+[
+root@selinux vagrant]# curl http://10.0.2.15:4881                           
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css"> 
+
+	html {
+	background-image:url(img/html-background.png);
+	background-color: white;
+	font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+	font-size: 0.85em;
+	line-height: 1.25em;
+	margin: 0 4% 0 4%;
+	}
+
+	body {
+	border: 10px solid #fff;
+	margin:0;
+	padding:0;
+	background: #fff;
+	}
+
+	/* Links */
+
+	a:link { border-bottom: 1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+	a:active {  border-bottom:1px dotted #ccc; text-decoration: underline; color: #204d92; }
+	a:visited { border-bottom:1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:visited:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+ 
+	.logo a:link,
+	.logo a:hover,
+	.logo a:visited { border-bottom: none; }
+
+	.mainlinks a:link { border-bottom: 1px dotted #ddd; text-decoration: none; color: #eee; }
+	.mainlinks a:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:active { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:visited { border-bottom:1px dotted #ddd; text-decoration: none; color: white; }
+	.mainlinks a:visited:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+
+	/* User interface styles */
+
+	#header {
+	margin:0;
+	padding: 0.5em;
+	background: #204D8C url(img/header-background.png);
+	text-align: left;
+	}
+
+	.logo {
+	padding: 0;
+	/* For text only logo */
+	font-size: 1.4em;
+	line-height: 1em;
+	font-weight: bold;
+	}
+
+	.logo img {
+	vertical-align: middle;
+	padding-right: 1em;
+	}
+
+	.logo a {
+	color: #fff;
+	text-decoration: none;
+	}
+
+	p {
+	line-height:1.5em;
+	}
+
+	h1 { 
+		margin-bottom: 0;
+		line-height: 1.9em; }
+	h2 { 
+		margin-top: 0;
+		line-height: 1.7em; }
+
+	#content {
+	clear:both;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-bottom: 30px;
+	border-bottom: 5px solid #eee;
+	}
+
+    .mainlinks {
+        float: right;
+        margin-top: 0.5em;
+        text-align: right;
+    }
+
+    ul.mainlinks > li {
+    border-right: 1px dotted #ddd;
+    padding-right: 10px;
+    padding-left: 10px;
+    display: inline;
+    list-style: none;
+    }
+
+    ul.mainlinks > li.last,
+    ul.mainlinks > li.first {
+    border-right: none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div id="header">
+
+    <ul class="mainlinks">
+        <li> <a href="http://www.centos.org/">Home</a> </li>
+        <li> <a href="http://wiki.centos.org/">Wiki</a> </li>
+        <li> <a href="http://wiki.centos.org/GettingHelp/ListInfo">Mailing Lists</a></li>
+        <li> <a href="http://www.centos.org/download/mirrors/">Mirror List</a></li>
+        <li> <a href="http://wiki.centos.org/irc">IRC</a></li>
+        <li> <a href="https://www.centos.org/forums/">Forums</a></li>
+        <li> <a href="http://bugs.centos.org/">Bugs</a> </li>
+        <li class="last"> <a href="http://wiki.centos.org/Donate">Donate</a></li>
+    </ul>
+
+	<div class="logo">
+		<a href="http://www.centos.org/"><img src="img/centos-logo.png" border="0"></a>
+	</div>
+
+</div>
+
+<div id="content">
+
+	<h1>Welcome to CentOS</h1>
+
+	<h2>The Community ENTerprise Operating System</h2>
+
+	<p><a href="http://www.centos.org/">CentOS</a> is an Enterprise-class Linux Distribution derived from sources freely provided
+to the public by Red Hat, Inc. for Red Hat Enterprise Linux.  CentOS conforms fully with the upstream vendors
+redistribution policy and aims to be functionally compatible. (CentOS mainly changes packages to remove upstream vendor
+branding and artwork.)</p>
+
+	<p>CentOS is developed by a small but growing team of core
+developers.&nbsp; In turn the core developers are supported by an active user community
+including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.</p>
+
+	<p>CentOS has numerous advantages including: an active and growing user community, quickly rebuilt, tested, and QA'ed errata packages, an extensive <a href="http://www.centos.org/download/mirrors/">mirror network</a>, developers who are contactable and responsive, Special Interest Groups (<a href="http://wiki.centos.org/SpecialInterestGroup/">SIGs</a>) to add functionality to the core CentOS distribution, and multiple community support avenues including a <a href="http://wiki.centos.org/">wiki</a>, <a
+href="http://wiki.centos.org/irc">IRC Chat</a>, <a href="http://wiki.centos.org/GettingHelp/ListInfo">Email Lists</a>, <a href="https://www.centos.org/forums/">Forums</a>, <a href="http://bugs.centos.org/">Bugs Database</a>, and an <a
+href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
+
+	</div>
+
+</div>
+
+
+</body>
+</html>
+
+*******************************************************nis_enabled --> on*******************************
+--> check status nis_enabled <--
+
+[root@selinux vagrant]# getsebool -a | grep nis_enabled  
+nis_enabled --> on
+
+--> This is utility "audit2why"  help us find problem and solve it  <-- 
+
+                                                                   
+                                                                   ------                                                       
+                                                              ---->2 Step<---
+                                                                   -------      
+
+******************************************************close nis_enabled off***************************
+setsebool -P nis_enabled off
+****************************************************Allow port http************************************
+--> this is next utility semanage <--
+--> This is functionality utility works with selinux ports <--
+--> semanage port -l : listing allow port http <--
+--> we dont see port 4881 enable <--
+
+[root@selinux vagrant]# semanage port -l | grep http            
+
+http_cache_port_t              tcp      8080, 8118, 8123, 10001-10010
+http_cache_port_t              udp      3130
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t            tcp      5988
+pegasus_https_port_t           tcp      5989
+**********************************************************************************************************
+--> Next step we add access port in http_port_t <--
+
+semanage port -a -t http_port_t -p tcp 4881                              
+***********************************************************************************************************
+--> port 4881 appeared in allowed <--
+[root@selinux vagrant]# semanage port -l | grep  http_port_t
+http_port_t                    tcp      4881, 80, 81, 443, 488, 8008, 8009, 8443, 9000   # see port added 
+pegasus_http_port_t            tcp      5988
+
+***************************************Restart and Status nginx*******************************************
+
+[root@selinux vagrant]# systemctl restart nginx                           # restart service 
+root@selinux vagrant]# systemctl status nginx                             # status  
+● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Tue 2023-07-04 11:07:04 UTC; 9s ago
+  Process: 21692 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 21689 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 21688 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 21694 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─21694 nginx: master process /usr/sbin/nginx
+           └─21696 nginx: worker process
+
+Jul 04 11:07:04 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Jul 04 11:07:04 selinux nginx[21689]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Jul 04 11:07:04 selinux nginx[21689]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Jul 04 11:07:04 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
+
+***********************************************nginx.service html in port 4881 *****************************
+[root@selinux vagrant]# curl http://10.0.2.15:4881
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Welcome to CentOS</title>
+  <style rel="stylesheet" type="text/css"> 
+
+	html {
+	background-image:url(img/html-background.png);
+	background-color: white;
+	font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+	font-size: 0.85em;
+	line-height: 1.25em;
+	margin: 0 4% 0 4%;
+	}
+
+	body {
+	border: 10px solid #fff;
+	margin:0;
+	padding:0;
+	background: #fff;
+	}
+
+	/* Links */
+
+	a:link { border-bottom: 1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+	a:active {  border-bottom:1px dotted #ccc; text-decoration: underline; color: #204d92; }
+	a:visited { border-bottom:1px dotted #ccc; text-decoration: none; color: #204d92; }
+	a:visited:hover { border-bottom:1px dotted #ccc; text-decoration: underline; color: green; }
+ 
+	.logo a:link,
+	.logo a:hover,
+	.logo a:visited { border-bottom: none; }
+
+	.mainlinks a:link { border-bottom: 1px dotted #ddd; text-decoration: none; color: #eee; }
+	.mainlinks a:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:active { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+	.mainlinks a:visited { border-bottom:1px dotted #ddd; text-decoration: none; color: white; }
+	.mainlinks a:visited:hover { border-bottom:1px dotted #ddd; text-decoration: underline; color: white; }
+
+	/* User interface styles */
+
+	#header {
+	margin:0;
+	padding: 0.5em;
+	background: #204D8C url(img/header-background.png);
+	text-align: left;
+	}
+
+	.logo {
+	padding: 0;
+	/* For text only logo */
+	font-size: 1.4em;
+	line-height: 1em;
+	font-weight: bold;
+	}
+
+	.logo img {
+	vertical-align: middle;
+	padding-right: 1em;
+	}
+
+	.logo a {
+	color: #fff;
+	text-decoration: none;
+	}
+
+	p {
+	line-height:1.5em;
+	}
+
+	h1 { 
+		margin-bottom: 0;
+		line-height: 1.9em; }
+	h2 { 
+		margin-top: 0;
+		line-height: 1.7em; }
+
+	#content {
+	clear:both;
+	padding-left: 30px;
+	padding-right: 30px;
+	padding-bottom: 30px;
+	border-bottom: 5px solid #eee;
+	}
+
+    .mainlinks {
+        float: right;
+        margin-top: 0.5em;
+        text-align: right;
+    }
+
+    ul.mainlinks > li {
+    border-right: 1px dotted #ddd;
+    padding-right: 10px;
+    padding-left: 10px;
+    display: inline;
+    list-style: none;
+    }
+
+    ul.mainlinks > li.last,
+    ul.mainlinks > li.first {
+    border-right: none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div id="header">
+
+    <ul class="mainlinks">
+        <li> <a href="http://www.centos.org/">Home</a> </li>
+        <li> <a href="http://wiki.centos.org/">Wiki</a> </li>
+        <li> <a href="http://wiki.centos.org/GettingHelp/ListInfo">Mailing Lists</a></li>
+        <li> <a href="http://www.centos.org/download/mirrors/">Mirror List</a></li>
+        <li> <a href="http://wiki.centos.org/irc">IRC</a></li>
+        <li> <a href="https://www.centos.org/forums/">Forums</a></li>
+        <li> <a href="http://bugs.centos.org/">Bugs</a> </li>
+        <li class="last"> <a href="http://wiki.centos.org/Donate">Donate</a></li>
+    </ul>
+
+	<div class="logo">
+		<a href="http://www.centos.org/"><img src="img/centos-logo.png" border="0"></a>
+	</div>
+
+</div>
+
+<div id="content">
+
+	<h1>Welcome to CentOS</h1>
+
+	<h2>The Community ENTerprise Operating System</h2>
+
+	<p><a href="http://www.centos.org/">CentOS</a> is an Enterprise-class Linux Distribution derived from sources freely provided
+to the public by Red Hat, Inc. for Red Hat Enterprise Linux.  CentOS conforms fully with the upstream vendors
+redistribution policy and aims to be functionally compatible. (CentOS mainly changes packages to remove upstream vendor
+branding and artwork.)</p>
+
+	<p>CentOS is developed by a small but growing team of core
+developers.&nbsp; In turn the core developers are supported by an active user community
+including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.</p>
+
+	<p>CentOS has numerous advantages including: an active and growing user community, quickly rebuilt, tested, and QA'ed errata packages, an extensive <a href="http://www.centos.org/download/mirrors/">mirror network</a>, developers who are contactable and responsive, Special Interest Groups (<a href="http://wiki.centos.org/SpecialInterestGroup/">SIGs</a>) to add functionality to the core CentOS distribution, and multiple community support avenues including a <a href="http://wiki.centos.org/">wiki</a>, <a
+href="http://wiki.centos.org/irc">IRC Chat</a>, <a href="http://wiki.centos.org/GettingHelp/ListInfo">Email Lists</a>, <a href="https://www.centos.org/forums/">Forums</a>, <a href="http://bugs.centos.org/">Bugs Database</a>, and an <a
+href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
+
+	</div>
+
+</div>
+</body>
+
+</html>
+
+--> This is the "semanage" utility, it shows the allowed port for SElinux and we can add or remove ports <--
+
+***********************************************************dell port again and restart nginx *****************************
+semanage port -d -t http_port_t -p tcp 4881                                          # Delete port with  
+[root@selinux vagrant]#  semanage port -l | grep  http_port_t             
+http_port_t                    tcp      80, 81, 443, 488, 8008, 8009, 8443, 9000     # Port deleted
+pegasus_http_port_t            tcp      5988
+systemctl restart nginx
+
+****************************************************************************************************************************
+                                                                 -----  
+                                                         ------->3 Step<------
+                                                                 ----- 
+
+
+*********************************************************Failed-ok*********************************************************
+[root@selinux vagrant]# systemctl start nginx
+Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details
+**********************************************************LOG-Failed*************************************************
+[root@selinux vagrant]# grep nginx /var/log/audit/audit.log
+type=SOFTWARE_UPDATE msg=audit(1688457970.999:823): pid=2729 uid=0 auid=1000 ses=2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 msg='sw="nginx-filesystem-1:1.20.1-10.el7.noarch" sw_type=rpm key_enforce=0 gpg_res=1 root_dir="/" comm="yum" exe="/usr/bin/python2.7" hostname=? addr=? terminal=? res=success'
+type=SOFTWARE_UPDATE msg=audit(1688457971.177:824): pid=2729 uid=0 auid=1000 ses=2 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 msg='sw="nginx-1:1.20.1-10.el7.x86_64" sw_type=rpm key_enforce=0 gpg_res=1 root_dir="/" comm="yum" exe="/usr/bin/python2.7" hostname=? addr=? terminal=? res=success'
+type=AVC msg=audit(1688457971.353:825): avc:  denied  { name_bind } for  pid=2807 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+*************************************************Create module fore Selinux allow port**********************************
+--> this is utility "semodule" finds the problem and create module <--
+
+[root@selinux vagrant]# grep nginx /var/log/audit/audit.log | audit2allow -M nginx
+******************** IMPORTANT ***********************
+To make this policy package active, execute:
+--> this is step  activate this modul <--
+semodule -i nginx.pp
+********************************************************Activated module nginx.pp***************************************
+ semodule -i nginx.pp                                        # activation module -i
+***********************************************start and restart service ******************************************
+[root@selinux vagrant]# systemctl start nginx
+[root@selinux vagrant]# systemctl status nginx
+
+● nginx.service - The nginx HTTP and reverse proxy server                                      # Service UP 
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: active (running) since Tue 2023-07-04 11:34:26 UTC; 1min 47s ago
+  Process: 21782 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 21779 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 21778 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 21784 (nginx)
+   CGroup: /system.slice/nginx.service
+           ├─21784 nginx: master process /usr/sbin/nginx
+           └─21786 nginx: worker process
+
+Jul 04 11:34:26 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Jul 04 11:34:26 selinux nginx[21779]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Jul 04 11:34:26 selinux nginx[21779]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Jul 04 11:34:26 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
+******************************************************modules**************************************************************
+-->This is module help us for problem <--
+-->first we should clean audit logs and start this utility<--
+--> utility create module based on logs <--
+*******************************************delleted module nginx*****************************************************
+[root@selinux vagrant]# semodule -r nginx                                              # Comand delelete modul
+libsemanage.semanage_direct_remove_key: Removing last nginx module (no other nginx module exists at another priority).
