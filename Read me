@@ -257,6 +257,10 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ***************************************************getenforce ***************************
 [root@selinux vagrant]#  getenforce                                          # Getenforce reports whether SELinux is enforcing
 Enforcing
+                                                       
+                                                                    ---   
+                                                              -----> 1 <----
+                                                                    ---   
 ****************************** find logs port deny*************************************
 [root@selinux vagrant]# cat /var/log/audit/audit.log |grep denied            # grep block port nginx for key word "deniend"  
 type=AVC msg=audit(1688419117.933:854): avc:  denied  { name_bind } for  pid=2889 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
@@ -548,8 +552,10 @@ href="http://wiki.centos.org/FAQ/">FAQ</a>.</p>
 *******************************************************nis_enabled --> on*******************************
 [root@selinux vagrant]# getsebool -a | grep nis_enabled      #check status nis_enabled 
 nis_enabled --> on
-                                                          
-                                                          ------->2 Step<------
+                                                                   
+                                                                   ------                                                       
+                                                              ---->2 Step<---
+                                                                   -------      
 
 ******************************************************close nis_enabled off***************************
 setsebool -P nis_enabled off
@@ -754,7 +760,9 @@ pegasus_http_port_t            tcp      5988
 systemctl restart nginx
 
 ****************************************************************************************************************************
-                                                       ------->3 Step<------
+                                                                 -----  
+                                                         ------->3 Step<------
+                                                                 -----   
 ***************************************Failed status nginx-ok ****************************************************
 [root@selinux vagrant]# systemctl status nginx
 ● nginx.service - The nginx HTTP and reverse proxy server
