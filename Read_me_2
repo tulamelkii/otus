@@ -1,49 +1,8 @@
-                                                                 1 - Example problem
 
-We watch  category type, this structure: "etc_t" it's wrong  and we change type : sudo chcon -R -t named_zone_t /etc/named
-Thisis step is metodical information:it's not my 
-------------------------------------------------------------------------------1 Fixed ----------------------------------------------------
-
-[vagrant@ns01 ~]$ sudo su
-[root@ns01 vagrant]# ls -laZ /etc/named
-drw-rwx---. root named system_u:object_r:etc_t:s0       .
-drwxr-xr-x. root root  system_u:object_r:etc_t:s0       ..
-drw-rwx---. root named unconfined_u:object_r:etc_t:s0   dynamic
--rw-rw----. root named system_u:object_r:etc_t:s0       named.50.168.192.rev
--rw-rw----. root named system_u:object_r:etc_t:s0       named.dns.lab
--rw-rw----. root named system_u:object_r:etc_t:s0       named.dns.lab.view1
--rw-rw----. root named system_u:object_r:etc_t:s0       named.newdns.lab
-[root@ns01 vagrant]# cat /var/log/audit/audit.log | audit2why
-
-
-------------------------------------------------change type /etc/named-------------------------------------------
-[root@ns01 vagrant]# sudo chcon -R -t named_zone_t /etc/named
------------------------------------------------------------------------------------------------------------------
-[root@ns01 vagrant]# ls -laZ /etc/named
-drw-rwx---. root named system_u:object_r:named_zone_t:s0 .
-drwxr-xr-x. root root  system_u:object_r:etc_t:s0       ..
-drw-rwx---. root named unconfined_u:object_r:named_zone_t:s0 dynamic
--rw-rw----. root named system_u:object_r:named_zone_t:s0 named.50.168.192.rev
--rw-rw----. root named system_u:object_r:named_zone_t:s0 named.dns.lab
--rw-rw----. root named system_u:object_r:named_zone_t:s0 named.dns.lab.view1
--rw-rw----. root named system_u:object_r:named_zone_t:s0 named.newdns.lab
----------------------------------------------------------------------------------------------------------
-
------------------------------------------------------------------------------------------------------------------
-------------------------------------------enter A zone for client------------------------------------------------
-[root@client ~]# nsupdate -k /etc/named.zonetransfer.key
-> server 192.168.50.10
-> zone ddns.lab
-> update add www.ddns.lab. 60 A 192.168.50.15
-> send
->  quit 
-
-
------------------------------------------ok-change apply -------------------------------------------------------------------
 -------------------------------------------------------------2- example ----------------------------------------------------------
-First Examle we acess all folders structure type and subfolders, second step i change type only subfolders.
-In configure files /etc/named.conf where lie config file dns and if i wana be shage very fast access, may be i change all path /opt and fixit this problem)))
-But this bad idea=)
+In the first example, we changed the type of the /etc/named folder and subfolders. But you can give access to only one folder /etc/named/dynamic .
+In configuration files /etc/named.conf
+it was possible to set specific paths for dns configs by looking at the semanage fcontext -l utility
 
 --------------------------------------------------------------------------------------------------------------------------------
 -->  If i trableshooting this problem: <--
