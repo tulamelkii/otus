@@ -1,0 +1,25 @@
+--First install docker
+--Next search images alpine in docker hub
+--This is image have status official
+*********************************************************
+localadm@DEB:~/ansible$ docker search alpine
+NAME                               DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+alpine                             A minimal Docker image based on Alpine Linux…   10091     [OK]
+alpinelinux/docker-cli             Simple and lightweight Alpine Linux image wi…   7
+alpinelinux/gitlab-runner          Alpine Linux gitlab-runner (supports more ar…   4
+grafana/alpine                     Alpine Linux with ca-certificates package in…   4
+**********************************************************
+--Download container alpine linux
+
+ocaladm@DEB:~/ansible$ docker pull alpine
+Using default tag: latest
+latest: Pulling from library/alpine
+Digest: sha256:82d1e9d7ed48a7523bdebc18cf6290bdb97b82302a8a9c27d4fe885949ea94d1
+Status: Image is up to date for alpine:latest
+docker.io/library/alpine:latest
+***********************************************************
+-- Create Dockerfile
+
+localadm@DEB:~/ansible$ touch Dockerfile
+
+*******************************Dockerfile******************
