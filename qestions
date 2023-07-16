@@ -1,0 +1,6 @@
+                                                                                                     -----1----
+You can build the kernel in a container like https://github.com/naftulikay/docker-ubuntu-kernel-build. You cannot boot with the built-in kernel because the container reuses the system kernel.
+                                                                                                     -----2----
+Image is an executable package of software that includes everything needed to run an application. This image informs how a container should instantiate, determining which software components will run and how. Docker Container is a virtual environment that bundles application code with all the dependencies required to run the application. 
+When discussing the difference between images and containers, it isn't fair to contrast them as opposing entities. Both elements are closely related and are part of a system defined by the Docker platform.
+Images can exist without containers, whereas a container needs to run an image to exist. Therefore, containers are dependent on images and use them to construct a run-time environment and run an application.
