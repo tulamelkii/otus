@@ -1,0 +1,36 @@
+--First step we must create new account with site docker https://hub.docker.com
+--Second step we generated ssh pub key and create access token( Docker => Security =>Create access token=> and copy this hash
+--Next comand 
+localadm@DEB:~$ docker login -u tulamelki
+=> paste without password only generated token
+Password: 
+WARNING! Your password will be stored unencrypted in /home/localadm/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+-- We logined successfull
+--Create Tag an image referenced by Name
+localadm@DEB:~$ docker tag nginx3 tulamelki/nginx3
+--tag created
+localadm@DEB:~$ docker image ls
+REPOSITORY         TAG       IMAGE ID       CREATED          SIZE
+tulamelki/nginx3   latest    aa34e73653c9   49 minutes ago   22.5MB
+--And push this images
+localadm@DEB:~$ docker push tulamelki/nginx3
+Using default tag: latest
+The push refers to repository [docker.io/tulamelki/nginx3]
+2a777565f28e: Pushed 
+b98ff1579a2e: Pushed 
+287fb9465b7b: Pushed 
+aa67a28e18d6: Pushed 
+ad0bc5dc30d3: Pushed 
+136363e6807e: Pushed 
+470efea0bd54: Pushed 
+78a822fe2a2d: Mounted from library/alpine 
+latest: digest: sha256:8c03401cde621150dc83092baf396d75565a571c30e723ad1d502cca9af53d18 size: 1982
+--Images pushed
+--Link for my repository
+  https://hub.docker.com/r/tulamelki/nginx3
+-Docker pull comand
+docker pull tulamelki/nginx3
+
