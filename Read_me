@@ -1,4 +1,26 @@
 --First install docker
+sudo apt install docker
+--Install successful
+*********************************************************************************************
+localadm@DEB:~/ansible$ docker -v
+Docker version 20.10.24+dfsg1, build 297e128
+
+ 
+Localadm@DEB:~/ansible$ systemctl status docker
+● docker.service - Docker Application Container Engine
+     Loaded: loaded (/lib/systemd/system/docker.service; enabled; preset: enabled)
+     Active: active (running) since Sun 2023-07-16 10:13:21 MSK; 11h ago
+TriggeredBy: ● docker.socket
+       Docs: https://docs.docker.com
+   Main PID: 1405 (dockerd)
+      Tasks: 30
+     Memory: 196.9M
+        CPU: 33.392s
+     CGroup: /system.slice/docker.service
+             ├─ 1405 /usr/sbin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+             ├─34396 /usr/sbin/docker-proxy -proto tcp -host-ip 0.0.0.0 -host-port 80 -container-ip 172>
+             └─34408 /usr/sbin/docker-proxy -proto tcp -host-ip :: -host-port 80 -container-ip 172.17.0>
+*********************************************************************************************
 --Next search images alpine in docker hub
 --This is image have status official
 *********************************************************
@@ -11,15 +33,253 @@ grafana/alpine                     Alpine Linux with ca-certificates package in�
 **********************************************************
 --Download container alpine linux
 
-ocaladm@DEB:~/ansible$ docker pull alpine
+Localadm@DEB:~/ansible$ docker pull alpine
 Using default tag: latest
 latest: Pulling from library/alpine
 Digest: sha256:82d1e9d7ed48a7523bdebc18cf6290bdb97b82302a8a9c27d4fe885949ea94d1
 Status: Image is up to date for alpine:latest
 docker.io/library/alpine:latest
+
+
 ***********************************************************
 -- Create Dockerfile
 
 localadm@DEB:~/ansible$ touch Dockerfile
 
+-- This is file need for build  container
+
 *******************************Dockerfile******************
+FROM alpine                                            # From the image (Docker container)
+RUN apk upgrade && \                                   # Updating cashe repository
+apk add nginx && \                                     # Install nginx
+apk add openrc                                         # Install utility openrc for system manages the services
+RUN adduser -D -g "nginx" www                          # Add user for runing nginx  
+RUN mkdir  /usr/share/nginx/html && \                  #Create folder for nginx 
+mkdir /run/openrc/ && \                            
+touch /run/openrc/softlevel                            # this access need for restart or start services 
+COPY nginx.conf /etc/nginx/nginx.conf                  #
+COPY default.conf /etc/nginx/conf.d/default.conf       # Copy preference nginx
+COPY index.html /usr/share/nginx/html/index.html       #
+EXPOSE 80                                              #Open port 80
+CMD ["nginx", "-g", "daemon off;"]                     #this is necessary so that the container does not close
+**********************************************************
+--Create 3 files for nginx: nginx.conf;default.conf;index.conf
+************************nginx.conf***********************
+user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        off;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+***********************************default.conf***************
+
+server {
+  listen 80;
+  location / {
+      root /usr/share/nginx/html;
+  }
+
+  location /item {
+      alias /usr/share/nginx/html;
+  }
+
+  location /post {
+      alias /usr/share/nginx/html;
+  }
+}
+*******************************index.html**********************
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome Otus</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>This is home work for Docker</h2>
+<p>If you see this page, nginx web server is successfully installed and
+working.</p>
+
+<p>Vitalii_Best</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+*******************************************************************
+--Next step: we are ready to create our docker images
+--We are building this docker images from our Dockerfile
+--This build is only executed in the Dockerfile folder
+
+localadm@DEB:~/ansible$ docker build -t nginx .
+**************************Create our images********************
+-- this command fastest downloaded alpine container and create our images(we do not need to search and download the container in docker hub )
+
+localadm@DEB:~/ansible$ docker build -t nginx .
+
+Sending build context to Docker daemon    256kB
+Step 1/10 : FROM alpine
+latest: Pulling from library/alpine
+31e352740f53: Pull complete 
+Digest: sha256:82d1e9d7ed48a7523bdebc18cf6290bdb97b82302a8a9c27d4fe885949ea94d1
+Status: Downloaded newer image for alpine:latest
+ ---> c1aabb73d233
+Step 2/10 : RUN apk upgrade &&  apk add nginx &&  apk add openrc
+ ---> Running in 895e18a26797
+fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz
+fetch https://dl-cdn.alpinelinux.org/alpine/v3.18/community/x86_64/APKINDEX.tar.gz
+(1/5) Upgrading busybox (1.36.1-r0 -> 1.36.1-r1)
+Executing busybox-1.36.1-r1.post-upgrade
+(2/5) Upgrading busybox-binsh (1.36.1-r0 -> 1.36.1-r1)
+(3/5) Upgrading libcrypto3 (3.1.1-r1 -> 3.1.1-r2)
+(4/5) Upgrading libssl3 (3.1.1-r1 -> 3.1.1-r2)
+(5/5) Upgrading ssl_client (1.36.1-r0 -> 1.36.1-r1)
+Executing busybox-1.36.1-r1.trigger
+OK: 7 MiB in 15 packages
+(1/2) Installing pcre (8.45-r3)
+(2/2) Installing nginx (1.24.0-r6)
+Executing nginx-1.24.0-r6.pre-install
+Executing nginx-1.24.0-r6.post-install
+Executing busybox-1.36.1-r1.trigger
+OK: 9 MiB in 17 packages
+(1/4) Installing ifupdown-ng (0.12.1-r2)
+(2/4) Installing libcap2 (2.69-r0)
+(3/4) Installing openrc (0.48-r0)
+Executing openrc-0.48-r0.post-install
+(4/4) Installing nginx-openrc (1.24.0-r6)
+Executing busybox-1.36.1-r1.trigger
+OK: 11 MiB in 21 packages
+Removing intermediate container 895e18a26797
+ ---> 677527f75708
+Step 3/10 : RUN adduser -D -g "nginx" www
+ ---> Running in a1f8b30f0703
+Removing intermediate container a1f8b30f0703
+ ---> 89b14b9b8e5d
+Step 4/10 : RUN mkdir -p /tmp/nginx/client-body
+ ---> Running in 13e5c49b71e2
+Removing intermediate container 13e5c49b71e2
+ ---> 6afac343b89e
+Step 5/10 : RUN mkdir  /usr/share/nginx/html && mkdir /run/openrc/ && touch /run/openrc/softlevel
+ ---> Running in 824d8f6cda73
+Removing intermediate container 824d8f6cda73
+ ---> e36b2305d3a3
+Step 6/10 : COPY nginx.conf /etc/nginx/nginx.conf
+ ---> 156544a0ffbf
+Step 7/10 : COPY default.conf /etc/nginx/conf.d/default.conf
+ ---> a3d24dce8420
+Step 8/10 : COPY index.html /usr/share/nginx/html/index.html
+ ---> 9fdb2dfb3d80
+Step 9/10 : EXPOSE 80
+ ---> Running in ca9a417e48d5
+Removing intermediate container ca9a417e48d5
+ ---> f05b2ffd33d8
+Step 10/10 : CMD ["nginx", "-g", "daemon off;"]
+ ---> Running in b637be6cc196
+Removing intermediate container b637be6cc196
+ ---> f55a8c1cebad
+Successfully built f55a8c1cebad
+Successfully tagged nginx:latest
+*************************************************************************
+--We see new image nginx create successfull
+-- This is comand show all our docker images
+
+localadm@DEB:~/ansible$ docker images
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+nginx        latest    f55a8c1cebad   15 minutes ago   18.4MB
+alpine       latest    c1aabb73d233   4 weeks ago      7.33MB
+*************************************************************************
+--Next step: we run our container from is imag nginx and up port 80
+localadm@DEB:~/ansible$ docker run -d -p 80:80 nginx
+5d640c2e971403594e3b1554fdcc6ccda80be36230b8a35166d4f659f1ee7767
+-- Container created and we see hash
+--This is comand show run containers, when we created,status live container listen port and name
+localadm@DEB:~/ansible$ docker ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED         STATUS         PORTS                               NAMES
+5d640c2e9714   nginx     "nginx -g 'daemon of…"   3 minutes ago   Up 3 minutes   0.0.0.0:80->80/tcp, :::80->80/tcp   zen_cartwright
+************************************************************************
+--Container work and we have check nginx for container
+-- We connected innteractive for this container and run sh
+localadm@DEB:~/ansible$ docker exec -it zen_cartwright sh
+/ #
+**********************************************************************
+--find conteiner ip 
+
+/ # ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+103: eth0@if104: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP 
+    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+*********************************************************************
+--Check nginx
+
+ # curl 172.17.0.2:80
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome Otus</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>This is home work for Docker</h2>
+<p>If you see this page, nginx web server is successfully installed and
+working.</p>
+
+<p>Vitalii_Best</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+***************************Build container successful--------------------
+
+
+
