@@ -1,0 +1,48 @@
+
+***************************************************************************************************************************************************************
+
+root@nfss:/home/vagrant# systemctl status prometheus
+● prometheus.service - Prometheus
+     Loaded: loaded (/etc/systemd/system/prometheus.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2023-07-17 21:10:51 UTC; 1h 30min ago
+       Docs: https://prometheus.io/docs/introduction/overview/
+   Main PID: 479 (prometheus)
+      Tasks: 7 (limit: 199)
+     Memory: 40.6M
+        CPU: 8.726s
+     CGroup: /system.slice/prometheus.service
+             └─479 /usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus --web.console.templates=/etc/prometh>
+
+Jul 17 22:39:51 nfss prometheus[479]: ts=2023-07-17T22:39:51.821Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=node_export target=http://l>
+Jul 17 22:39:52 nfss prometheus[479]: ts=2023-07-17T22:39:52.994Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=prometheus target=http://lo>
+Jul 17 22:40:06 nfss prometheus[479]: ts=2023-07-17T22:40:06.819Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=node_export target=http://l>
+Jul 17 22:40:07 nfss prometheus[479]: ts=2023-07-17T22:40:07.982Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=prometheus target=http://lo>
+Jul 17 22:40:21 nfss prometheus[479]: ts=2023-07-17T22:40:21.850Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=node_export target=http://l>
+Jul 17 22:40:22 nfss prometheus[479]: ts=2023-07-17T22:40:22.978Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=prometheus target=http://lo>
+Jul 17 22:40:36 nfss prometheus[479]: ts=2023-07-17T22:40:36.819Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=node_export target=http://l>
+Jul 17 22:40:37 nfss prometheus[479]: ts=2023-07-17T22:40:37.990Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=prometheus target=http://lo>
+Jul 17 22:40:51 nfss prometheus[479]: ts=2023-07-17T22:40:51.848Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=node_export target=http://l>
+Jul 17 22:40:52 nfss prometheus[479]: ts=2023-07-17T22:40:52.979Z caller=scrape.go:1332 level=error component="scrape manager" scrape_pool=prometheus target=http://lo>
+***************************************************************************************************************************************************************
+root@nfss:/home/vagrant# systemctl status grafana-server
+● grafana-server.service - Grafana instance
+     Loaded: loaded (/lib/systemd/system/grafana-server.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2023-07-17 21:28:51 UTC; 1h 13min ago
+       Docs: http://docs.grafana.org
+   Main PID: 841 (grafana)
+      Tasks: 10 (limit: 199)
+     Memory: 65.5M
+        CPU: 14.358s
+     CGroup: /system.slice/grafana-server.service
+             └─841 /usr/share/grafana/bin/grafana server --config=/etc/grafana/grafana.ini --pidfile=/run/grafana/grafana-server.pid --packaging=deb cfg:default.paths>
+
+Jul 17 22:18:54 nfss grafana[841]: logger=plugins.update.checker t=2023-07-17T22:18:54.329964189Z level=info msg="Update check succeeded" duration=159.054221ms
+Jul 17 22:28:53 nfss grafana[841]: logger=cleanup t=2023-07-17T22:28:53.895780813Z level=info msg="Completed cleanup jobs" duration=1.237987ms
+Jul 17 22:28:54 nfss grafana[841]: logger=grafana.update.checker t=2023-07-17T22:28:54.236993404Z level=info msg="Update check succeeded" duration=127.757689ms
+Jul 17 22:28:54 nfss grafana[841]: logger=plugins.update.checker t=2023-07-17T22:28:54.312693088Z level=info msg="Update check succeeded" duration=142.521715ms
+Jul 17 22:32:39 nfss grafana[841]: logger=context userId=1 orgId=1 uname=vitalii_best t=2023-07-17T22:32:39.560344866Z level=error msg="library element could not be f>
+Jul 17 22:32:39 nfss grafana[841]: logger=context userId=1 orgId=1 uname=vitalii_best t=2023-07-17T22:32:39.569741299Z level=info msg="Request Completed" method=GET p>
+Jul 17 22:38:53 nfss grafana[841]: logger=login_attempt t=2023-07-17T22:38:53.950458066Z level=error msg="failed to lock and execute cleanup of old login attempts" er>
+Jul 17 22:38:53 nfss grafana[841]: logger=cleanup t=2023-07-17T22:38:53.967194627Z level=info msg="Completed cleanup jobs" duration=71.187459ms
+Jul 17 22:38:54 nfss grafana[841]: logger=grafana.update.checker t=2023-07-17T22:38:54.288121689Z level=info msg="Update check succeeded" duration=177.787672ms
+Jul 17 22:38:54 nfss grafana[841]: logger=plugins.update.checker t=2023-07-17T22:38:54.349601915Z level=info msg="Update check succeeded" duration=177.344298ms
