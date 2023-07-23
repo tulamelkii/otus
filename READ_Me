@@ -132,6 +132,7 @@ Unpacking libpam-script (1.1.9-5+b1) ...
 Setting up libpam-script (1.1.9-5+b1) ...
 
 *****************************************************************
+--/usr/share/libpam-script - where the scripts should be placed by default or change dir=/some/path/( but this is man not work "dir=account") work only if you add path (account required pam_script  /usr/local/bin/pam_script_acct)
 --crate script
 nano /usr/share/libpam-script/pam_script_acct
 ************************************script***********************
