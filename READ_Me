@@ -109,9 +109,31 @@ otusadm@192.168.56.10's password:
 --check who users connected
 $ whoami
 otusadm
+--Install new pam module libpam-script
+***************************************************************
+vagrant@pam:~$ sudo apt install libpam-script
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following packages were automatically installed and are no longer required:
+  libcbor0 libldap-2.4-2 libusb-0.1-4 linux-image-5.10.0-22-amd64
+Use 'sudo apt autoremove' to remove them.
+The following NEW packages will be installed:
+  libpam-script
+0 upgraded, 1 newly installed, 0 to remove and 2 not upgraded.
+Need to get 21.4 kB of archives.
+After this operation, 68.6 kB of additional disk space will be used.
+Get:1 https://deb.debian.org/debian bookworm/main amd64 libpam-script amd64 1.1.9-5+b1 [21.4 kB]
+Fetched 21.4 kB in 0s (57.3 kB/s)  
+Selecting previously unselected package libpam-script.
+(Reading database ... 32941 files and directories currently installed.)
+Preparing to unpack .../libpam-script_1.1.9-5+b1_amd64.deb ...
+Unpacking libpam-script (1.1.9-5+b1) ...
+Setting up libpam-script (1.1.9-5+b1) ...
+
 *****************************************************************
 --crate script
-nano /usr/local/bin/login.sh
+nano /usr/share/libpam-script/pam_script_acct
 ************************************script***********************
 #!/bin/bash
 #First condition: if the day of the week is Saturday or Sunday
@@ -130,22 +152,41 @@ if [ $(date +%a) = "Sat" ] || [ $(date +%a) = "Sun" ]; then
 fi
 *****************************************************************************
 --change privileges for script: execute
-chmod +x /usr/local/bin/login.sh
-
+chmod +x /usr/share/libpam-script/pam_script_acct
 ************************************************
 
 nano /etc/pam.d/sshd
 
+--add module pam_script.so
+
 # Disallow non-root logins when /etc/nologin exists.
-account    required     dad
 account    required     pam_nologin.so
+account    required     pam_script.so
 **************************************************
-vagrant@pam:~$ sudo date 071412302023.00
-Fri Jul 14 12:30:00 PM UTC 2023
-*******************************************************
-vagrant@pam:~$ sudo date 071412302023.00
-Fri Jul 14 12:30:00 PM UTC 2023
+--this is date Sunday 
+vagrant@pam:/usr/share/libpam-script$ date
+Sun Jul 23 03:10:06 PM UTC 2023
+************************************************
 vagrant@pam:~$ ssh otus@192.168.56.10
 otus@192.168.56.10's password:
 Connection closed by 192.168.56.10 port 22
+--connection close
 vagrant@pam:~$ ssh otusadm@192.168.56.10
+vagrant@pam:~$ ssh otusadm@192.168.56.10
+otusadm@192.168.56.10's password: 
+Linux pam 6.1.0-9-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.27-1 (2023-05-08) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Sun Jul 23 15:00:04 2023 from 192.168.56.10
+Could not chdir to home directory /home/otusadm: No such file or directory
+$ whoami       
+otusadm
+
+--we look otus admin connecteted successfull
+
+
