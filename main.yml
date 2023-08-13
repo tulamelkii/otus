@@ -1,0 +1,135 @@
+- name: istall log and web servers
+  become: true
+  hosts: all
+  tasks:
+    - name: install chrony
+      ansible.builtin.apt:
+        pkg: 
+          - chrony
+          - auditd
+    - name: start service chrony
+      ansible.builtin.service:
+        name: chrony
+        state: started
+        enabled: yes
+    - name: change timezone 
+      community.general.timezone:
+        name: Europe/Moscow
+    - name: restart service chrony
+      ansible.builtin.service:
+        name: chrony
+        state: restarted
+
+- name: install web
+  become: true
+  hosts: web
+  tasks:
+    - name: install programs
+      ansible.builtin.apt:
+        pkg: 
+          - nginx
+          - audispd-plugins 
+        state: latest
+      
+    - name: Change nginx log
+      ansible.builtin.lineinfile:
+        path: /etc/nginx/nginx.conf
+        line: "{{ item.line }}"
+        insertafter: "{{item.insertafter}}"
+      loop:
+        - line: 'error_log  syslog:server=192.168.56.11:514,tag=nginx_error;'
+          insertafter: '^error_log'
+        - line: 'access_log syslog:server=192.168.56.11:514,tag=nginx_access,severity=info combined;'
+          insertafter: 'access_log'
+    
+    - name: start service nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+    
+    - name: watch nginx
+      ansible.builtin.command: curl -l http://192.168.56.10
+    
+    - name: change audit rules
+      ansible.builtin.lineinfile:
+        path: /etc/audit/rules.d/audit.rules
+        line: "{{item.line}}" 
+      loop: 
+        - line: '-w /etc/nginx/nginx.conf -p wa -k nginx_conf'
+        - line: '-w /etc/nginx/default.d/ -p wa -k nginx_conf' 
+    
+    - name: change auditd.conf
+      ansible.builtin.lineinfile:
+        path: /etc/audit/auditd.conf 
+        line: log_format = RAW      
+        regexp: '^log_format'
+    - name: change auditd.con
+      ansible.builtin.lineinfile:
+        path: /etc/audit/auditd.conf       
+        insertafter: '^log_format = RAW'
+        line: name_format = HOSTNAME
+    
+    - name: change au-remote.conf
+      ansible.builtin.lineinfile:
+        path:  /etc/audit/plugins.d/au-remote.conf 
+        line: active = yes
+        regexp: '^active'
+    - name: change audisp-remote.conf
+      ansible.builtin.lineinfile:
+        path: /etc/audit/audisp-remote.conf 
+        line: remote_server = 192.168.56.11       
+        regexp: 'remote_server'
+
+    - name: restart auditd
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
+
+- name: install log
+  become: true
+  hosts: log
+  tasks:
+    - name: install rsyslog
+      ansible.builtin.apt:
+        name: rsyslog
+        state: latest
+
+    - name: Change rsyslog
+      ansible.builtin.lineinfile:
+        path: /etc/rsyslog.conf
+        line: "{{ item.line }}"
+        regexp: "{{item.regexp}}"
+      loop:
+        - line: 'module(load="imudp")'  
+          regexp: '^#module\(load="imudp"\)'
+        - line: 'input(type="imudp" port="514")'
+          regexp: '^#input\(type="imudp" port="514"\)'
+        - line: 'module(load="imtcp")'
+          regexp: '^#module\(load="imtcp"\)'
+        - line: 'input(type="imtcp" port="514")'
+          regexp: '^#input\(type="imtcp" port="514"\)'
+
+    - name: change
+      ansible.builtin.blockinfile:
+        path: /etc/rsyslog.conf
+        block: |
+          $template RemoteLogs,"/var/log/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
+          *.* ?RemoteLogs
+          & ~
+
+    - name: restart service rsyslog
+      ansible.builtin.service:
+        name: rsyslog
+        state: restarted
+
+    - name: change auditd.conf
+      ansible.builtin.lineinfile:
+        path: /etc/audit/auditd.conf 
+        line: tcp_listen_port = 60
+        regexp: '^##tcp_listen_port = 60'
+
+    - name: restart auditd
+      ansible.builtin.service:
+        name: auditd
+        state: restarted
+
