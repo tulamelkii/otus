@@ -1,1 +1,10 @@
-ansible-playbook -i hosts main.yml
+git clone --single-branch -b remote_log https://github.com/tulamelkii/otus.git
+Vagrant up
+How watch logs => Go web server and make action:
+- curl -l http://192.168.56.10
+- sudo chmod +x /etc/nginx/nginx.conf
+-rm /var/www/html/* -f
+Watch logs server 
+vagrant@log:~$ sudo cat /var/log/rsyslog/web/nginx_access.log 
+vagrant@log:~$ sudo cat /var/log/rsyslog/web/nginx_error.log
+root@log:/home/vagrant# grep nginx /var/log/audit/audit.log
