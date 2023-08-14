@@ -1,0 +1,23 @@
+vagrant@log:~$ sudo cat /var/log/rsyslog/web/nginx_
+nginx_access.log  nginx_error.log   
+vagrant@log:~$ sudo cat /var/log/rsyslog/web/nginx_access.log 
+2023-08-14T12:35:14+03:00 web nginx_access: 192.168.56.10 - - [14/Aug/2023:12:35:14 +0300] "GET / HTTP/1.1" 200 615 "-" "curl/7.88.1"
+2023-08-14T12:40:32+03:00 web nginx_access: 192.168.56.10 - - [14/Aug/2023:12:40:32 +0300] "GET / HTTP/1.1" 403 153 "-" "curl/7.88.1"
+2023-08-14T12:40:36+03:00 web nginx_access: 192.168.56.10 - - [14/Aug/2023:12:40:36 +0300] "GET / HTTP/1.1" 403 153 "-" "curl/7.88.1"
+2023-08-14T12:40:38+03:00 web nginx_access: 192.168.56.10 - - [14/Aug/2023:12:40:38 +0300] "GET / HTTP/1.1" 403 153 "-" "curl/7.88.1"
+2023-08-14T12:40:39+03:00 web nginx_access: 192.168.56.10 - - [14/Aug/2023:12:40:39 +0300] "GET / HTTP/1.1" 403 153 "-" "curl/7.88.1"
+vagrant@log:~$ sudo cat /var/log/rsyslog/web/nginx_error.log 
+2023-08-14T12:40:32+03:00 web nginx_error: 2023/08/14 12:40:32 [error] 2372#2372: *3 directory index of "/var/www/html/" is forbidden, client: 192.168.56.10, server: _, request: "GET / HTTP/1.1", host: "192.168.56.10"
+2023-08-14T12:40:36+03:00 web nginx_error: 2023/08/14 12:40:36 [error] 2372#2372: *4 directory index of "/var/www/html/" is forbidden, client: 192.168.56.10, server: _, request: "GET / HTTP/1.1", host: "192.168.56.10"
+2023-08-14T12:40:38+03:00 web nginx_error: 2023/08/14 12:40:38 [error] 2372#2372: *5 directory index of "/var/www/html/" is forbidden, client: 192.168.56.10, server: _, request: "GET / HTTP/1.1", host: "192.168.56.10"
+2023-08-14T12:40:39+03:00 web nginx_error: 2023/08/14 12:40:39 [error] 2372#2372: *6 directory index of "/var/www/html/" is forbidden, client: 192.168.56.10, server: _, request: "GET / HTTP/1.1", host: "192.168.56.10"
+root@log:/home/vagrant# grep nginx /var/log/audit/audit.log 
+type=CONFIG_CHANGE msg=audit(1692005381.599:186): auid=4294967295 ses=4294967295 subj=unconfined op=add_rule key="nginx_conf" list=4 res=1
+type=CONFIG_CHANGE msg=audit(1692005381.599:187): auid=4294967295 ses=4294967295 subj=unconfined op=add_rule key="nginx_conf" list=4 res=1
+type=PATH msg=audit(1692005381.599:187): item=0 name="/etc/nginx/" inode=393676 dev=fe:00 mode=040755 ouid=0 ogid=0 rdev=00:00 nametype=PARENT cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=SYSCALL msg=audit(1692005382.243:203): arch=c000003e syscall=268 success=yes exit=0 a0=ffffff9c a1=5612561314d0 a2=1ed a3=7fb03794ff98 items=1 ppid=2610 pid=2611 auid=1000 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=4 comm="chmod" exe="/usr/bin/chmod" subj=unconfined key="nginx_conf"
+type=PATH msg=audit(1692005382.243:203): item=0 name="/etc/nginx/nginx.conf" inode=1179680 dev=fe:00 mode=0100644 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=SYSCALL msg=audit(1692005990.386:257): arch=c000003e syscall=268 success=no exit=-1 a0=ffffff9c a1=5559f20d34d0 a2=1ed a3=7f894644ff98 items=1 ppid=2683 pid=2690 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=pts0 ses=7 comm="chmod" exe="/usr/bin/chmod" subj=unconfined key="nginx_conf"
+type=PATH msg=audit(1692005990.386:257): item=0 name="/etc/nginx/nginx.conf" inode=1179680 dev=fe:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
+type=SYSCALL msg=audit(1692005995.654:262): arch=c000003e syscall=268 success=yes exit=0 a0=ffffff9c a1=55f024c4c4d0 a2=1ed a3=7f198252ff98 items=1 ppid=2694 pid=2695 auid=1000 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=7 comm="chmod" exe="/usr/bin/chmod" subj=unconfined key="nginx_conf"
+type=PATH msg=audit(1692005995.654:262): item=0 name="/etc/nginx/nginx.conf" inode=1179680 dev=fe:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
