@@ -47,9 +47,6 @@
         name: nginx
         state: restarted
     
-    - name: watch nginx
-      ansible.builtin.command: curl -l http://192.168.56.10
-    
     - name: change audit rules
       ansible.builtin.lineinfile:
         path: /etc/audit/rules.d/audit.rules
