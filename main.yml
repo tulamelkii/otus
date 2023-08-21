@@ -7,23 +7,6 @@
         name: borgbackup
         state: latest
 
-
-- name: client_vm
-  become: true
-  hosts: client
-  tasks:
-    - name: create ssh
-      community.crypto.openssh_keypair: 
-        path: .ssh/id_ssh_rsa 
-- hosts: backup
-  become: true
-  tasks:
-      - name: copy ssh key
-        authorized_key:
-          user: root 
-          key: "{{ lookup('file', 'id_rsa.pub') }}"
-          state: present 
-
 - name: backup_vm
   become: true
   hosts: backup
@@ -46,9 +29,6 @@
     - name: create 
       user:
         name: borg
-    
-          # generate_ssh_key: yes
-          # ssh_key_file: .ssh/authorized_keys
 
     - name: chown dir
       file:
@@ -56,26 +36,29 @@
         owner: borg
         group: borg
         mode: '0755'
+
+    - name: create dir
+      file: 
+        path:  /home/borg/.ssh
+        state: directory
+
     - name: chown dir ssh
       file:
         path: .ssh
-        mode: '700'
-
+          #  mode: '700'
+       
     - name: create file
       file: 
         path: /home/borg/.ssh/authorized_keys
         state: touch
-        mode: '600'
+        owner: borg
+        group: borg
+        #mode: '600'
 
 - name: client_vm
   become: true
   hosts: client
   tasks:
-    - name: create ssh
-      community.crypto.openssh_keypair: 
-        path: .ssh/id_rsa 
 
-
-
-  #  - name: init borg
+    #  - name: init borg
     #   command: borg init --encryption=repokey borg@192.168.56.10:/var/backup/
