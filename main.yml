@@ -65,13 +65,13 @@
   tasks:
    - name: Generate an ssh-keygen
      openssh_keypair:
-       path: .ssh/id_rsa
-       owner: vagrant
-       group: vagrant
+       path: /root/.ssh/id_rsa
+       owner: root
+       group: root
      
    - name: Fetch public SSH key from keygen_vm
      fetch:
-       src: /home/vagrant/.ssh/id_rsa.pub
+       src: /root/.ssh/id_rsa.pub
        dest: id_rsa.pub
        flat: yes
 
@@ -80,7 +80,6 @@
 
 - hosts: backup
   tasks:
-    
     - name: Copy SSH public key to /home/borg/.ssh/authorized_keys
       authorized_key:
         user: borg
@@ -88,5 +87,12 @@
         state: present
       become: yes
 
-    - name: init borg
-      command: 'borg init --encryption=repokey borg@192.168.10.56:/var/backup/'
+- name: client_vm
+  become: true
+  hosts: client
+  tasks:
+    # - name: init borg
+    #  command: 'borg init --encryption=repokey borg@192.168.56.10:/var/backup/'
+    - name: create  
+      command: 'borg create --stats --list borg@192.168.56.10:/var/backup/1::"etc-{now:%Y-%m-%d_%H:%M:%S}" /etc'
+    
