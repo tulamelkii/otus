@@ -91,8 +91,36 @@
   become: true
   hosts: client
   tasks:
+    - name: copy finger
+      template:
+        src: known_hosts
+        dest: ~/.ssh/known_hosts
+    
+
+
+    - name:
+      template:
+        src: borg-backup.service
+        dest: /etc/systemd/system/borg-backup.service
+
+    - name:
+      template:
+        src: borg-backup.timer
+        dest: /etc/systemd/system/borg-backup.timer
+
+
+    - name:
+      service:
+        name: borg-backup.service
+        state: started
+
+    - name:
+      service:
+        name: borg-backup.timer
+        state: started
+
     # - name: init borg
     #  command: 'borg init --encryption=repokey borg@192.168.56.10:/var/backup/'
-    - name: create  
-      command: 'borg create --stats --list borg@192.168.56.10:/var/backup/1::"etc-{now:%Y-%m-%d_%H:%M:%S}" /etc'
+    #- name: create  
+    #  command: 'borg create --stats --list borg@192.168.56.10:/var/backup/1::"etc-{now:%Y-%m-%d_%H:%M:%S}" /etc'
     
