@@ -54,4 +54,61 @@ drwxr-xr-x root   root          0 Sun, 2023-05-21 18:24:14 etc/console-setup
 -rw-r--r-- root   root         35 Fri, 2021-07-23 17:05:53 etc/console-setup/compose.ISIRI-3342.inc
 -rw-r--r-- root   root         36 Fri, 2021-07-23 17:05:53 etc/console-setup/compose.ISO-8859-10.inc
 -rw-r--r-- root   root         36 Fri, 2021-07-23 17:05:53 etc/console-setup/compose.ISO-8859-11.inc
+7)if we want extract archive we need executing comand: borg extract borg@192.168.56.10:/var/backup/Otus::etc-2023-08-27_11:17/etc
+8) we see new catalog etc this is backup /etc
+drwxr-xr-x  6 vagrant vagrant     4096 Aug 27 17:30 .
+drwxr-xr-x  3 root    root        4096 May 21 18:21 ..
+drwxr-xr-x  2 root    root        4096 Aug 27 17:30 1
+drwx------  3 vagrant vagrant     4096 Aug 27 11:16 .ansible
+-rw-------  1 vagrant vagrant       13 Aug 27 12:17 .bash_history
+-rw-r--r--  1 vagrant vagrant      220 May 21 18:21 .bash_logout
+-rw-r--r--  1 vagrant vagrant     3526 May 21 18:21 .bashrc
+drwxr-xr-x 69 root    root        4096 Aug 27 11:17 etc
+-rw-r--r--  1 vagrant vagrant      807 May 21 18:21 .profile
+drwx------  2 vagrant vagrant     4096 Aug 27 11:16 .ssh
+-rw-r--r--  1 vagrant vagrant 63952896 May 21 18:22 VBoxGuestAdditions.iso
+-rw-r--r--  1 vagrant vagrant        6 May 21 18:22 .vbox_version
+9)Next step rm -rf /etc 
+drwxr-xr-x  18    0    0  4096 Aug 27 17:52 .
+drwxr-xr-x  18    0    0  4096 Aug 27 17:52 ..
+lrwxrwxrwx   1    0    0     7 May 21 18:19 bin -> usr/bin
+drwxr-xr-x   4    0    0  1024 Aug 27 11:17 boot
+drwxr-xr-x  17    0    0  3260 Aug 27 11:16 dev
+drwxr-xr-x   3    0    0  4096 May 21 18:21 home
+lrwxrwxrwx   1    0    0    29 May 21 18:22 initrd.img -> boot/initrd.img-6.1.0-9-amd64
+lrwxrwxrwx   1    0    0    31 May 21 18:22 initrd.img.old -> boot/initrd.img-5.10.0-23-amd64
+lrwxrwxrwx   1    0    0     7 May 21 18:19 lib -> usr/lib
+lrwxrwxrwx   1    0    0     9 May 21 18:19 lib32 -> usr/lib32
+lrwxrwxrwx   1    0    0     9 May 21 18:19 lib64 -> usr/lib64
+lrwxrwxrwx   1    0    0    10 May 21 18:19 libx32 -> usr/libx32
+drwx------   2    0    0 16384 May 21 18:19 lost+found
+drwxr-xr-x   3    0    0  4096 May 21 18:19 media
+drwxr-xr-x   2    0    0  4096 May 21 18:19 mnt
+drwxr-xr-x   2    0    0  4096 May 21 18:19 opt
+dr-xr-xr-x 138    0    0     0 Aug 27 11:16 proc
+drwx------   7    0    0  4096 Aug 27 17:37 root
+drwxr-xr-x  19    0    0   600 Aug 27 17:16 run
+lrwxrwxrwx   1    0    0     8 May 21 18:19 sbin -> usr/sbin
+drwxr-xr-x   2    0    0  4096 May 21 18:19 srv
+dr-xr-xr-x  13    0    0     0 Aug 27 11:16 sys
+drwxrwxrwt   7    0    0  4096 Aug 27 17:49 tmp
+drwxr-xr-x  14    0    0  4096 May 21 18:19 usr
+drwxr-xr-x   1 1000 1000  4096 Aug 27 11:20 vagrant
+drwxr-xr-x  11    0    0  4096 May 21 18:19 var
+lrwxrwxrwx   1    0    0    26 May 21 18:22 vmlinuz -> boot/vmlinuz-6.1.0-9-amd64
+lrwxrwxrwx   1    0    0    28 May 21 18:22 vmlinuz.old -> boot/vmlinuz-5.10.0-23-amd64
+10) copy arhive cp -r etc/ /  
+11)we see restored catalog
+
+drwxr-xr-x  19 root    root     4096 Aug 27 17:55 .
+drwxr-xr-x  19 root    root     4096 Aug 27 17:55 ..
+lrwxrwxrwx   1 root    root        7 May 21 18:19 bin -> usr/bin
+drwxr-xr-x   4 root    root     1024 Aug 27 11:17 boot
+drwxr-xr-x  17 root    root     3260 Aug 27 11:16 dev
+drwxr-xr-x  69 root    root     4096 Aug 27 17:55 etc
+drwxr-xr-x   3 root    root     4096 May 21 18:21 home
+lrwxrwxrwx   1 root    root       29 May 21 18:22 initrd.img -> boot/initrd.img-6.1.0-9-amd64
+lrwxrwxrwx   1 root    root       31 May 21 18:22 initrd.img.old -> boot/initrd.img-5.10.0-23-amd64
+lrwxrwxrwx   1 root    root        7 May 21 18:19 lib -> usr/lib
+lrwxrwxrwx   1 root    root        9 May 21 18:19 lib32 -> usr/lib32
 
