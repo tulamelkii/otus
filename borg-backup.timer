@@ -2,9 +2,10 @@
 Description=Daily Borg Backup
 
 [Timer]
-OnCalendar=daily
-Persistent=true
-Unit=borg-backup.service
+OnUnitActiveSec=5min
+#OnCalendar=daily
+#Persistent=true
+#Unit=borg-backup.service
 
 [Install]
 WantedBy=timers.target

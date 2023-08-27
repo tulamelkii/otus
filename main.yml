@@ -1,10 +1,11 @@
+---
 - name: install borgbackup
   become: true
   hosts: all
   tasks:
     - name: install borg
       apt:
-        pkg: 
+        pkg:
           - borgbackup
           - rsync
 
@@ -13,7 +14,7 @@
   hosts: backup
   tasks:
     - name: create dir
-      file: 
+      file:
         path: /var/backup
         state: directory
         mode: '0755'
@@ -30,19 +31,19 @@
         fstype: ext4
         state: mounted
 
-    - name: create 
+    - name: create user borg
       user:
         name: borg
 
-    - name: chown dir
+    - name: chown mount dir
       file:
-        path: /var/backup  
+        path: /var/backup
         owner: borg
         group: borg
         mode: '0755'
 
-    - name: create dir
-      file: 
+    - name: create dir for home directory borg
+      file:
         path:  /home/borg/.ssh
         state: directory
 
@@ -50,77 +51,80 @@
       file:
         path: .ssh
         mode: '775'
-       
-    - name: create file
-      file: 
+
+    - name: create file authorized
+      file:
         path: /home/borg/.ssh/authorized_keys
         state: touch
         owner: borg
         group: borg
         mode: '775'
 
-- name: client_vm
-  become: true
-  hosts: client
-  tasks:
-   - name: Generate an ssh-keygen
-     openssh_keypair:
-       path: /root/.ssh/id_rsa
-       owner: root
-       group: root
-     
-   - name: Fetch public SSH key from keygen_vm
-     fetch:
-       src: /root/.ssh/id_rsa.pub
-       dest: id_rsa.pub
-       flat: yes
 
-   - set_fact:
-       public_key: "{{ lookup('file', 'id_rsa.pub') }}"
-
-- hosts: backup
-  tasks:
-    - name: Copy SSH public key to /home/borg/.ssh/authorized_keys
-      authorized_key:
-        user: borg
-        key: "{{ hostvars['client'].public_key }}"
-        state: present
-      become: yes
+          #- hosts: backup
+          #tasks:
+          #- name: Copy SSH public key to /home/borg/.ssh/authorized_keys
+          #authorized_key:
+          #user: borg
+          #key: "{{ hostvars['client'].public_key }}"
+          #state: present
+          #become: yes
 
 - name: client_vm
   become: true
   hosts: client
   tasks:
-    - name: copy finger
+    - name: Generate an ssh-keygen
+      openssh_keypair:
+        path: /root/.ssh/id_rsa
+        owner: root
+        group: root
+
+    - name: Copy id_rsa to main vm
+      fetch:
+        src: /root/.ssh/id_rsa.pub
+        dest: "{{ inventory_hostname }}_id_rsa.pub"
+        flat: yes
+
+    - name: Copy from controller to backup
+      copy:
+        src: "{{ inventory_hostname }}_id_rsa.pub"
+        dest: /home/borg/.ssh/authorized_keys
+        mode: '0600'
+      delegate_to: backup
+
+    - name: copy fingerprint in localmashine
       template:
         src: known_hosts
         dest: ~/.ssh/known_hosts
-    
 
-
-    - name:
+    - name: copy template service
       template:
         src: borg-backup.service
         dest: /etc/systemd/system/borg-backup.service
 
-    - name:
+    - name: Copy service
       template:
         src: borg-backup.timer
         dest: /etc/systemd/system/borg-backup.timer
 
+    - name: init borg
+      command: 'borg init --encryption=none borg@192.168.56.10:/var/backup/Otus'
 
-    - name:
+    - name: service reload backup
       service:
-        name: borg-backup.service
-        state: started
+        name: '{{ item }}'
+        state: reloaded
+      with_items:
+        - borg-backup.service
+        - borg-backup.timer
 
-    - name:
+    - name: Start borg-backup service
       service:
-        name: borg-backup.timer
+        name: '{{ item }}'
         state: started
+      with_items:
+        - borg-backup.service
+        - borg-backup.timer
 
-    # - name: init borg
-    #  command: 'borg init --encryption=repokey borg@192.168.56.10:/var/backup/'
-    #- name: create  
-    #  command: 'borg create --stats --list borg@192.168.56.10:/var/backup/1::"etc-{now:%Y-%m-%d_%H:%M:%S}" /etc'
-    
+...
