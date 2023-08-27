@@ -1,0 +1,302 @@
+localadm@DEB:~/otus$ vagrant up
+Bringing machine 'backup' up with 'virtualbox' provider...
+Bringing machine 'client' up with 'virtualbox' provider...
+==> backup: Importing base box 'tulamelkii/VDebian12'...
+==> backup: Matching MAC address for NAT networking...
+==> backup: Checking if box 'tulamelkii/VDebian12' version '6.1.0.9.1' is up to date...
+==> backup: Setting the name of the VM: otus_backup_1693134863995_11336
+==> backup: Clearing any previously set network interfaces...
+==> backup: Preparing network interfaces based on configuration...
+    backup: Adapter 1: nat
+    backup: Adapter 2: hostonly
+==> backup: Forwarding ports...
+    backup: 22 (guest) => 2222 (host) (adapter 1)
+==> backup: Running 'pre-boot' VM customizations...
+==> backup: Booting VM...
+==> backup: Waiting for machine to boot. This may take a few minutes...
+    backup: SSH address: 127.0.0.1:2222
+    backup: SSH username: vagrant
+    backup: SSH auth method: private key
+    backup: 
+    backup: Vagrant insecure key detected. Vagrant will automatically replace
+    backup: this with a newly generated keypair for better security.
+    backup: 
+    backup: Inserting generated public key within guest...
+    backup: Removing insecure key from the guest if it's present...
+    backup: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> backup: Machine booted and ready!
+==> backup: Checking for guest additions in VM...
+    backup: The guest additions on this VM do not match the installed version of
+    backup: VirtualBox! In most cases this is fine, but in rare cases it can
+    backup: prevent things such as shared folders from working properly. If you see
+    backup: shared folder errors, please make sure the guest additions within the
+    backup: virtual machine match the version of VirtualBox you have installed on
+    backup: your host and reload your VM.
+    backup: 
+    backup: Guest Additions Version: 6.0.0 r127566
+    backup: VirtualBox Version: 6.1
+==> backup: Configuring and enabling network interfaces...
+==> backup: Mounting shared folders...
+    backup: /vagrant => /home/localadm/otus
+==> backup: Running provisioner: shell...
+    backup: Running: inline script
+    backup: 
+    backup: WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+    backup: 
+    backup: Reading package lists...
+    backup: Building dependency tree...
+    backup: Reading state information...
+    backup: The following packages were automatically installed and are no longer required:
+    backup:   libcbor0 libldap-2.4-2 libusb-0.1-4 linux-image-5.10.0-22-amd64
+    backup: Use 'sudo apt autoremove' to remove them.
+    backup: The following additional packages will be installed:
+    backup:   libpython3.11-minimal libpython3.11-stdlib libsqlite3-0 media-types
+    backup:   python3.11-minimal
+    backup: Suggested packages:
+    backup:   python3.11-venv python3.11-doc binutils binfmt-support
+    backup: The following NEW packages will be installed:
+    backup:   libpython3.11-minimal libpython3.11-stdlib libsqlite3-0 media-types
+    backup:   python3.11 python3.11-minimal
+    backup: 0 upgraded, 6 newly installed, 0 to remove and 2 not upgraded.
+    backup: Need to get 6,109 kB of archives.
+    backup: After this operation, 23.2 MB of additional disk space will be used.
+    backup: Get:1 https://deb.debian.org/debian bookworm/main amd64 libpython3.11-minimal amd64 3.11.2-6 [813 kB]
+    backup: Get:2 https://deb.debian.org/debian bookworm/main amd64 python3.11-minimal amd64 3.11.2-6 [2,064 kB]
+    backup: Get:3 https://deb.debian.org/debian bookworm/main amd64 media-types all 10.0.0 [26.1 kB]
+    backup: Get:4 https://deb.debian.org/debian bookworm/main amd64 libsqlite3-0 amd64 3.40.1-2 [837 kB]
+    backup: Get:5 https://deb.debian.org/debian bookworm/main amd64 libpython3.11-stdlib amd64 3.11.2-6 [1,796 kB]
+    backup: Get:6 https://deb.debian.org/debian bookworm/main amd64 python3.11 amd64 3.11.2-6 [572 kB]
+    backup: dpkg-preconfigure: unable to re-open stdin: No such file or directory
+    backup: Fetched 6,109 kB in 11s (551 kB/s)
+    backup: Selecting previously unselected package libpython3.11-minimal:amd64.
+(Reading database ... 32941 files and directories currently installed.)
+    backup: Preparing to unpack .../0-libpython3.11-minimal_3.11.2-6_amd64.deb ...
+    backup: Unpacking libpython3.11-minimal:amd64 (3.11.2-6) ...
+    backup: Selecting previously unselected package python3.11-minimal.
+    backup: Preparing to unpack .../1-python3.11-minimal_3.11.2-6_amd64.deb ...
+    backup: Unpacking python3.11-minimal (3.11.2-6) ...
+    backup: Selecting previously unselected package media-types.
+    backup: Preparing to unpack .../2-media-types_10.0.0_all.deb ...
+    backup: Unpacking media-types (10.0.0) ...
+    backup: Selecting previously unselected package libsqlite3-0:amd64.
+    backup: Preparing to unpack .../3-libsqlite3-0_3.40.1-2_amd64.deb ...
+    backup: Unpacking libsqlite3-0:amd64 (3.40.1-2) ...
+    backup: Selecting previously unselected package libpython3.11-stdlib:amd64.
+    backup: Preparing to unpack .../4-libpython3.11-stdlib_3.11.2-6_amd64.deb ...
+    backup: Unpacking libpython3.11-stdlib:amd64 (3.11.2-6) ...
+    backup: Selecting previously unselected package python3.11.
+    backup: Preparing to unpack .../5-python3.11_3.11.2-6_amd64.deb ...
+    backup: Unpacking python3.11 (3.11.2-6) ...
+    backup: Setting up media-types (10.0.0) ...
+    backup: Setting up libsqlite3-0:amd64 (3.40.1-2) ...
+    backup: Setting up libpython3.11-minimal:amd64 (3.11.2-6) ...
+    backup: Setting up python3.11-minimal (3.11.2-6) ...
+    backup: Setting up libpython3.11-stdlib:amd64 (3.11.2-6) ...
+    backup: Setting up python3.11 (3.11.2-6) ...
+    backup: Processing triggers for systemd (252.6-1) ...
+    backup: Processing triggers for libc-bin (2.36-9) ...
+==> backup: Running provisioner: ansible...
+    backup: Running ansible-playbook...
+[WARNING]: Found both group and host with same name: backup
+[WARNING]: Found both group and host with same name: client
+
+PLAY [install borgbackup] ******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [backup]
+[WARNING]: Distribution debian 12 on host backup should use /usr/bin/python3,
+but is using /usr/bin/python3.11, since the discovered platform python
+interpreter was not present. See https://docs.ansible.com/ansible-
+core/2.14/reference_appendices/interpreter_discovery.html for more information.
+
+TASK [install borg] ************************************************************
+changed: [backup]
+
+PLAY [backup_server] ***********************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [backup]
+
+TASK [create dir] **************************************************************
+changed: [backup]
+
+TASK [Create a ext4 filesystem on /dev/sdb] ************************************
+changed: [backup]
+
+TASK [mount disk] **************************************************************
+changed: [backup]
+
+TASK [create user borg] ********************************************************
+changed: [backup]
+
+TASK [chown mount dir] *********************************************************
+changed: [backup]
+
+TASK [create dir for home directory borg] **************************************
+changed: [backup]
+
+TASK [chown dir ssh] ***********************************************************
+changed: [backup]
+
+TASK [create file authorized] **************************************************
+changed: [backup]
+
+PLAY [client_vm] ***************************************************************
+skipping: no hosts matched
+
+PLAY RECAP *********************************************************************
+backup                     : ok=11   changed=9    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+==> client: Importing base box 'tulamelkii/VDebian12'...
+==> client: Matching MAC address for NAT networking...
+==> client: Checking if box 'tulamelkii/VDebian12' version '6.1.0.9.1' is up to date...
+==> client: Setting the name of the VM: otus_client_1693134960286_78604
+==> client: Fixed port collision for 22 => 2222. Now on port 2200.
+==> client: Clearing any previously set network interfaces...
+==> client: Preparing network interfaces based on configuration...
+    client: Adapter 1: nat
+    client: Adapter 2: hostonly
+==> client: Forwarding ports...
+    client: 22 (guest) => 2200 (host) (adapter 1)
+==> client: Running 'pre-boot' VM customizations...
+==> client: Booting VM...
+==> client: Waiting for machine to boot. This may take a few minutes...
+    client: SSH address: 127.0.0.1:2200
+    client: SSH username: vagrant
+    client: SSH auth method: private key
+    client: 
+    client: Vagrant insecure key detected. Vagrant will automatically replace
+    client: this with a newly generated keypair for better security.
+    client: 
+    client: Inserting generated public key within guest...
+    client: Removing insecure key from the guest if it's present...
+    client: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> client: Machine booted and ready!
+==> client: Checking for guest additions in VM...
+    client: The guest additions on this VM do not match the installed version of
+    client: VirtualBox! In most cases this is fine, but in rare cases it can
+    client: prevent things such as shared folders from working properly. If you see
+    client: shared folder errors, please make sure the guest additions within the
+    client: virtual machine match the version of VirtualBox you have installed on
+    client: your host and reload your VM.
+    client: 
+    client: Guest Additions Version: 6.0.0 r127566
+    client: VirtualBox Version: 6.1
+==> client: Configuring and enabling network interfaces...
+==> client: Mounting shared folders...
+    client: /vagrant => /home/localadm/otus
+==> client: Running provisioner: shell...
+    client: Running: inline script
+    client: 
+    client: WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+    client: 
+    client: Reading package lists...
+    client: Building dependency tree...
+    client: Reading state information...
+    client: The following packages were automatically installed and are no longer required:
+    client:   libcbor0 libldap-2.4-2 libusb-0.1-4 linux-image-5.10.0-22-amd64
+    client: Use 'sudo apt autoremove' to remove them.
+    client: The following additional packages will be installed:
+    client:   libpython3.11-minimal libpython3.11-stdlib libsqlite3-0 media-types
+    client:   python3.11-minimal
+    client: Suggested packages:
+    client:   python3.11-venv python3.11-doc binutils binfmt-support
+    client: The following NEW packages will be installed:
+    client:   libpython3.11-minimal libpython3.11-stdlib libsqlite3-0 media-types
+    client:   python3.11 python3.11-minimal
+    client: 0 upgraded, 6 newly installed, 0 to remove and 2 not upgraded.
+    client: Need to get 6,109 kB of archives.
+    client: After this operation, 23.2 MB of additional disk space will be used.
+    client: Get:1 https://deb.debian.org/debian bookworm/main amd64 libpython3.11-minimal amd64 3.11.2-6 [813 kB]
+    client: Get:2 https://deb.debian.org/debian bookworm/main amd64 python3.11-minimal amd64 3.11.2-6 [2,064 kB]
+    client: Get:3 https://deb.debian.org/debian bookworm/main amd64 media-types all 10.0.0 [26.1 kB]
+    client: Get:4 https://deb.debian.org/debian bookworm/main amd64 libsqlite3-0 amd64 3.40.1-2 [837 kB]
+    client: Get:5 https://deb.debian.org/debian bookworm/main amd64 libpython3.11-stdlib amd64 3.11.2-6 [1,796 kB]
+    client: Get:6 https://deb.debian.org/debian bookworm/main amd64 python3.11 amd64 3.11.2-6 [572 kB]
+    client: dpkg-preconfigure: unable to re-open stdin: No such file or directory
+    client: Fetched 6,109 kB in 11s (553 kB/s)
+    client: Selecting previously unselected package libpython3.11-minimal:amd64.
+(Reading database ... 32941 files and directories currently installed.)
+    client: Preparing to unpack .../0-libpython3.11-minimal_3.11.2-6_amd64.deb ...
+    client: Unpacking libpython3.11-minimal:amd64 (3.11.2-6) ...
+    client: Selecting previously unselected package python3.11-minimal.
+    client: Preparing to unpack .../1-python3.11-minimal_3.11.2-6_amd64.deb ...
+    client: Unpacking python3.11-minimal (3.11.2-6) ...
+    client: Selecting previously unselected package media-types.
+    client: Preparing to unpack .../2-media-types_10.0.0_all.deb ...
+    client: Unpacking media-types (10.0.0) ...
+    client: Selecting previously unselected package libsqlite3-0:amd64.
+    client: Preparing to unpack .../3-libsqlite3-0_3.40.1-2_amd64.deb ...
+    client: Unpacking libsqlite3-0:amd64 (3.40.1-2) ...
+    client: Selecting previously unselected package libpython3.11-stdlib:amd64.
+    client: Preparing to unpack .../4-libpython3.11-stdlib_3.11.2-6_amd64.deb ...
+    client: Unpacking libpython3.11-stdlib:amd64 (3.11.2-6) ...
+    client: Selecting previously unselected package python3.11.
+    client: Preparing to unpack .../5-python3.11_3.11.2-6_amd64.deb ...
+    client: Unpacking python3.11 (3.11.2-6) ...
+    client: Setting up media-types (10.0.0) ...
+    client: Setting up libsqlite3-0:amd64 (3.40.1-2) ...
+    client: Setting up libpython3.11-minimal:amd64 (3.11.2-6) ...
+    client: Setting up python3.11-minimal (3.11.2-6) ...
+    client: Setting up libpython3.11-stdlib:amd64 (3.11.2-6) ...
+    client: Setting up python3.11 (3.11.2-6) ...
+    client: Processing triggers for systemd (252.6-1) ...
+    client: Processing triggers for libc-bin (2.36-9) ...
+==> client: Running provisioner: ansible...
+    client: Running ansible-playbook...
+[WARNING]: Found both group and host with same name: backup
+[WARNING]: Found both group and host with same name: client
+
+PLAY [install borgbackup] ******************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [client]
+[WARNING]: Distribution debian 12 on host client should use /usr/bin/python3,
+but is using /usr/bin/python3.11, since the discovered platform python
+interpreter was not present. See https://docs.ansible.com/ansible-
+core/2.14/reference_appendices/interpreter_discovery.html for more information.
+
+TASK [install borg] ************************************************************
+changed: [client]
+
+PLAY [backup_server] ***********************************************************
+skipping: no hosts matched
+
+PLAY [client_vm] ***************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [client]
+
+TASK [Generate an ssh-keygen] **************************************************
+changed: [client]
+
+TASK [Copy id_rsa to main vm] **************************************************
+changed: [client]
+
+TASK [Copy from controller to backup] ******************************************
+changed: [client -> backup(127.0.0.1)]
+
+TASK [copy fingerprint in localmashine] ****************************************
+changed: [client]
+
+TASK [copy template service] ***************************************************
+changed: [client]
+
+TASK [Copy service] ************************************************************
+changed: [client]
+
+TASK [init borg] ***************************************************************
+changed: [client]
+
+TASK [service reload backup] ***************************************************
+changed: [client] => (item=borg-backup.service)
+changed: [client] => (item=borg-backup.timer)
+
+TASK [Start borg-backup service] ***********************************************
+changed: [client] => (item=borg-backup.service)
+ok: [client] => (item=borg-backup.timer)
+
+PLAY RECAP *********************************************************************
+client                     : ok=12   changed=10   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+
