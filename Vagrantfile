@@ -1,45 +1,63 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
 Vagrant.configure("2") do |config|
-
-  config.vm.define "backup" do |backup|
-    backup.vm.box = "tulamelkii/VDebian12"
-    backup.vm.box_version = "6.1.0.9.1"
-    backup.vm.network "private_network", ip: "192.168.56.10"
-    backup.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
-      vb.customize ["createhd", "--filename", "machine1_disk.vdi", "--size", "2000"]
-      vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', 'machine1_disk.vdi']
-    end
-
-    backup.vm.provision "shell", inline: <<-SHELL
-      sudo su
-      apt install python3.11 -y
-    SHELL
-
-    backup.vm.provision "ansible" do |ansible|
-      ansible.playbook = "main.yml"
-      ansible.inventory_path = "hosts"
-      ansible.become = true
-    end
+  config.vm.define "intRout" do |intRout|
+    intRout.vm.box = "centos/7"
+   # :public => {:ip => '10.10.10.1', :adapter => 1},
+    intRout.vm.network "private_network", ip: "192.168.255.1", netmask: "255.255.255.252", virtualbox__intnet: "router-net"
+    intRout.vm.network "private_network", ip: "192.168.56.10"
+    intRout.vm.hostname = "InetRouter"
+ end
+ config.vm.define "centRout" do |centRout|
+    centRout.vm.box = "centos/7"  
+    centRout.vm.network "private_network", ip: '192.168.255.2', netmask: '255.255.255.252', virtualbox__intnet: "router-net"
+    centRout.vm.network  "private_network", ip: '192.168.0.1', netmask: '255.255.255.240', virtualbox__intnet: "dir-net"
+    centRout.vm.network  "private_network", ip:'192.168.255.9', netmask: '255.255.255.252',virtualbox__inet: "ofice1"
+    centRout.vm.network  "private_network", ip: '192.168.0.33', netmask: '255.255.255.240', virtualbox__intnet: "hw-net" 
+    centRout.vm.network  "private_network", ip: '192.168.255.5', netmask: '255.255.255.252', virtualbox__inet: "ofice2" 
+    centRout.vm.network  "private_network", ip: '192.168.0.65',  netmask: '255.255.255.192', virtualbox__intnet: "mgt-net"
+    centRout.vm.network  "private_network", ip: '192.168.56.11'
+    centRout.vm.hostname = "centRout"
+  end 
+  config.vm.define "dirSer" do |dirSer|
+    dirSer.vm.box = "centos/7"  
+    dirSer.vm.network  "private_network", ip: '192.168.0.2', netmask: "255.255.255.240", virtualbox__intnet: "dir-net" 
+    dirSer.vm.network  "private_network", ip: '192.168.56.12'
+    dirSer.vm.hostname = "dirSer"
+  end 
+  config.vm.define "off1Rout" do |off1Rout|
+    off1Rout.vm.box = "ubuntu/focal64"  
+    off1Rout.vm.network  "private_network", ip: '192.168.255.10', netmask: "255.255.255.252", virtualbox__inet: "office1Router" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.1', netmask: "255.255.255.192", virtualbox__inet: "Dev" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.64', netmask: "255.255.255.240", virtualbox__inet: "Test-servers" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.129', netmask: "255.255.255.192", virtualbox__inet: "Managers" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.192', netmask: "255.255.255.192", virtualbox__inet: "Office-hardware"
+    off1Rout.vm.network  "private_network", ip: '192.168.56.13'
+    off1Rout.vm.hostname = "off1Rout"
+  end 
+  config.vm.define "off1Ser" do |off1Ser|
+    off1Ser.vm.box = "ubuntu/focal64"  
+    off1Ser.vm.network  "private_network", ip: '192.168.2.130', netmask: "255.255.255.192", virtualbox__inet: "office1Server"  
+    off1Ser.vm.network  "private_network", ip: '192.168.56.14'
+    off1Ser.vm.hostname = "off1Ser"
   end
+  config.vm.define "off2Rout" do |off2Rout|
+    off2Rout.vm.box = "debian/bullseye64"
+    off2Rout.vm.network  "private_network", ip: '192.168.255.6', netmask: "255.255.255.252", virtualbox__inet: "office2Router"  
+    off2Rout.vm.network  "private_network", ip: '192.168.3.1', netmask: "255.255.255.192", virtualbox__inet: "De" 
+    off2Rout.vm.network  "private_network", ip: '192.168.0.129', netmask: "255.255.255.192", virtualbox__inet: "Test-Server"  
+    off2Rout.vm.network  "private_network", ip: '192.168.0.193', netmask: "255.255.255.192",virtuzlbox__inet: "Office-hard"
+    off2Rout.vm.network  "private_network", ip: '192.168.56.15'
+    off2Rout.vm.hostname = "off2Rout"
+ end
+ config.vm.define "off2Ser" do |off2Ser|
+    off2Ser.vm.box = "debian/bullseye64" 
+    off2Ser.vm.network  "private_network", ip: '192.168.3.2', netmask: "255.255.255.192", virtualbox__inet: "office2Server" 
+    off2Ser.vm.network  "private_network", ip: '192.168.56.16'
+    off2Ser.vm.hostname = "off2Ser"
+ end
+end
 
-  config.vm.define "client" do |client|
-    client.vm.box = "tulamelkii/VDebian12"
-    client.vm.box_version = "6.1.0.9.1"
-    client.vm.network "private_network", ip: "192.168.56.11"
-    client.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024"
-    end
 
-    client.vm.provision "shell", inline: <<-SHELL
-      sudo su
-      apt install python3.11 -y
-      SHELL
-
-    client.vm.provision "ansible" do |ansible|
-        ansible.playbook = "main.yml"
-        ansible.inventory_path = "hosts"
-        ansible.become = true
-      end
-      end
-      
-  end
