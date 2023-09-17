@@ -8,15 +8,15 @@ Vagrant.configure("2") do |config|
    # :public => {:ip => '10.10.10.1', :adapter => 1},
     intRout.vm.network "private_network", ip: "192.168.255.1", netmask: "255.255.255.252", virtualbox__intnet: "router-net"
     intRout.vm.network "private_network", ip: "192.168.56.10"
-    intRout.vm.hostname = "InetRouter"
+    intRout.vm.hostname = "intRout"
  end
  config.vm.define "centRout" do |centRout|
     centRout.vm.box = "centos/7"  
     centRout.vm.network "private_network", ip: '192.168.255.2', netmask: '255.255.255.252', virtualbox__intnet: "router-net"
     centRout.vm.network  "private_network", ip: '192.168.0.1', netmask: '255.255.255.240', virtualbox__intnet: "dir-net"
-    centRout.vm.network  "private_network", ip:'192.168.255.9', netmask: '255.255.255.252',virtualbox__inet: "ofice1"
+    centRout.vm.network  "private_network", ip:'192.168.255.9', netmask: '255.255.255.252',virtualbox__intnet: "office1Rout"
     centRout.vm.network  "private_network", ip: '192.168.0.33', netmask: '255.255.255.240', virtualbox__intnet: "hw-net" 
-    centRout.vm.network  "private_network", ip: '192.168.255.5', netmask: '255.255.255.252', virtualbox__inet: "ofice2" 
+    centRout.vm.network  "private_network", ip: '192.168.255.5', netmask: '255.255.255.252', virtualbox__intnet: "office2Rout" 
     centRout.vm.network  "private_network", ip: '192.168.0.65',  netmask: '255.255.255.192', virtualbox__intnet: "mgt-net"
     centRout.vm.network  "private_network", ip: '192.168.56.11'
     centRout.vm.hostname = "centRout"
@@ -29,35 +29,33 @@ Vagrant.configure("2") do |config|
   end 
   config.vm.define "off1Rout" do |off1Rout|
     off1Rout.vm.box = "ubuntu/focal64"  
-    off1Rout.vm.network  "private_network", ip: '192.168.255.10', netmask: "255.255.255.252", virtualbox__inet: "office1Router" 
-    off1Rout.vm.network  "private_network", ip: '192.168.2.1', netmask: "255.255.255.192", virtualbox__inet: "Dev" 
-    off1Rout.vm.network  "private_network", ip: '192.168.2.64', netmask: "255.255.255.240", virtualbox__inet: "Test-servers" 
-    off1Rout.vm.network  "private_network", ip: '192.168.2.129', netmask: "255.255.255.192", virtualbox__inet: "Managers" 
-    off1Rout.vm.network  "private_network", ip: '192.168.2.192', netmask: "255.255.255.192", virtualbox__inet: "Office-hardware"
+    off1Rout.vm.network  "private_network", ip: '192.168.255.10', netmask: "255.255.255.252", virtualbox__intnet: "office1Rout" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.1', netmask: "255.255.255.192", virtualbox__intnet: "Dev" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.64', netmask: "255.255.255.240", virtualbox__intnet: "Test-servers1" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.129', netmask: "255.255.255.192", virtualbox__intnet: "Managers" 
+    off1Rout.vm.network  "private_network", ip: '192.168.2.192', netmask: "255.255.255.192", virtualbox__intnet: "Office-hard1"
     off1Rout.vm.network  "private_network", ip: '192.168.56.13'
     off1Rout.vm.hostname = "off1Rout"
   end 
   config.vm.define "off1Ser" do |off1Ser|
     off1Ser.vm.box = "ubuntu/focal64"  
-    off1Ser.vm.network  "private_network", ip: '192.168.2.130', netmask: "255.255.255.192", virtualbox__inet: "office1Server"  
+    off1Ser.vm.network  "private_network", ip: '192.168.2.130', netmask: "255.255.255.192", virtualbox__intnet: "Managers"  
     off1Ser.vm.network  "private_network", ip: '192.168.56.14'
     off1Ser.vm.hostname = "off1Ser"
   end
   config.vm.define "off2Rout" do |off2Rout|
     off2Rout.vm.box = "debian/bullseye64"
-    off2Rout.vm.network  "private_network", ip: '192.168.255.6', netmask: "255.255.255.252", virtualbox__inet: "office2Router"  
-    off2Rout.vm.network  "private_network", ip: '192.168.3.1', netmask: "255.255.255.192", virtualbox__inet: "De" 
-    off2Rout.vm.network  "private_network", ip: '192.168.0.129', netmask: "255.255.255.192", virtualbox__inet: "Test-Server"  
-    off2Rout.vm.network  "private_network", ip: '192.168.0.193', netmask: "255.255.255.192",virtuzlbox__inet: "Office-hard"
+    off2Rout.vm.network  "private_network", ip: '192.168.255.6', netmask: "255.255.255.252", virtualbox__intnet: "office2Rout"  
+    off2Rout.vm.network  "private_network", ip: '192.168.3.1', netmask: "255.255.255.128", virtualbox__intnet: "Dev2Serv" 
+    off2Rout.vm.network  "private_network", ip: '192.168.3.129', netmask: "255.255.255.192", virtualbox__intnet: "Test-Servers2"  
+    off2Rout.vm.network  "private_network", ip: '192.168.3.193', netmask: "255.255.255.192",virtualbox__intnet: "Office-hard2"
     off2Rout.vm.network  "private_network", ip: '192.168.56.15'
     off2Rout.vm.hostname = "off2Rout"
  end
  config.vm.define "off2Ser" do |off2Ser|
     off2Ser.vm.box = "debian/bullseye64" 
-    off2Ser.vm.network  "private_network", ip: '192.168.3.2', netmask: "255.255.255.192", virtualbox__inet: "office2Server" 
+    off2Ser.vm.network  "private_network", ip: '192.168.3.2', netmask: "255.255.255.128", virtualbox__intnet: "Dev2Serv" 
     off2Ser.vm.network  "private_network", ip: '192.168.56.16'
     off2Ser.vm.hostname = "off2Ser"
  end
 end
-
-

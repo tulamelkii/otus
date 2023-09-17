@@ -1,14 +1,14 @@
 [intRout]
-intRout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/intRout/virtualbox/private_key
+intRout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/home/otus/.vagrant/machines/intRout/virtualbox/private_key
 
 [centRout]
-centRout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/centRout/virtualbox/private_key
+centRout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/home/otus/.vagrant/machines/centRout/virtualbox/private_key
 
 [off1Rout]
-off1Rout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2202 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/off1Rout/virtualbox/private_key
+off1Rout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2202 ansible_private_key_file=/home/home/otus/.vagrant/machines/off1Rout/virtualbox/private_key
 
 [off2Rout]
-off2Rout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2204 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/off2Rout/virtualbox/private_key
+off2Rout ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2204 ansible_private_key_file=/home/home/otus/.vagrant/machines/off2Rout/virtualbox/private_key
 
 [all_router:children]
 intRout
@@ -16,11 +16,22 @@ centRout
 off1Rout
 off2Rout
 
+[off2Ser]
+off2Ser ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2205 ansible_private_key_file=/home/home/otus/.vagrant/machines/off2Ser/virtualbox/private_key
+
+
 [dirSer]
-dirSer ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/dirSer/virtualbox/private_key
+dirSer ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/home/otus/.vagrant/machines/dirSer/virtualbox/private_key
 
 [off1Ser]
-off1Ser ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2203 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/off1Ser/virtualbox/private_key
+off1Ser ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2203 ansible_private_key_file=/home/home/otus/.vagrant/machines/off1Ser/virtualbox/private_key
 
-[off2Ser]
-off2Ser ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2205 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/off2Ser/virtualbox/private_key
+[all:children]
+intRout
+centRout
+off1Rout
+off2Ser
+off2Rout
+dirSer
+off1Ser
+

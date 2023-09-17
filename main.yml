@@ -1,14 +1,15 @@
 ---
    
-  - name: Network
+  - name: Net
     hosts: "intRout"
     become: true
     tasks:
-      - name: install iptables
+      - name: install iptables & add rules nat
         yum:
           name:
             - iptables
-            - iptables-services 
+            - iptables-services
+            - traceroute 
       - name: create template Nat
         template:
           src: iptables
@@ -22,7 +23,7 @@
           state: started
           enabled: true
       
-  - name: enable foward
+  - name: enable fowarding for all routers
     hosts: "all_router"
     become: true
     tasks:      
@@ -32,28 +33,97 @@
           value: '1'
           state: present  
   
-    
-  - name:
+  - name: all hosts
     hosts: all
     become: true
     tasks:
+      - name: install traceroute
+        apt:
+          update_cache: yes
+          name: traceroute
+          state: latest
+        when: ( ansible_os_family == "Debian") or 
+              (ansible_os_family == "Ubuntu")
+      
+      - name: install traceroute for Centos
+        yum: 
+          update_cache: true    
+          name: traceroute
+          state: latest
+        when: ( ansible_os_family == "RedHat") 
+
       - name: disable default route
         lineinfile: 
           path: /etc/sysconfig/network-scripts/ifcfg-eth0  
           line: DEFROUTE=NO
         when: (ansible_hostname == "centRout") or 
               (ansible_hostname == "dirSer")
+      
       - name: add default gatw centRout
         lineinfile:
           path: /etc/sysconfig/network-scripts/ifcfg-eth1
           line: GATEWAY=192.168.255.1
-        when: (ansible_hostname == "centRout") 
+        when: (ansible_hostname == "centRout")
+          
       - name: add default gateway for dirSer
         lineinfile:
           path: /etc/sysconfig/network-scripts/ifcfg-eth1
           line: GATEWAY=192.168.0.1 
         when: (ansible_hostname == "dirSer")
-      - name: set up route on off1Ser
+
+      - name: add file from interface dirSer and intRout
+        file:
+          path: /etc/sysconfig/network-scripts/route-eth1
+          owner: root
+          group: root
+          mode: '0644'
+          state: touch
+        when: (ansible_hostname == "intRout") or 
+              (ansible_hostname == "dirSer")
+ 
+
+      - name: add static rout intRout
+        blockinfile:
+          path: /etc/sysconfig/network-scripts/route-eth1
+          block: |
+            192.168.0.0/22 via 192.168.255.2
+            192.168.2.0/24 via 192.168.255.2
+            192.168.3.0/24 via 192.168.255.2
+            192.168.255.10/30 via 192.168.255.2
+            192.168.255.6/30 via 192.168.255.2  
+        when: (ansible_hostname == "intRout")
+
+      - name: add folder rout 
+        file:
+          path: /etc/sysconfig/network-scripts/route-eth3
+          owner: root
+          group: root
+          mode: '0644'
+          state: touch
+        when: (ansible_hostname == "centRout")
+
+      - name: add file dirSer and intRout
+        file:
+          path: /etc/sysconfig/network-scripts/route-eth5
+          owner: root
+          group: root
+          mode: '0644'
+          state: touch
+        when: (ansible_hostname == "centRout")
+
+      - name: add static rout dirSer
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/route-eth3
+          line: " 192.168.2.0/24 via 192.168.255.10"
+        when: (ansible_hostname == "centRout")
+          
+      - name: add static rout dirSer
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/route-eth5
+          line: " 192.168.3.0/24 via 192.168.255.6"
+        when: (ansible_hostname == "centRout")
+
+      - name: setup route on off1Ser
         template:
           src: off1Ser.j2 
           dest: /etc/netplan/50-vagrant.yaml
@@ -61,7 +131,8 @@
           group: root
           mode: 0644
         when: (ansible_hostname == "off1Ser")
-      - name: set up route on off2Ser
+
+      - name: setup route on off2Ser
         template:
           src: off2Ser.j2
           dest: /etc/network/interfaces
@@ -69,7 +140,8 @@
           group: root
           mode: 0644
         when: (ansible_hostname == "off2Ser")
-      - name: set up route on off1Rout
+      
+      - name: setup route on off1Rout
         template:
           src: off1Rout.j2 
           dest: /etc/netplan/50-vagrant.yaml
@@ -77,7 +149,8 @@
           group: root
           mode: 0644
         when: (ansible_hostname == "off1Rout")
-      - name: set up route on off2Rout
+
+      - name: setup route on off2Rout
         template:
           src: off2Rout.j2
           dest: /etc/network/interfaces
@@ -86,7 +159,15 @@
           mode: 0644
         when: (ansible_hostname == "off2Rout")
 
-  
-  
-          
-          
+      - name: reboot all hosts 
+        block:
+        - shell: systemctl reboot
+          async: 200
+          poll: 0
+          ignore_errors: true
+
+      - name: wait for system hosts
+        wait_for_connection:
+          delay: 60
+          timeout: 200
+...
