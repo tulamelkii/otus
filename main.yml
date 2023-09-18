@@ -111,13 +111,13 @@
           state: touch
         when: (ansible_hostname == "centRout")
 
-      - name: add static rout dirSer
+      - name: add static rout centRout
         lineinfile:
           path: /etc/sysconfig/network-scripts/route-eth3
           line: " 192.168.2.0/24 via 192.168.255.10"
         when: (ansible_hostname == "centRout")
           
-      - name: add static rout dirSer
+      - name: add static rout CentRout
         lineinfile:
           path: /etc/sysconfig/network-scripts/route-eth5
           line: " 192.168.3.0/24 via 192.168.255.6"
@@ -162,12 +162,12 @@
       - name: reboot all hosts 
         block:
         - shell: systemctl reboot
-          async: 200
+          async: 300
           poll: 0
           ignore_errors: true
 
       - name: wait for system hosts
         wait_for_connection:
           delay: 60
-          timeout: 200
+          timeout: 300
 ...

@@ -1,0 +1,413 @@
+First we have testing sted
+
+office1
+- 192.168.2.0/26      - dev
+- 192.168.2.64/26     - test servers
+- 192.168.2.128/26    - managers
+- 192.168.2.192/26    - office hardware
+
+office2
+- 192.168.1.0/25      - dev
+- 192.168.1.128/26    - test servers
+- 192.168.1.192/26    - office hardware
+
+central
+- 192.168.0.0/28     - directors
+- 192.168.0.32/28    - office hardware
+- 192.168.0.64/26    - wifi
+
+Home Task
+
+1)Find free subnets
+2)Calculate the number of nodes in each subnet, including free
+3)Find brodcast all subnets
+4)Check for errors during separation
+
+build table subnets
+        
+Network           Netmask         N   Hostmin       Hostmax     Broadcast
+
+192.168.0.0/28   255.255.255.240  14 192.168.0.1  192.168.0.14  192.168.0.15
+192.168.0.32/28  255.255.255.240  14 192.168.0.33 192.168.0.46  192.168.0.47
+192.168.0.64/26  255.255.255.192  62 192.168.0.65 192.168.0.126 192.168.0.127
+
+192.168.2.0/26   255.255.255.192  62 192.168.2.1   192.168.2.62  192.168.2.63
+192.168.2.64/26  255.255.255.192  62 192.168.2.65  192.168.2.126 192.168.2.127
+192.168.2.128/26 255.255.255.192  62 192.168.2.129 192.168.2.190 192.168.2.191
+192.168.2.192/26 255.255.255.192  62 192.168.2.193 192.168.2.254 192.168.2.255
+
+192.168.3.0/25   255.255.255.128 126 192.168.3.1   192.168.3.126 192.168.3.127
+192.168.3.128/26 255.255.255.192 62  192.168.3.129 192.168.3.190 192.168.3.191
+192.168.3.192/26 255.255.255.192 62  192.168.3.193 192.168.3.254 192.168.3.255
+
+192.168.255.0/30 255.255.255.252 2   192.168.255.1 192.168.255.2 192.168.255.3
+
+After we find free subnets
+
+192.168.0.16/28 
+192.168.0.48/28
+192.168.0.128/25
+192.168.255.64/26
+192.168.255.32/27
+192.168.255.16/28
+192.168.255.8/29  
+192.168.255.4/30
+
+I check this subnets and they calculated all rigt but i change subnet 192.168.1.0/24 => 192.168.3.0/24
+i have some kind trables for this subnet.If i made and build vagrant i reccive errors for network 192.168.1.0 and virtualbox write ip collision address and he uses this subnet
+
+                                                                    part 2 Practic
+We create new table with connection
+we have 4 routers and 3 servers.
+inetRout CentOS 7
+192.168.255.1/30
+
+centRout Centos 7
+192.168.255.2/30  
+192.168.0.1/28
+192.168.0.33/28
+192.168.0.65/26
+192.168.255.9/30
+192.168.255.5/30
+
+centSer Centos 7
+192.168.0.2/28
+ 
+off1Rout ubuntu 20
+192.168.255.10/30
+192.168.2.1/26
+192.168.2.65/26
+192.168.2.129/26
+192.168.2.193/26
+
+off1Ser ubuntu
+192.168.2.130/26
+
+office2Router Debian 11
+192.168.255.6/30
+192.168.1.1/26
+192.168.1.129/26
+192.168.1.193/26
+
+office2Server Debian 11
+192.168.1.2/26
+
+
+
+                      
+
+                                                                    ( Internet )
+                                                                        ||
+                                                                        ||
+                                                                        ||
+                                                                     (intRout)
+                                                                  192.168.255.1/30
+                                                                        ||
+                                                                        ||
+                                                                        ||
+                                                                 192.168.255.2/30 
+                          (dirSer)192.168.0.2/28------192.168.0.1/28(centRout)192.168.0.65/26--------(office hw)
+                                                                 192.168.0.33/28
+                                               192.168.255.9/30 //      ||     \\ 192.168.255.5/30
+                                                               //       ||      \\
+                                                              //        ||       \\
+                                                             //         ||        \\
+                                                            //     (office hw)     \\
+                                                           //                       \\
+                                                          //                         \\
+                                                         //                           \\
+                                                        //                             \\ 
+                                            192.168.255.10/30                         192.168.255.6/30  
+                        (dev)------192.168.2.1/26(off1Rout)                            (office2Rout)192.168.3.193/26------(office hw)
+                                             192.168.2.129/26                         192.168.3.129/26
+                               192.168.2.65/28 //   || \\192.168.2.192/26     192.168.3.1/26 // \\     
+                                              //    ||  \\                                  //   \\
+                                             //     ||   \\                                //     \\
+                                            //      ||    \\                              //       \\
+                                           //       ||     \\                            //         \\ 
+                                          //        ||      \\                          //           \\
+                                         // 192.168.2.130/26 \\          192.168.3.2/25//             \\192.168.3.29/26
+                                   (TestServ) ( off1Ser) ( office hw)              (off2Ser)       (Test Serv)
+                                                       
+                                                        
+
+we connected all hosts this network and create Vagrantfile 
+This is example connection network Vagrantfile
+***********************************************************************************************************************************************  
+MACHINES = [
+    {
+      name: "intRout",
+      box: "centos/7",
+      networks: [
+        { type: "private_network", ip: "192.168.255.1", netmask: "255.255.255.252", virtualbox__intnet: "router-net" },
+        { type: "private_network", ip: "192.168.56.10" }
+      ],
+      hostname: "intRout"
+    },
+    {
+      name: "centRout",
+      box: "centos/7",
+      networks: [
+        { type: "private_network", ip: "192.168.255.2", netmask: "255.255.255.252", virtualbox__intnet: "router-net" },
+        { type: "private_network", ip: "192.168.0.1", netmask: "255.255.255.240", virtualbox__intnet: "dir-net" },
+        { type: "private_network", ip: "192.168.255.9", netmask: "255.255.255.252", virtualbox__intnet: "office1Rout" },
+        { type: "private_network", ip: "192.168.0.33", netmask: "255.255.255.240", virtualbox__intnet: "hw-net" },
+        { type: "private_network", ip: "192.168.255.5", netmask: "255.255.255.252", virtualbox__intnet: "office2Rout" },
+        { type: "private_network", ip: "192.168.0.65", netmask: "255.255.255.192", virtualbox__intnet: "mgt-net" },
+        { type: "private_network", ip: "192.168.56.11" }
+      ],
+      hostname: "centRout"
+    },
+    {
+      name: "dirSer",
+      box: "centos/7",
+      networks: [
+        { type: "private_network", ip: "192.168.0.2", netmask: "255.255.255.240", virtualbox__intnet: "dir-net" },
+        { type: "private_network", ip: "192.168.56.12" }
+      ],
+      hostname: "dirSer"
+    },
+    {
+      name: "off1Rout",
+      box: "ubuntu/focal64",
+      networks: [
+        { type: "private_network", ip: "192.168.255.10", netmask: "255.255.255.252", virtualbox__intnet: "office1Rout" },
+        { type: "private_network", ip: "192.168.2.1", netmask: "255.255.255.192", virtualbox__intnet: "Dev" },
+        { type: "private_network", ip: "192.168.2.64", netmask: "255.255.255.240", virtualbox__intnet: "Test-servers1" },
+        { type: "private_network", ip: "192.168.2.129", netmask: "255.255.255.192", virtualbox__intnet: "Managers" },
+        { type: "private_network", ip: "192.168.2.192", netmask: "255.255.255.192", virtualbox__intnet: "Office-hard1" },
+        { type: "private_network", ip: "192.168.56.13" }
+      ],
+      hostname: "off1Rout"
+    },
+    {
+      name: "off1Ser",
+      box: "ubuntu/focal64",
+      networks: [
+        { type: "private_network", ip: "192.168.2.130", netmask: "255.255.255.192", virtualbox__intnet: "Managers" },
+        { type: "private_network", ip: "192.168.56.14" }
+      ],
+      hostname: "off1Ser"
+    },
+    {
+      name: "off2Rout",
+      box: "debian/bullseye64",
+      networks: [
+        { type: "private_network", ip: "192.168.255.6", netmask: "255.255.255.252", virtualbox__intnet: "office2Rout" },
+        { type: "private_network", ip: "192.168.3.1", netmask: "255.255.255.128", virtualbox__intnet: "Dev2Serv" },
+        { type: "private_network", ip: "192.168.3.129", netmask: "255.255.255.192", virtualbox__intnet: "Test-Servers2" },
+        { type: "private_network", ip: "192.168.3.193", netmask: "255.255.255.192", virtualbox__intnet: "Office-hard2" },
+        { type: "private_network", ip: "192.168.56.15" }
+      ],
+      hostname: "off2Rout"
+    },
+    {
+      name: "off2Ser",
+      box: "debian/bullseye64",
+      networks: [
+        { type: "private_network", ip: "192.168.3.2", netmask: "255.255.255.128", virtualbox__intnet: "Dev2Serv" },
+        { type: "private_network", ip: "192.168.56.16" }
+      ],
+      hostname: "off2Ser"
+    }
+ 
+*****************************************************************************************************************************************************
+                                                      
+if the Vagrant stand has risen, we will configure it
+
+1) First step we configured nat on the intRout
+We installed programs iptables and iptables service
+2) Create rulls in file /etc/sysconfig/iptables
+**********************************************************************
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [37:2828]
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+# Deny ping trafic
+# -A INPUT -j REJECT --reject-with icmp-host-prohibited
+# -A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
+# Completed on Mon Jan 17 09:53:32 2022
+# Generated by iptables-save v1.4.21 on Mon Jan 17 09:53:32 2022
+*nat
+:PREROUTING ACCEPT [1:161]
+:INPUT ACCEPT [0:0]	
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING ! -d 192.168.0.0/16 -o eth0 -j MASQUERADE
+COMMIT
+**********************************************************************
+3)After restart service iptables and check status
+[vagrant@intRout ~]$ systemctl status iptables.service 
+● iptables.service - IPv4 firewall with iptables
+   Loaded: loaded (/usr/lib/systemd/system/iptables.service; enabled; vendor preset: disabled)
+   Active: active (exited) since Mon 2023-09-18 08:10:15 UTC; 5h 47min ago
+  Process: 366 ExecStart=/usr/libexec/iptables/iptables.init start (code=exited, status=0/SUCCESS)
+ Main PID: 366 (code=exited, status=0/SUCCESS)
+   CGroup: /system.slice/iptables.service
+it's greate, its work
+4)check rulles accept or not 
+[vagrant@intRout ~]$ sudo iptables -t nat -L
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination         
+MASQUERADE  all  --  anywhere            !192.168.0.0/16    
+5) check internet (ping ya.ru)
+vagrant@intRout ~]$ ping ya.ru
+PING ya.ru (5.255.255.242) 56(84) bytes of data.
+64 bytes from ya.ru (5.255.255.242): icmp_seq=1 ttl=63 time=223 ms
+64 bytes from ya.ru (5.255.255.242): icmp_seq=2 ttl=63 time=154 ms
+^Z
+6) Next step we must create rulls for routing
+This is block in create routing and if we have change this rulles
+go to /etc/sysconfig/network-scripts/route and change preference
+**************************************************************************
+    - name: add static rout intRout
+        blockinfile:
+          path: /etc/sysconfig/network-scripts/route-eth1
+          block: |
+            192.168.0.0/22 via 192.168.255.2
+            192.168.2.0/24 via 192.168.255.2
+            192.168.3.0/24 via 192.168.255.2
+            192.168.255.10/30 via 192.168.255.2
+            192.168.255.6/30 via 192.168.255.2
+*************************************************************************
+7) Next step we configured central server 
+Create rulls for routing and we trust two subnnet 192.168.2.0/24 and 192.168.3.0/24
+**************************************************************************
+      - name: add static rout dirSer
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/route-eth3
+          line: " 192.168.2.0/24 via 192.168.255.10"
+        when: (ansible_hostname == "centRout")
+
+      - name: add static rout dirSer
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/route-eth5
+          line: " 192.168.3.0/24 via 192.168.255.6"
+        when: (ansible_hostname == "centRout")
+*************************************************************************
+8) after we disabled defaul routing vm(centRout,dirSer) (virtual box) DEFROUTE=NO
+*************************************************************************
+      - name: disable default route
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/ifcfg-eth0
+          line: DEFROUTE=NO
+        when: (ansible_hostname == "centRout") or
+              (ansible_hostname == "dirSer")
+
+9) create default routs
+      - name: add default gatw centRout
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/ifcfg-eth1
+          line: GATEWAY=192.168.255.1
+        when: (ansible_hostname == "centRout")
+
+      - name: add default gateway for dirSer
+        lineinfile:
+          path: /etc/sysconfig/network-scripts/ifcfg-eth1
+          line: GATEWAY=192.168.0.1
+        when: (ansible_hostname == "dirSer")
+ 
+10)Next steps we configured off1Rout(Ubuntu router)/etc/netplam/....
+Ubuntu worked with netplan  and i show example config for ubuntu.This config accept all routs in 192.168.255.9 and this is gw
+---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 192.168.255.10/30
+      routes:
+      - to: 0.0.0.0/0
+        via: 192.168.255.9
+
+11) Examle conf off1Ser
+---
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s8:
+      addresses:
+      - 192.168.2.130/26
+      routes:
+      - to: 0.0.0.0/0
+        via: 192.168.2.129
+    enp0s9:
+12)Next step configured off2Ser(Debian Server/etc/network) and this problem was: if you don't delete default routs, your network not work(post-up ip route del default dev eth0)
+*****************************************
+# The primary network interface
+allow-hotplug eth0
+iface eth0 inet dhcp
+#VAGRANT-BEGIN
+# The contents below are automatically generated by Vagrant. Do not modify.i
+post-up ip route del default dev eth0
+
+auto eth1
+iface eth1 inet static
+      address 192.168.255.6
+      netmask 255.255.255.252
+up ip route add 0.0.0.0/0 via 192.168.255.5 dev eth1
+#VAGRANT-END
+*****************************************
+13) examle conf off2Ser add rout and delete default 
+post-up ip route del default dev eth0
+auto eth1
+iface eth1 inet static
+      address 192.168.3.2
+      netmask 255.255.255.192
+up ip route add 0.0.0.0/0 via 192.168.3.1 dev eth1
+
+14) check Network 
+
+full logs ping and tracerout in git
+
+15)If we have start ansible after latest vm 
+this examle made it
+If you want to run ansible after the last virtual machine
+this example will help you
+*******************************************************************************
+  MACHINES.each do |boxcon|
+    config.vm.define boxcon[:name] do |vm|
+      vm.vm.box = boxcon[:box]
+      boxcon[:networks].each do |network|
+        vm.vm.network network[:type], ip: network[:ip], netmask: network[:netmask], virtualbox__intnet: network[:virtualbox__intnet]
+      end
+      vm.vm.hostname = boxcon[:hostname]
+    end
+  end
+
+  last_vm = MACHINES.last
+  config.vm.define last_vm[:name] do |vm|
+    vm.vm.provision "ansible" do |ansible|
+      ansible.playbook = "main.yml"
+      ansible.inventory_path = "hosts"
+      ansible.limit = "all"
+    end
+  end
+end
+*******************************************************************************
+
+
+16)Write vagrant up and relax:) 
+
+ 
+
+
+
+
+
