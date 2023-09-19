@@ -1,0 +1,13 @@
+---
+ - name: PXE
+   hosts: pxeserver
+   become: true
+   tasks:
+     - name: change repo 
+       lineinfile:
+       destination: 
+     - name: install httpd
+       yum:
+         name: httpd
+         state: latest
+...
