@@ -5,9 +5,23 @@
    tasks:
      - name: change repo 
        lineinfile:
-       destination: 
+         path: "{{ item }}"
+         regexp: ^mirrorlist
+         line: '#mirrorlist'
+       loop:
+       - /etc/yum.repos.d/CentOS-Linux-AppStream.repo
+       - /etc/yum.repos.d/CentOS-Linux-BaseOS.repo
+     - name: change repo
+       lineinfile:
+         path: "{{ item}}"
+         regexp: ^#baseurl=http://mirror.centos.org
+         line: baseurl=http://vault.centos.org
+       loop: 
+         - /etc/yum.repos.d/CentOS-Linux-AppStream.repo
+         - /etc/yum.repos.d/CentOS-Linux-BaseOS.repo
      - name: install httpd
        yum:
+         update_cache: true
          name: httpd
          state: latest
 ...
