@@ -6,19 +6,21 @@
      - name: change repo 
        lineinfile:
          path: "{{ item }}"
-         regexp: ^mirrorlist
+         regexp: 'mirrorlist'
          line: '#mirrorlist'
        loop:
        - /etc/yum.repos.d/CentOS-Linux-AppStream.repo
        - /etc/yum.repos.d/CentOS-Linux-BaseOS.repo
      - name: change repo
        lineinfile:
-         path: "{{ item}}"
-         regexp: ^#baseurl=http://mirror.centos.org
-         line: baseurl=http://vault.centos.org
-       loop: 
-         - /etc/yum.repos.d/CentOS-Linux-AppStream.repo
-         - /etc/yum.repos.d/CentOS-Linux-BaseOS.repo
+         path: /etc/yum.repos.d/CentOS-Linux-AppStream.repo
+         regexp: '#baseurl=http://mirror.centos.org'
+         line: http://archive.kernel.org/centos-vault/8.4.2105/AppStream/x86_64/os/
+     - name: change repo
+       lineinfile:
+         path: /etc/yum.repos.d/CentOS-Linux-BaseOS.repo
+         regexp: '#baseurl=http://mirror.centos.org'
+         line: http://archive.kernel.org/centos-vault/8.4.2105/BaseOS/x86_64/os/
      - name: install httpd
        yum:
          update_cache: true
