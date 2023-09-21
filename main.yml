@@ -32,10 +32,10 @@
            - tftp-server
            - dhcp-server
          state: present
-           #        update_cache: true
-           #- name: Download iso Centos
+         update_cache: true
+           # - name: Download iso Centos
            #get_url:
-           # url: https://archive.kernel.org/centos-vault/8.4.2105/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
+           #url: https://archive.kernel.org/centos-vault/8.4.2105/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
            #dest: '~/CentOS-8.4.2105-x86_64-dvd1.iso'
            #mode: 0755
      - name: mount iso centos 8
@@ -48,41 +48,98 @@
        
      - name: create directory for iso 
        file:
-         path: iso/
+         path: /iso
          state: directory
-         owner: root
-         group: root
          mode: 0755
            
      - name: coppy iso with directory
        copy:
          src: "{{ item }}" 
-         dest: iso/
+         dest: /iso
          remote_src: yes    
        with_items:
          - "/mnt/"
      
-           # - name: create folder for  pxe.boot
-           #file:
-           #path: /etc/httpd/conf.d/pxeboot.conf
-           #state: touch
-           #mode: 0755
+     - name: create folder for  pxe.boot
+       file:
+         path: /etc/httpd/conf.d/pxeboot.conf
+         state: touch
+         mode: 0755
      
-           #- name: config pxe.boot
-           # blockinfile:
-           #path: /etc/httpd/conf.d/pxeboot.conf
-           #block: |
-           #Alias /centos8 iso/
-           #<Directory iso/>
-           # Options Indexes FollowSymLinks
-           #Require all granted
+     - name: config pxe.boot
+       blockinfile:
+         path: /etc/httpd/conf.d/pxeboot.conf
+         block: |
+           Alias /centos8 /iso
+           <Directory /iso>
+           Options Indexes FollowSymLinks
+           Require all granted
     
      - name: restart httpd
        service:
          name: httpd
          state: restarted
          enabled: yes
-
+     - name: start tftp service
+       service:
+         name: tftp
+         state: started
+         enabled: yes
+     - name: crate dir menu save boot
+       file:
+         path: /var/lib/tftpboot/
+         state: directory
+         mode: 0755
+     - name: create file pxelinux.cfg
+       file:
+         path: /var/lib/tftpboot/pxelinux.cfg
+         state: touch
+         mode: 0755
+     - name: add conf pxe
+       blockinfile:
+         path: /var/lib/tftpboot/pxelinux.cfg
+         block: |
+          default menu.c32
+          prompt 0
+          timeout 150
+          ONTIME local
+          menu title OTUS PXE Boot Menu
+                 label 1
+                 menu label ^ Graph install CentOS 8.5
+                 kernel /vmlinuz
+                 initrd /initrd.img
+                 append ip=enp0s3:dhcp inst.repo=http://172.168.56.10/centos8
+                 label 2
+                 menu label ^ Text install CentOS 8.5
+                 kernel /vmlinuz
+                 initrd /initrd.img
+                 append ip=enp0s3:dhcp inst.repo=http://172.168.56.10/centos8 text
+                 label 3
+                 menu label ^ rescue installed system
+                 kernel /vmlinuz
+                 initrd /initrd.img
+                 append ip=enp0s3:dhcp inst.repo=http://172.168.56.10/centos8 rescue
+                 #######################################################################
+                 #copy config set up pxelinux extract packages syslinux opy files to TFTP share
+                                              #
+                 #                                                                     #
+                 #######################################################################
+     - name: restart tftp-server
+       service:
+         name: tftp.service
+         state: restarted
+         enabled: true
+      
+     - name: set up dhcp-server
+       template:
+         src: dhcpd.conf
+         dest: /etc/dhcp/dhcpd.conf
+         mode: '0644'
+     - name: restart dhcp-server
+       service:
+         name: dhcpd
+         state: restarted
+         nabled: true
 
 
 
