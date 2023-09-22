@@ -74,6 +74,7 @@
            <Directory /iso>
            Options Indexes FollowSymLinks
            Require all granted
+           </Directory>
     
      - name: restart httpd
        service:
@@ -96,29 +97,20 @@
          state: touch
          mode: 0755
      - name: add conf pxe
-       blockinfile:
-         path: /var/lib/tftpboot/pxelinux.cfg
-         block: |
-          default menu.c32
-          prompt 0
-          timeout 150
-          ONTIME local
-          menu title OTUS PXE Boot Menu
-                 label 1
-                 menu label ^ Graph install CentOS 8.5
-                 kernel /vmlinuz
-                 initrd /initrd.img
-                 append ip=enp0s3:dhcp inst.repo=http://172.168.56.10/centos8
-                 label 2
-                 menu label ^ Text install CentOS 8.5
-                 kernel /vmlinuz
-                 initrd /initrd.img
-                 append ip=enp0s3:dhcp inst.repo=http://172.168.56.10/centos8 text
-                 label 3
-                 menu label ^ rescue installed system
-                 kernel /vmlinuz
-                 initrd /initrd.img
-                 append ip=enp0s3:dhcp inst.repo=http://172.168.56.10/centos8 rescue
+       template:
+         src: pxelinux.cfg
+         dest: /var/lib/tftpboot/pxelinux.cfg
+         mode: '0755' 
+     - name: extract packages syslinux
+       shell: rpm2cpio /iso/BaseOS/Packages/syslinux-tftpboot-6.04-5.el8.noarch.rpm | cpio -dimv
+     
+     - name: copy file
+       copy:
+             
+   
+
+
+
                  #######################################################################
                  #copy config set up pxelinux extract packages syslinux opy files to TFTP share
                                               #
@@ -127,19 +119,19 @@
      - name: restart tftp-server
        service:
          name: tftp.service
-         state: restarted
+         state: started
          enabled: true
       
-     - name: set up dhcp-server
-       template:
-         src: dhcpd.conf
-         dest: /etc/dhcp/dhcpd.conf
-         mode: '0644'
-     - name: restart dhcp-server
-       service:
-         name: dhcpd
-         state: restarted
-         nabled: true
+           #- name: set up dhcp-server
+           #template:
+           #src: dhcpd.conf
+           #dest: /etc/dhcp/dhcpd.conf
+           #mode: '0644'
+           # - name: restart dhcp-server
+           #service:
+           #name: dhcpd
+           #state: started
+           # nabled: true
 
 
 
