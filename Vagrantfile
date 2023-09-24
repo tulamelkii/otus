@@ -15,10 +15,10 @@ config.vm.define "pxeserver" do |server|
   server.vm.provider "virtualbox" do |vb|
     vb.memory = "1024"
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+end
   server.vm.provision "ansible" do |ansible|
    ansible.playbook = "main.yml"
    ansible.become ="true" 
-  end
 end
 
   end
