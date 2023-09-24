@@ -1,6 +1,6 @@
-First step we configured Vagrant file
-Create two virtual machine pxeserver and pxeclient
-I created network for my stend 172.16.70.2 and configured forwarding ports 80 to 8081
+First step we configure Vagrant file
+Created two virtual machine pxeserver and pxeclient
+created network for my stend 172.16.70.2 and configured forwarding ports 80 to 8081
 ***************************************************************************************************
 Vagrant.configure("2") do |config|
 #config.ssh.insert_key = false
@@ -78,7 +78,7 @@ Change repository for Centos8. ***this is reppository don't work for russia http
          regexp: '#baseurl'
          line:  'baseurl=http://archive.kernel.org/centos-vault/8.4.2105/BaseOS/x86_64/os/'
 ***************************************************************************************************
-This is preparing and we updated system and installed programs
+This preparing ,we updated system and installed programs
 - name: install programs
        yum:
          name:
@@ -125,7 +125,7 @@ After download Centos8.iso ****this link not work https://mirror.sale-dedic.com/
            ├─6353 /usr/sbin/httpd -DFOREGROUND
            └─6354 /usr/sbin/httpd -DFOREGROUND
 ------------------------------------------------------------------------------------------------
-2)Next step we,created config for httpd
+2)Next step,we created config for httpd
 
 
 - name: config pxe.boot
@@ -151,7 +151,7 @@ Copy iso file with iso directory and we we will wathing many files http://127.0.
        with_items:
          - "/mnt/"
 
-check files in folders and acces(0755)!! if all directorys oppen and visible- we made correctly.
+check files in folders and acces(0755)!! if all directorys oppened and visible- we made correctly.
 *****************************************************************************************************
 [ICO]	Name	Last modified	Size	Description
 [PARENTDIR]	Parent Directory 	 	- 	 
@@ -177,7 +177,7 @@ vagrant@pxeserver ~]$ systemctl status tftp.service
  Main PID: 6699 (code=exited, status=0/SUCCESS)
 
 2)Create file menu /var/lib/tftpboot/pxelinux.cfg/default
- This menu we see when client connected for pxe server
+ This menu see client, when connected for pxe server
  And this menu i add auto install (Label 4)
 default menu.c32
 prompt 0
@@ -374,11 +374,11 @@ Vagrant up and relax)
 **************************************************************************************************
 But i have some truble, i don't no why
 1)some times i have problem for recconected, when i download Centos.iso (mayby file very big size)
-2)If i boot and install os with kikstarter after vm reboot and start booted pxe
-How booted automatic with hdd
+2)If i boot and install os with kikstarter after vm reboot and start booted pxe.
+How booted automatic with hdd?
 
 if i change  virtual box preference and choose boot from hdd( vm loaded normal)
-if i don't change virtual booting to circle 
+if i don't change virtual booting to around
 
 
 
