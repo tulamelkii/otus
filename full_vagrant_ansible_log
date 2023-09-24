@@ -1,0 +1,156 @@
+localadm@DEB:~/otus/otus$ cat logs_vagrant_ansible 
+localadm@DEB:~/otus$ vagrant up
+Bringing machine 'pxeserver' up with 'virtualbox' provider...
+Bringing machine 'pxeclient' up with 'virtualbox' provider...
+==> pxeserver: Importing base box 'bento/centos-8.4'...
+==> pxeserver: Matching MAC address for NAT networking...
+==> pxeserver: Checking if box 'bento/centos-8.4' version '202110.26.0' is up to date...
+==> pxeserver: There was a problem while downloading the metadata for your box
+==> pxeserver: to check for updates. This is not an error, since it is usually due
+==> pxeserver: to temporary network problems. This is just a warning. The problem
+==> pxeserver: encountered was:
+==> pxeserver: 
+==> pxeserver: The requested URL returned error: 404
+==> pxeserver: 
+==> pxeserver: If you want to check for box updates, verify your network connection
+==> pxeserver: is valid and try again.
+==> pxeserver: Setting the name of the VM: otus_pxeserver_1695587970636_22430
+==> pxeserver: Clearing any previously set network interfaces...
+==> pxeserver: Preparing network interfaces based on configuration...
+    pxeserver: Adapter 1: nat
+    pxeserver: Adapter 2: intnet
+    pxeserver: Adapter 3: hostonly
+==> pxeserver: Forwarding ports...
+    pxeserver: 80 (guest) => 8081 (host) (adapter 1)
+    pxeserver: 22 (guest) => 2222 (host) (adapter 1)
+==> pxeserver: Running 'pre-boot' VM customizations...
+==> pxeserver: Booting VM...
+==> pxeserver: Waiting for machine to boot. This may take a few minutes...
+    pxeserver: SSH address: 127.0.0.1:2222
+    pxeserver: SSH username: vagrant
+    pxeserver: SSH auth method: private key
+    pxeserver: 
+    pxeserver: Vagrant insecure key detected. Vagrant will automatically replace
+    pxeserver: this with a newly generated keypair for better security.
+    pxeserver: 
+    pxeserver: Inserting generated public key within guest...
+    pxeserver: Removing insecure key from the guest if it's present...
+    pxeserver: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> pxeserver: Machine booted and ready!
+==> pxeserver: Checking for guest additions in VM...
+==> pxeserver: Setting hostname...
+==> pxeserver: Configuring and enabling network interfaces...
+==> pxeserver: Mounting shared folders...
+    pxeserver: /vagrant => /home/localadm/otus
+==> pxeserver: Running provisioner: ansible...
+    pxeserver: Running ansible-playbook...
+
+PLAY [PXE] *********************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [pxeserver]
+
+TASK [change repo] *************************************************************
+changed: [pxeserver] => (item=/etc/yum.repos.d/CentOS-Linux-AppStream.repo)
+changed: [pxeserver] => (item=/etc/yum.repos.d/CentOS-Linux-BaseOS.repo)
+
+TASK [change repo] *************************************************************
+changed: [pxeserver]
+
+TASK [change repo] *************************************************************
+changed: [pxeserver]
+
+TASK [install programs] ********************************************************
+changed: [pxeserver]
+
+TASK [Download iso Centos] *****************************************************
+changed: [pxeserver]
+
+TASK [mount iso centos8] *******************************************************
+changed: [pxeserver]
+
+TASK [create directory for iso] ************************************************
+changed: [pxeserver]
+
+TASK [coppy iso with directory] ************************************************
+changed: [pxeserver] => (item=/mnt/)
+
+TASK [create folder for  pxe.boot] *********************************************
+changed: [pxeserver]
+
+TASK [config pxe.boot] *********************************************************
+changed: [pxeserver]
+
+TASK [restart httpd] ***********************************************************
+changed: [pxeserver]
+
+TASK [start tftp service] ******************************************************
+changed: [pxeserver]
+
+TASK [crate dir menu save boot] ************************************************
+ok: [pxeserver]
+
+TASK [crate dir pxelinux] ******************************************************
+changed: [pxeserver]
+
+TASK [create file default] *****************************************************
+changed: [pxeserver]
+
+TASK [add conf pxe] ************************************************************
+changed: [pxeserver]
+
+TASK [extract packages syslinux] ***********************************************
+changed: [pxeserver]
+
+TASK [copy file tftpboot] ******************************************************
+changed: [pxeserver] => (item=pxelinux.0)
+changed: [pxeserver] => (item=ldlinux.c32)
+changed: [pxeserver] => (item=libmenu.c32)
+changed: [pxeserver] => (item=libutil.c32)
+changed: [pxeserver] => (item=menu.c32)
+changed: [pxeserver] => (item=vesamenu.c32)
+
+TASK [copy initrd and vmlinuz] *************************************************
+changed: [pxeserver] => (item=initrd.img)
+changed: [pxeserver] => (item=vmlinuz)
+
+TASK [create file config kikstarter] *******************************************
+changed: [pxeserver]
+
+TASK [configured ks.cfg] *******************************************************
+changed: [pxeserver]
+
+TASK [restart tftp-server] *****************************************************
+ok: [pxeserver]
+
+TASK [set up dhcp-server] ******************************************************
+changed: [pxeserver]
+
+TASK [start dhcp-server] *******************************************************
+changed: [pxeserver]
+
+PLAY RECAP *********************************************************************
+pxeserver                  : ok=25   changed=22   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+==> pxeclient: Importing base box 'bento/centos-8.4'...
+==> pxeclient: Matching MAC address for NAT networking...
+==> pxeclient: Checking if box 'bento/centos-8.4' version '202110.26.0' is up to date...
+==> pxeclient: Setting the name of the VM: otus_pxeclient_1695589449174_25053
+==> pxeclient: Fixed port collision for 22 => 2222. Now on port 2200.
+==> pxeclient: Clearing any previously set network interfaces...
+==> pxeclient: Preparing network interfaces based on configuration...
+    pxeclient: Adapter 1: nat
+    pxeclient: Adapter 2: hostonly
+    pxeclient: Adapter 3: hostonly
+==> pxeclient: Forwarding ports...
+    pxeclient: 22 (guest) => 2200 (host) (adapter 1)
+==> pxeclient: Running 'pre-boot' VM customizations...
+==> pxeclient: Booting VM...
+==> pxeclient: Waiting for machine to boot. This may take a few minutes...
+    pxeclient: SSH address: 127.0.0.1:22
+    pxeclient: SSH username: vagrant
+    pxeclient: SSH auth method: private key
+    pxeclient: Warning: Authentication failure. Retrying...
+    pxeclient: Warning: Authentication failure. Retrying...
+    pxeclient: Warning: Authentication failure. Retrying...
+    pxeclient: Warning: Authentication failure. Retrying...
