@@ -1,0 +1,5 @@
+dhcp_network: "172.16.70.0"
+dhcp_mask: "255.255.255.0"
+dhcp_range_min: "172.16.70.3"
+dhcp_range_max: "172.16.70.40"
+pxe_server: "172.16.70.2"
