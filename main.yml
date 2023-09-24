@@ -2,7 +2,10 @@
  - name: PXE
    hosts: pxeserver
    become: true
+   vars_files:
+     - vars.yml
    tasks:
+
      - name: change repo 
        lineinfile:
          path: "{{ item }}"
@@ -33,11 +36,11 @@
            - dhcp-server
          state: present
          update_cache: true
-           #- name: Download iso Centos
-           #get_url:
-           #url: https://archive.kernel.org/centos-vault/8.4.2105/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
-           #dest: '~/CentOS-8.4.2105-x86_64-dvd1.iso'
-           #mode: 0755
+     - name: Download iso Centos
+       get_url:
+         url: https://archive.kernel.org/centos-vault/8.4.2105/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
+         dest: '~/CentOS-8.4.2105-x86_64-dvd1.iso'
+         mode: 0755
      - name: mount iso centos 8
        mount: 
          path: /mnt
@@ -81,26 +84,37 @@
          name: httpd
          state: restarted
          enabled: yes
+
      - name: start tftp service
        service:
          name: tftp
          state: started
          enabled: yes
+
      - name: crate dir menu save boot
        file:
          path: /var/lib/tftpboot/
          state: directory
          mode: 0755
-     - name: create file pxelinux.cfg
+
+     - name: crate dir pxelinux
        file:
          path: /var/lib/tftpboot/pxelinux.cfg
+         state: directory
+         mode: 0755
+
+     - name: create file default
+       file:
+         path: /var/lib/tftpboot/pxelinux.cfg/default
          state: touch
          mode: 0755
+
      - name: add conf pxe
        template:
          src: pxelinux.cfg
-         dest: /var/lib/tftpboot/pxelinux.cfg
-         mode: '0755' 
+         dest: /var/lib/tftpboot/pxelinux.cfg/default
+         mode: 0755
+     
      - name: extract packages syslinux
        shell: rpm2cpio /iso/BaseOS/Packages/syslinux-tftpboot-6.04-5.el8.noarch.rpm | cpio -dimv
      
@@ -116,6 +130,7 @@
          - libutil.c32
          - menu.c32
          - vesamenu.c32
+
      - name: copy initrd and vmlinuz
        copy:
          src:  /iso/images/pxeboot/{{ item }}
@@ -123,24 +138,36 @@
          remote_src: yes
        with_items:
          - initrd.img
-         - vmlinuz  
+         - vmlinuz
 
+     - name: create file config kikstarter
+       file:
+         path: /iso/ks.cfg
+         state: touch
+         mode: 0755
+
+     - name: configured ks.cfg
+       template:
+         src: ks.cfg
+         dest: /iso/ks.cfg
+         mode: 0755
+    
      - name: restart tftp-server
        service:
          name: tftp.service
          state: started
          enabled: true
       
-           #- name: set up dhcp-server
-           #template:
-           #src: dhcpd.conf
-           #dest: /etc/dhcp/dhcpd.conf
-           #mode: '0644'
-           # - name: restart dhcp-server
-           #service:
-           #name: dhcpd
-           #state: started
-           # nabled: true
+     - name: set up dhcp-server
+       template:
+         src: dhcpd.conf
+         dest: /etc/dhcp/dhcpd.conf
+         mode: '0644'
+     - name: start dhcp-server
+       service:
+         name: dhcpd
+         state: started
+         enabled: true
 
 
 

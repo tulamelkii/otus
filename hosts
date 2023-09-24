@@ -1,4 +1,4 @@
 [pxeserver]
-pxeserver ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_ssh_private_key_file=/home/localadm/.vagrant.d/insecure_private_key
+pxeserver ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_ssh_private_key_file=/home/localadm/otus/.vagrant/machines/pxeserver/virtualbox/private_key
 [pxeclient]
-pxeclient ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansiple_privat_key_file=/home/localadm/.vagrant.d/insecure_private_key
+pxeclient ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansiple_privat_key_file=/home/localadm/otus/.vagrant/machines/pxeclient/virtualbox/private_key

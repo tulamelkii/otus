@@ -8,14 +8,18 @@ config.vm.define "pxeserver" do |server|
   server.vm.box = 'bento/centos-8.4'
 
   server.vm.host_name = 'pxeserver'
-  server.vm.network :private_network, ip: "172.16.70.1", virtualbox__intnet: 'pxenet'
+  server.vm.network :private_network, ip: "172.16.70.2", virtualbox__intnet: 'pxenet'
   server.vm.network :private_network, ip: "192.168.56.10", adapter: 3
   server.vm.network "forwarded_port", guest: 80, host: 8081
 
   server.vm.provider "virtualbox" do |vb|
     vb.memory = "1024"
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+  server.vm.provision "ansible" do |ansible|
+   ansible.playbook = "main.yml"
+   ansible.become ="true" 
   end
+end
 
   end
 # config used from this
@@ -23,12 +27,12 @@ config.vm.define "pxeserver" do |server|
   config.vm.define "pxeclient" do |pxeclient|
     pxeclient.vm.box = 'bento/centos-8.4'
     pxeclient.vm.host_name = 'pxeclient'
-    pxeclient.vm.network :private_network, ip: "172.16.70.2"
+    pxeclient.vm.network :private_network, ip: "172.16.70.3"
     pxeclient.vm.network :private_network, ip: "192.168.56.10", adapter: 3
 
     pxeclient.vm.provider :virtualbox do |vb|
     vb.memory = "2048"
-    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
     vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
       vb.customize [
           'modifyvm', :id,
@@ -40,10 +44,7 @@ config.vm.define "pxeserver" do |server|
           '--boot3', 'none',
           '--boot4', 'none'
         ]
-#    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
-      # ENABLE to fix memory issues
-#     end
   end
 
 end
