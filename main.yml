@@ -1,0 +1,159 @@
+ - name: install 
+   hosts: vm
+   become: true
+   tasks:
+    - name: install update and program
+      apt:
+        update_cache: yes
+        name: 
+        - traceroute
+        - iptables
+        - iptables-persistent
+        - conntrack
+        - tcpdump
+        - knockd
+        - curl
+        state: latest
+         
+    - name: enable forwarding  
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state: present  
+    
+    - name: setup block inetRouter
+      block:
+        - name: setup template iptabels inetRouter 
+          template:
+            src: inetRouter.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+
+        - name: enable knockd
+          lineinfile:
+            path: /etc/default/knockd
+            regexp: 'START_KNOCKD'
+            line: 'START_KNOCKD=1'
+
+        - name: enable int knockd
+          lineinfile:
+            path: /etc/default/knockd
+            regexp: '#KNOCKD_OPTS'
+            line: 'KNOCKD_OPTS="-i eth1"'
+
+        - name: configured knockd
+          template:
+            src: knockd.j2
+            dest: /etc/knockd.conf
+            owner: root
+            group: root
+            mode: 0755
+        - name: service knocked
+          service:
+            name: knockd
+            state: started
+            enabled: yes
+        
+        - name: temlate knock service(default service not work)
+          template:
+            src: knockd2.j2
+            dest: /lib/systemd/system/knockd.service
+            owner: root
+            group: root
+            mode: 0755
+
+        - name: start enable 
+          service:
+            name: knockd
+            enabled: true
+
+        - name: iptables rules
+          template:
+            src: InRout.j2
+            dest: /etc/iptables/rules.v4
+            owner: root
+            group: root
+            mode: 0755
+        - name: create dir 
+          file:
+            path: /root/.ssh
+            state: directory
+
+        - name: create file authorized
+          file:
+            path: /root/.ssh/authorized_keys
+            state: touch
+            owner: root
+            group: root
+            mode: '775'
+
+      when: (ansible_hostname == "inetRouter")
+      become: true
+      become_user: root
+
+    - name: install to CentRout
+      block:
+        - name: setup route on CentRouter
+          template:
+            src: CentRouter.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+        
+        - name: install nginx
+          apt:
+            name: nginx
+            state: latest
+
+        - name: create dir 
+          file:
+            path:  /root/.ssh
+            state: directory
+
+        - name: Generate an ssh-keygen
+          become: yes
+          openssh_keypair:
+            path: /root/.ssh/id_rsa
+            owner: root
+            group: root
+
+        - name: Copy id_rsa to main vm
+          fetch:
+            src: /root/.ssh/id_rsa.pub
+            dest: "{{ inventory_hostname }}_id_rsa.pub"
+            flat: yes 
+    
+        - name: Copy to InetRouter
+          copy:
+            src: "{{ inventory_hostname }}_id_rsa.pub"
+            dest: /root/.ssh/authorized_keys
+            mode: '0600'
+          delegate_to: inetRouter  
+      when: (ansible_hostname == "CentRouter")
+      become: true
+      become_user: root
+
+
+    - name: setup route on inetRouter2
+      template:
+        src: inetRouter2.j2
+        dest: /etc/network/interfaces
+        owner: root
+        group: root
+        mode: 0644
+      when: (ansible_hostname == "inetRouter2")
+
+    - name: reboot all hosts 
+      block:
+        - shell: systemctl reboot
+          async: 300
+          poll: 0
+          ignore_errors: true
+    - name: wait for system hosts
+      wait_for_connection:
+        delay: 60
+        timeout: 300 
+
