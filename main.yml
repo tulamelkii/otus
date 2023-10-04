@@ -4,7 +4,7 @@
    tasks:
     - name: install update and program
       apt:
-        update_cache: yes
+        # update_cache: yes
         name: 
         - traceroute
         - iptables
@@ -131,7 +131,18 @@
             src: "{{ inventory_hostname }}_id_rsa.pub"
             dest: /root/.ssh/authorized_keys
             mode: '0600'
-          delegate_to: inetRouter  
+          delegate_to: inetRouter
+            
+        - name: edit nginx listen port
+          template:
+            src: nginx.j2
+            dest: /etc/nginx/sites-enabled/default 
+              
+        - name: service knocked
+          service:
+            name: nginx
+            state: restarted
+            
       when: (ansible_hostname == "CentRouter")
       become: true
       become_user: root
@@ -145,7 +156,14 @@
         group: root
         mode: 0644
       when: (ansible_hostname == "inetRouter2")
-
+    - name: iptables rules
+      template:
+        src: int2ipt.j2
+        dest: /etc/iptables/rules.v4
+        owner: root
+        group: root
+        mode: 0755
+      when: (ansible_hostname == "inetRouter2")
     - name: reboot all hosts 
       block:
         - shell: systemctl reboot
