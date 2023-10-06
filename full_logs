@@ -1,0 +1,360 @@
+localadm@DEB:~/otus$ vagrant up
+Bringing machine 'inetRouter' up with 'virtualbox' provider...
+Bringing machine 'centRouter' up with 'virtualbox' provider...
+Bringing machine 'inetRouter2' up with 'virtualbox' provider...
+Bringing machine 'inetServer' up with 'virtualbox' provider...
+==> inetRouter: Importing base box 'debian/bullseye64'...
+==> inetRouter: Matching MAC address for NAT networking...
+==> inetRouter: Checking if box 'debian/bullseye64' version '11.20230615.1' is up to date...
+==> inetRouter: Setting the name of the VM: otus_inetRouter_1696633554118_30999
+==> inetRouter: Clearing any previously set network interfaces...
+==> inetRouter: Preparing network interfaces based on configuration...
+    inetRouter: Adapter 1: nat
+    inetRouter: Adapter 2: intnet
+    inetRouter: Adapter 3: hostonly
+==> inetRouter: Forwarding ports...
+    inetRouter: 22 (guest) => 2222 (host) (adapter 1)
+==> inetRouter: Booting VM...
+==> inetRouter: Waiting for machine to boot. This may take a few minutes...
+    inetRouter: SSH address: 127.0.0.1:2222
+    inetRouter: SSH username: vagrant
+    inetRouter: SSH auth method: private key
+    inetRouter: 
+    inetRouter: Vagrant insecure key detected. Vagrant will automatically replace
+    inetRouter: this with a newly generated keypair for better security.
+    inetRouter: 
+    inetRouter: Inserting generated public key within guest...
+    inetRouter: Removing insecure key from the guest if it's present...
+    inetRouter: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> inetRouter: Machine booted and ready!
+==> inetRouter: Checking for guest additions in VM...
+    inetRouter: The guest additions on this VM do not match the installed version of
+    inetRouter: VirtualBox! In most cases this is fine, but in rare cases it can
+    inetRouter: prevent things such as shared folders from working properly. If you see
+    inetRouter: shared folder errors, please make sure the guest additions within the
+    inetRouter: virtual machine match the version of VirtualBox you have installed on
+    inetRouter: your host and reload your VM.
+    inetRouter: 
+    inetRouter: Guest Additions Version: 6.0.0 r127566
+    inetRouter: VirtualBox Version: 6.1
+==> inetRouter: Setting hostname...
+==> inetRouter: Configuring and enabling network interfaces...
+==> inetRouter: Mounting shared folders...
+    inetRouter: /vagrant => /home/localadm/otus
+==> centRouter: Importing base box 'debian/bullseye64'...
+==> centRouter: Matching MAC address for NAT networking...
+==> centRouter: Checking if box 'debian/bullseye64' version '11.20230615.1' is up to date...
+==> centRouter: Setting the name of the VM: otus_centRouter_1696633597118_94167
+==> centRouter: Fixed port collision for 22 => 2222. Now on port 2200.
+==> centRouter: Clearing any previously set network interfaces...
+==> centRouter: Preparing network interfaces based on configuration...
+    centRouter: Adapter 1: nat
+    centRouter: Adapter 2: intnet
+    centRouter: Adapter 3: intnet
+    centRouter: Adapter 4: intnet
+    centRouter: Adapter 5: hostonly
+==> centRouter: Forwarding ports...
+    centRouter: 22 (guest) => 2200 (host) (adapter 1)
+==> centRouter: Booting VM...
+==> centRouter: Waiting for machine to boot. This may take a few minutes...
+    centRouter: SSH address: 127.0.0.1:2200
+    centRouter: SSH username: vagrant
+    centRouter: SSH auth method: private key
+    centRouter: 
+    centRouter: Vagrant insecure key detected. Vagrant will automatically replace
+    centRouter: this with a newly generated keypair for better security.
+    centRouter: 
+    centRouter: Inserting generated public key within guest...
+    centRouter: Removing insecure key from the guest if it's present...
+    centRouter: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> centRouter: Machine booted and ready!
+==> centRouter: Checking for guest additions in VM...
+    centRouter: The guest additions on this VM do not match the installed version of
+    centRouter: VirtualBox! In most cases this is fine, but in rare cases it can
+    centRouter: prevent things such as shared folders from working properly. If you see
+    centRouter: shared folder errors, please make sure the guest additions within the
+    centRouter: virtual machine match the version of VirtualBox you have installed on
+    centRouter: your host and reload your VM.
+    centRouter: 
+    centRouter: Guest Additions Version: 6.0.0 r127566
+    centRouter: VirtualBox Version: 6.1
+==> centRouter: Setting hostname...
+==> centRouter: Configuring and enabling network interfaces...
+==> centRouter: Mounting shared folders...
+    centRouter: /vagrant => /home/localadm/otus
+==> inetRouter2: Importing base box 'debian/bullseye64'...
+==> inetRouter2: Matching MAC address for NAT networking...
+==> inetRouter2: Checking if box 'debian/bullseye64' version '11.20230615.1' is up to date...
+==> inetRouter2: Setting the name of the VM: otus_inetRouter2_1696633646859_15419
+==> inetRouter2: Fixed port collision for 22 => 2222. Now on port 2201.
+==> inetRouter2: Clearing any previously set network interfaces...
+==> inetRouter2: Preparing network interfaces based on configuration...
+    inetRouter2: Adapter 1: nat
+    inetRouter2: Adapter 2: intnet
+    inetRouter2: Adapter 3: hostonly
+==> inetRouter2: Forwarding ports...
+    inetRouter2: 22 (guest) => 2201 (host) (adapter 1)
+==> inetRouter2: Booting VM...
+==> inetRouter2: Waiting for machine to boot. This may take a few minutes...
+    inetRouter2: SSH address: 127.0.0.1:2201
+    inetRouter2: SSH username: vagrant
+    inetRouter2: SSH auth method: private key
+    inetRouter2: 
+    inetRouter2: Vagrant insecure key detected. Vagrant will automatically replace
+    inetRouter2: this with a newly generated keypair for better security.
+    inetRouter2: 
+    inetRouter2: Inserting generated public key within guest...
+    inetRouter2: Removing insecure key from the guest if it's present...
+    inetRouter2: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> inetRouter2: Machine booted and ready!
+==> inetRouter2: Checking for guest additions in VM...
+    inetRouter2: The guest additions on this VM do not match the installed version of
+    inetRouter2: VirtualBox! In most cases this is fine, but in rare cases it can
+    inetRouter2: prevent things such as shared folders from working properly. If you see
+    inetRouter2: shared folder errors, please make sure the guest additions within the
+    inetRouter2: virtual machine match the version of VirtualBox you have installed on
+    inetRouter2: your host and reload your VM.
+    inetRouter2: 
+    inetRouter2: Guest Additions Version: 6.0.0 r127566
+    inetRouter2: VirtualBox Version: 6.1
+==> inetRouter2: Setting hostname...
+==> inetRouter2: Configuring and enabling network interfaces...
+==> inetRouter2: Mounting shared folders...
+    inetRouter2: /vagrant => /home/localadm/otus
+==> inetServer: Importing base box 'debian/bullseye64'...
+==> inetServer: Matching MAC address for NAT networking...
+==> inetServer: Checking if box 'debian/bullseye64' version '11.20230615.1' is up to date...
+==> inetServer: Setting the name of the VM: otus_inetServer_1696633696948_77373
+==> inetServer: Fixed port collision for 22 => 2222. Now on port 2202.
+==> inetServer: Clearing any previously set network interfaces...
+==> inetServer: Preparing network interfaces based on configuration...
+    inetServer: Adapter 1: nat
+    inetServer: Adapter 2: intnet
+    inetServer: Adapter 3: hostonly
+==> inetServer: Forwarding ports...
+    inetServer: 22 (guest) => 2202 (host) (adapter 1)
+==> inetServer: Booting VM...
+==> inetServer: Waiting for machine to boot. This may take a few minutes...
+    inetServer: SSH address: 127.0.0.1:2202
+    inetServer: SSH username: vagrant
+    inetServer: SSH auth method: private key
+    inetServer: 
+    inetServer: Vagrant insecure key detected. Vagrant will automatically replace
+    inetServer: this with a newly generated keypair for better security.
+    inetServer: 
+    inetServer: Inserting generated public key within guest...
+    inetServer: Removing insecure key from the guest if it's present...
+    inetServer: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> inetServer: Machine booted and ready!
+==> inetServer: Checking for guest additions in VM...
+    inetServer: The guest additions on this VM do not match the installed version of
+    inetServer: VirtualBox! In most cases this is fine, but in rare cases it can
+    inetServer: prevent things such as shared folders from working properly. If you see
+    inetServer: shared folder errors, please make sure the guest additions within the
+    inetServer: virtual machine match the version of VirtualBox you have installed on
+    inetServer: your host and reload your VM.
+    inetServer: 
+    inetServer: Guest Additions Version: 6.0.0 r127566
+    inetServer: VirtualBox Version: 6.1
+==> inetServer: Setting hostname...
+==> inetServer: Configuring and enabling network interfaces...
+==> inetServer: Mounting shared folders...
+    inetServer: /vagrant => /home/localadm/otus
+==> inetServer: Running provisioner: ansible...
+    inetServer: Running ansible-playbook...
+[WARNING]: Found both group and host with same name: inetServer
+[WARNING]: Found both group and host with same name: centRouter
+[WARNING]: Found both group and host with same name: inetRouter2
+[WARNING]: Found both group and host with same name: inetRouter
+
+PLAY [install] *****************************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [centRouter]
+ok: [inetServer]
+ok: [inetRouter2]
+ok: [inetRouter]
+
+TASK [install update and program] **********************************************
+changed: [inetRouter2]
+changed: [inetRouter]
+changed: [centRouter]
+changed: [inetServer]
+
+TASK [enable forwarding] *******************************************************
+changed: [inetRouter2]
+changed: [inetServer]
+changed: [centRouter]
+changed: [inetRouter]
+
+TASK [setup template iptabels inetRouter] **************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [enable knockd] ***********************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [enable int knockd] *******************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [configured knockd] *******************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [temlate knock service(default service not work)] *************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [service knocked] *********************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [start enable] ************************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+ok: [inetRouter]
+
+TASK [iptables rules] **********************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [create dir] **************************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [create file authorized] **************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetServer]
+changed: [inetRouter]
+
+TASK [setup route on CentRouter] ***********************************************
+skipping: [inetRouter2]
+skipping: [inetRouter]
+skipping: [inetServer]
+changed: [centRouter]
+
+TASK [create dir] **************************************************************
+skipping: [inetRouter2]
+skipping: [inetRouter]
+skipping: [inetServer]
+changed: [centRouter]
+
+TASK [Generate an ssh-keygen] **************************************************
+skipping: [inetRouter2]
+skipping: [inetRouter]
+skipping: [inetServer]
+changed: [centRouter]
+
+TASK [Copy id_rsa to main vm] **************************************************
+skipping: [inetRouter2]
+skipping: [inetRouter]
+skipping: [inetServer]
+changed: [centRouter]
+
+TASK [Copy to InetRouter] ******************************************************
+skipping: [inetRouter2]
+skipping: [inetRouter]
+skipping: [inetServer]
+changed: [centRouter -> inetRouter(127.0.0.1)]
+
+TASK [script knock] ************************************************************
+skipping: [inetRouter2]
+skipping: [inetRouter]
+skipping: [inetServer]
+changed: [centRouter]
+
+TASK [setup route on inetRouter2] **********************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetRouter]
+changed: [inetServer]
+
+TASK [iptables rules] **********************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetRouter]
+changed: [inetServer]
+
+TASK [setup route on inetServer] ***********************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetRouter]
+changed: [inetServer]
+
+TASK [install nginx] ***********************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetRouter]
+changed: [inetServer]
+
+TASK [edit nginx listen port] **************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetRouter]
+changed: [inetServer]
+
+TASK [service nginx] ***********************************************************
+skipping: [inetRouter2]
+skipping: [centRouter]
+skipping: [inetRouter]
+changed: [inetServer]
+
+TASK [shell] *******************************************************************
+changed: [inetRouter]
+changed: [inetRouter2]
+changed: [inetServer]
+changed: [centRouter]
+
+TASK [wait for system hosts] ***************************************************
+ok: [inetRouter2]
+ok: [inetServer]
+ok: [inetRouter]
+ok: [centRouter]
+
+PLAY RECAP *********************************************************************
+centRouter                 : ok=11   changed=9    unreachable=0    failed=0    skipped=16   rescued=0    ignored=0   
+inetRouter                 : ok=15   changed=12   unreachable=0    failed=0    skipped=12   rescued=0    ignored=0   
+inetRouter2                : ok=5    changed=3    unreachable=0    failed=0    skipped=22   rescued=0    ignored=0   
+inetServer                 : ok=11   changed=9    unreachable=0    failed=0    skipped=16   rescued=0    ignored=0   
+
+
+==> inetRouter: Machine 'inetRouter' has a post `vagrant up` message. This is a message
+==> inetRouter: from the creator of the Vagrantfile, and not from Vagrant itself:
+==> inetRouter: 
+==> inetRouter: Vanilla Debian box. See https://app.vagrantup.com/debian for help and bug reports
+
+==> centRouter: Machine 'centRouter' has a post `vagrant up` message. This is a message
+==> centRouter: from the creator of the Vagrantfile, and not from Vagrant itself:
+==> centRouter: 
+==> centRouter: Vanilla Debian box. See https://app.vagrantup.com/debian for help and bug reports
+
+==> inetRouter2: Machine 'inetRouter2' has a post `vagrant up` message. This is a message
+==> inetRouter2: from the creator of the Vagrantfile, and not from Vagrant itself:
+==> inetRouter2: 
+==> inetRouter2: Vanilla Debian box. See https://app.vagrantup.com/debian for help and bug reports
+
+==> inetServer: Machine 'inetServer' has a post `vagrant up` message. This is a message
+==> inetServer: from the creator of the Vagrantfile, and not from Vagrant itself:
+==> inetServer: 
+==> inetServer: Vanilla Debian box. See https://app.vagrantup.com/debian for help and bug reports
+
