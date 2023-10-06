@@ -3,13 +3,10 @@
         interface = eth1
 [openSSH]
         sequence = 7000,3000,9000
-        seq_timeout = 30
+        seq_timeout = 10
         tcpflags = syn
         Start_command = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
-
-[closeSSH]
-        sequence = 9000,8000,7000
-        seq_timeout = 30
-        command = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
-        tcpflags = syn
+        cmd_timeout= 10
+        Stop_command = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+      
 

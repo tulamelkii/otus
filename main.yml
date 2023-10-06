@@ -4,7 +4,7 @@
    tasks:
     - name: install update and program
       apt:
-        # update_cache: yes
+        update_cache: yes
         name: 
         - traceroute
         - iptables
@@ -25,7 +25,7 @@
       block:
         - name: setup template iptabels inetRouter 
           template:
-            src: inetRouter.j2
+            src: Rout/inetRouter.j2
             dest: /etc/network/interfaces
             owner: root
             group: root
@@ -45,24 +45,26 @@
 
         - name: configured knockd
           template:
-            src: knockd.j2
+            src: Knockd/knockd_conf.j2
             dest: /etc/knockd.conf
             owner: root
             group: root
             mode: 0755
+        
+        - name: temlate knock service(default service not work)
+          template:
+            src: Knockd/knockd_service.j2
+            dest: /lib/systemd/system/knockd.service
+            owner: root
+            group: root
+            mode: 0755
+        
         - name: service knocked
           service:
             name: knockd
             state: started
             enabled: yes
-        
-        - name: temlate knock service(default service not work)
-          template:
-            src: knockd2.j2
-            dest: /lib/systemd/system/knockd.service
-            owner: root
-            group: root
-            mode: 0755
+     
 
         - name: start enable 
           service:
@@ -71,11 +73,12 @@
 
         - name: iptables rules
           template:
-            src: InRout.j2
+            src: Iptables/inet_rout.j2
             dest: /etc/iptables/rules.v4
             owner: root
             group: root
             mode: 0755
+
         - name: create dir 
           file:
             path: /root/.ssh
@@ -93,20 +96,15 @@
       become: true
       become_user: root
 
-    - name: install to CentRout
+    - name: install to centRouter
       block:
         - name: setup route on CentRouter
           template:
-            src: CentRouter.j2
+            src: Rout/centRouter.j2
             dest: /etc/network/interfaces
             owner: root
             group: root
             mode: 0644
-        
-        - name: install nginx
-          apt:
-            name: nginx
-            state: latest
 
         - name: create dir 
           file:
@@ -132,44 +130,73 @@
             dest: /root/.ssh/authorized_keys
             mode: '0600'
           delegate_to: inetRouter
-            
+
+        - name: script knock
+          template:
+            src: Knockd/script.sh 
+            dest: /root/
+            owner: root
+            group: root
+            mode: 0777
+
+      when: (ansible_hostname == "centRouter")
+      become: true
+      become_user: root
+
+    - name: preference inetRouter2
+      block:
+        - name: setup route on inetRouter2
+          template:
+            src: Rout/inetRouter2.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+    
+        - name: iptables rules
+          template: 
+            src: Iptables/inet2_rout.j2
+            dest: /etc/iptables/rules.v4
+            owner: root
+            group: root
+            mode: 0755
+
+        - name: setup route on inetServer
+          template:
+            src: Rout/inetServer.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+     
+        - name: install nginx
+          apt:
+            name: nginx
+            state: latest
+
         - name: edit nginx listen port
           template:
-            src: nginx.j2
+            src: Temp_nginx/nginx.j2
             dest: /etc/nginx/sites-enabled/default 
-              
-        - name: service knocked
+       
+        - name: service nginx
           service:
             name: nginx
             state: restarted
-            
-      when: (ansible_hostname == "CentRouter")
+
+      when: (ansible_hostname == "inetServer")
       become: true
       become_user: root
 
 
-    - name: setup route on inetRouter2
-      template:
-        src: inetRouter2.j2
-        dest: /etc/network/interfaces
-        owner: root
-        group: root
-        mode: 0644
-      when: (ansible_hostname == "inetRouter2")
-    - name: iptables rules
-      template:
-        src: int2ipt.j2
-        dest: /etc/iptables/rules.v4
-        owner: root
-        group: root
-        mode: 0755
-      when: (ansible_hostname == "inetRouter2")
     - name: reboot all hosts 
       block:
         - shell: systemctl reboot
           async: 300
           poll: 0
           ignore_errors: true
+
+
     - name: wait for system hosts
       wait_for_connection:
         delay: 60
