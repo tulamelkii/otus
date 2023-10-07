@@ -8,7 +8,7 @@ We have:inetRouter,centralRouter,inetRouter and inetServer
 
 ![image](https://github.com/tulamelkii/otus/assets/130311206/82bc1d27-2460-444f-b171-abab798267ed)
 
-target this is task: learn to creatre for iptables rules
+target learn to creatre for iptables rules
 
 1)create knock connect
 
