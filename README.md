@@ -8,11 +8,11 @@ We have:inetRouter,centralRouter,inetRouter and inetServer
 
 ![image](https://github.com/tulamelkii/otus/assets/130311206/82bc1d27-2460-444f-b171-abab798267ed)
 
-target this is tasks: learn to creatre for iptables rules
+target this is task: learn to creatre for iptables rules
 
 1)create knock connect
 
-2) forward local port 80 to 8080
+2)forward local port 80 to 8080
    
 3)see this site  nginx localhost
 
