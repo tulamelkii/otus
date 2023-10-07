@@ -1,1 +1,218 @@
+1)Create virtual machines
+**************************************vagrant file***************************************
+
+MACHINES = {
+:inetRouter => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "inetRouter",
+        :net => [
+                   {ip: '192.168.255.13', adapter: 2, netmask: '255.255.255.252', virtualbox__intnet: "centr-net"}, 
+                   {ip:'192.168.56.10', adapter:3, netmask: '255.255.255.0'},         
+                ]
+  },
+
+:centRouter => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "centRouter",
+        :net => [
+                   {ip: '192.168.255.14', adapter: 2, netmask: '255.255.255.252', virtualbox__intnet: "centr-net"},
+                   {ip: '192.168.2.5', adapter: 3, netmask: '255.255.255.252', virtualbox__intnet: "inet-router"},
+                   {ip: '192.168.3.5', adapter: 4, netmask: '255.255.255.252', virtualbox__intnet: "inet-server"},
+                 
+                   {ip: '192.168.56.11', adapter: 5,  netmask: '255.255.255.0'},
+                ]
+},
+
+:inetRouter2 => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "inetRouter2",
+        :net => [
+                   {ip: '192.168.2.6', adapter: 2, netmask: '255.255.255.252', virtualbox__intnet: "inet-router"}, 
+                   {ip:'192.168.56.12', adapter: 3, netmask: '255.255.255.0'},         
+                ]
+  },
+
+ :inetServer => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "inetServer",
+        :net => [
+                   {ip: '192.168.3.6', adapter: 2, netmask: '255.255.255.252', virtualbox__intnet: "inet-server"}, 
+                   {ip:'192.168.56.13', adapter: 3, netmask: '255.255.255.0'},         
+                ]
+  },
+ 
+}
+
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+    
+    config.vm.define boxname do |box|
+   
+      box.vm.box = boxconfig[:box_name]
+      box.vm.host_name = boxconfig[:vm_name]
+      boxconfig[:net].each do |ipconf|
+      box.vm.network "private_network", ip: ipconf[:ip], virtualbox__intnet: ipconf[:virtualbox__intnet], netmask: ipconf[:netmask], adapter: ipconf[:adapter]
+      end
+  
+ if boxconfig[:vm_name] == "inetServer"
+       box.vm.provision "ansible" do |ansible|
+        ansible.playbook = "main.yml"
+        ansible.inventory_path = "host"
+        ansible.host_key_checking = "false"
+        ansible.limit = "all"
+       end
+end
+end
+end
+end
+
+3) Create forrwardibg for all Vm
+ - name: enable forwarding  
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state: present  
+
+3) Create routing for all machines
+3.1)delete default rout for all vm
+****************************************
+post-up ip route del default dev eth0
+****************************************
+3.2) change network preference all vm and add route  /etc/network/interface
+inetRouter
+************************************************************
+up ip route add 192.168.2.4/30 via 192.168.255.14 dev eth1
+up ip route add 192.168.3.4/30 via 192.168.255.14 dev eth1 
+************************************************************
+centrouter
+************************************************************
+up ip route add 0.0.0.0/0 via 192.168.255.13 dev eth1
+************************************************************
+inetRouter
+************************************************************
+up ip route add 0.0.0.0/0 via 192.168.2.5 dev eth1
+***********************************************************
+inetServer
+**********************************************************
+up ip route add 0.0.0.0/0 via 192.168.3.5 dev eth1
+**********************************************************
+4) Check network
+4.1) Ping for all hosts(this is ok, ping allow for all hosts)
+**********************************************************
+vagrant@inetServer:~$ ping 192.168.255.13
+PING 192.168.255.13 (192.168.255.13) 56(84) bytes of data.
+64 bytes from 192.168.255.13: icmp_seq=1 ttl=63 time=1.89 ms
+64 bytes from 192.168.255.13: icmp_seq=2 ttl=63 time=1.83 ms
+64 bytes from 192.168.255.13: icmp_seq=3 ttl=63 time=1.88 ms
+^Z
+[2]+  Stopped                 ping 192.168.255.13
+vagrant@inetServer:~$ ping 192.168.2.6
+PING 192.168.2.6 (192.168.2.6) 56(84) bytes of data.
+64 bytes from 192.168.2.6: icmp_seq=1 ttl=63 time=1.81 ms
+64 bytes from 192.168.2.6: icmp_seq=2 ttl=63 time=1.46 ms
+64 bytes from 192.168.2.6: icmp_seq=3 ttl=63 time=1.81 ms
+64 bytes from 192.168.2.6: icmp_seq=4 ttl=63 time=2.01 ms
+^Z
+[3]+  Stopped                 ping 192.168.2.6
+vagrant@inetServer:~$ ping 10.0.2.15
+PING 10.0.2.15 (10.0.2.15) 56(84) bytes of data.
+64 bytes from 10.0.2.15: icmp_seq=1 ttl=64 time=0.043 ms
+64 bytes from 10.0.2.15: icmp_seq=2 ttl=64 time=0.067 ms
+64 bytes from 10.0.2.15: icmp_seq=3 ttl=64 time=0.066 ms
+^Z
+[4]+  Stopped                 ping 10.0.2.15
+vagrant@inetServer:~$ ping 192.168.3.5
+PING 192.168.3.5 (192.168.3.5) 56(84) bytes of data.
+64 bytes from 192.168.3.5: icmp_seq=1 ttl=64 time=0.907 ms
+^Z
+[5]+  Stopped                 ping 192.168.3.5
+vagrant@inetServer:~$ ping 192.168.255.14
+PING 192.168.255.14 (192.168.255.14) 56(84) bytes of data.
+64 bytes from 192.168.255.14: icmp_seq=1 ttl=64 time=0.896 ms
+64 bytes from 192.168.255.14: icmp_seq=2 ttl=64 time=0.983 ms
+^Z
+[6]+  Stopped                 ping 192.168.255.14
+**************************************************************
+4.Check routing all hosts. We see our rout go to right gateway.it's ok
+*************************************************************
+inetServer
+vagrant@inetServer:~$ traceroute 8.8.8.8
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
+ 1  192.168.3.5 (192.168.3.5)  0.827 ms  0.722 ms  0.811 ms
+ 2  192.168.255.13 (192.168.255.13)  1.636 ms  1.958 ms  1.683 ms
+ 3  10.0.2.2 (10.0.2.2)  1.826 ms  1.626 ms  1.556 ms
+ 4  * * *
+ 5  * * *
+ 6  * * *
+ 7  81.200.9.150 (81.200.9.150)  4.825 ms  4.802 ms 142.250.173.146 (142.250.173.146)  4.727 ms
+ 8  * * *
+ 9  172.253.69.174 (172.253.69.174)  4.018 ms 108.170.250.129 (108.170.250.129)  5.032 ms  5.268 ms
+10  108.170.250.113 (108.170.250.113)  7.322 ms 108.170.250.66 (108.170.250.66)  8.587 ms 108.170.250.51 (108.170.250.51)  4.317 ms
+11  142.251.237.154 (142.251.237.154)  21.649 ms 172.253.66.116 (172.253.66.116)  22.869 ms 142.250.238.214 (142.250.238.214)  21.550 ms
+12  142.251.237.146 (142.251.237.146)  22.593 ms 72.14.235.69 (72.14.235.69)  21.989 ms 142.250.235.62 (142.250.235.62)  21.714 ms
+13  72.14.237.199 (72.14.237.199)  22.628 ms 209.85.246.111 (209.85.246.111)  24.475 ms 216.239.54.201 (216.239.54.201)  23.662 ms
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  * * *
+19  * * *
+20  * * *
+21  * * *
+22  * * *
+23  * dns.google (8.8.8.8)  21.652 ms  21.394 ms
+***************************************************************
+inetRouter2
+**************************************************************
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
+ 1  192.168.2.5 (192.168.2.5)  0.913 ms  0.757 ms  0.674 ms
+ 2  192.168.255.13 (192.168.255.13)  1.104 ms  1.371 ms  1.487 ms
+ 3  10.0.2.2 (10.0.2.2)  2.095 ms  1.905 ms  1.815 ms
+ 4  * * *
+ 5  * * *
+ 6  * * *
+ 7  81.200.9.150 (81.200.9.150)  4.621 ms 142.250.173.146 (142.250.173.146)  5.425 ms 81.200.9.150 (81.200.9.150)  5.325 ms
+ 8  * * *
+ 9  108.170.226.172 (108.170.226.172)  4.920 ms 108.170.250.33 (108.170.250.33)  5.428 ms  5.136 ms
+10  108.170.250.130 (108.170.250.130)  4.622 ms 108.170.250.146 (108.170.250.146)  3.738 ms 108.170.250.130 (108.170.250.130)  4.671 ms
+11  142.251.237.154 (142.251.237.154)  21.671 ms 142.251.238.82 (142.251.238.82)  22.223 ms 172.253.66.116 (172.253.66.116)  22.097 ms
+12  216.239.43.20 (216.239.43.20)  21.125 ms 172.253.66.108 (172.253.66.108)  21.853 ms 74.125.253.109 (74.125.253.109)  21.197 ms
+13  108.170.233.161 (108.170.233.161)  20.824 ms 172.253.64.57 (172.253.64.57)  23.482 ms 216.239.48.85 (216.239.48.85)  23.827 ms
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  * * *
+19  * * *
+20  * * *
+21  * * *
+22  * * *
+23  dns.google (8.8.8.8)  22.072 ms *  21.861 ms
+
+5) After we create file hosts for ansible
+**************************************************************
+[inetRouter]
+inetRouter ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/inetRouter/virtualbox/private_key
+[centRouter]
+centRouter ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/centRouter/virtualbox/private_key
+[inetRouter2]
+inetRouter2 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/inetRouter2/virtualbox/private_key
+[inetServer]
+inetServer ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2202 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/inetServer/virtualbox/private_key
+
+[vm:children]
+inetRouter2
+centRouter
+inetRouter
+inetServer
+***************************************************************
+6) create folder ansible.cfg for allow ssh
+***************************************************************
+[defaults]
+host_key_checking = false
+***************************************************************
+
+
+
 
