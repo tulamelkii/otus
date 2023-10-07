@@ -1,4 +1,4 @@
- - name: install 
+ - name: install all hosts
    hosts: vm
    become: true
    tasks:
@@ -160,7 +160,13 @@
             owner: root
             group: root
             mode: 0755
+              
+      when: (ansible_hostname == "inetRouter2")
+      become: true
+      become_user: root
 
+    - name: preference inetServer
+      block:
         - name: setup route on inetServer
           template:
             src: Rout/inetServer.j2
@@ -174,6 +180,7 @@
             name: nginx
             state: latest
 
+    
         - name: edit nginx listen port
           template:
             src: Temp_nginx/nginx.j2
@@ -200,5 +207,5 @@
     - name: wait for system hosts
       wait_for_connection:
         delay: 60
-        timeout: 300 
+        timeout: 300
 
