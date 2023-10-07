@@ -80,6 +80,48 @@ end
 post-up ip route del default dev eth0
 ****************************************
 3.2) change network preference all vm and add route  /etc/network/interface
+
+- name: setup block inetRouter
+      block:
+        - name: setup template iptabels inetRouter 
+          template:
+            src: Rout/inetRouter.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+
+- name: install to centRouter
+      block:
+        - name: setup route on CentRouter
+          template:
+            src: Rout/centRouter.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+
+- name: preference inetRouter2
+      block:
+        - name: setup route on inetRouter2
+          template:
+            src: Rout/inetRouter2.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+
+- name: preference inetServer
+      block:
+        - name: setup route on inetServer
+          template:
+            src: Rout/inetServer.j2
+            dest: /etc/network/interfaces
+            owner: root
+            group: root
+            mode: 0644
+
+**********************exapmle Route************************
 inetRouter
 ************************************************************
 up ip route add 192.168.2.4/30 via 192.168.255.14 dev eth1
@@ -89,7 +131,7 @@ centrouter
 ************************************************************
 up ip route add 0.0.0.0/0 via 192.168.255.13 dev eth1
 ************************************************************
-inetRouter
+inetRouter2
 ************************************************************
 up ip route add 0.0.0.0/0 via 192.168.2.5 dev eth1
 ***********************************************************
@@ -97,6 +139,8 @@ inetServer
 **********************************************************
 up ip route add 0.0.0.0/0 via 192.168.3.5 dev eth1
 **********************************************************
+
+
 4) Check network
 4.1) Ping for all hosts(this is ok, ping allow for all hosts)
 **********************************************************
@@ -212,6 +256,146 @@ inetServer
 [defaults]
 host_key_checking = false
 ***************************************************************
+
+7) create main file for ansible main.yml
+8)Install programs for all hosts
+
+- name: install all hosts
+   hosts: vm
+   become: true
+   tasks:
+    - name: install update and program
+      apt:
+        update_cache: yes
+        name: 
+        - traceroute
+        - iptables
+        - iptables-persistent
+        - conntrack
+        - tcpdump
+        - knockd
+        - curl
+        state: latest
+********************Knockd*****************************
+9)This is step: i created knockd server and configured
+ i have a problem for default preference knockd.service
+ When, started vm service dead and knockd dont work
+ first i nstall knock and enabled 
+9.1)
+ - name: enable knockd
+          lineinfile:
+            path: /etc/default/knockd
+            regexp: 'START_KNOCKD'
+            line: 'START_KNOCKD=1'
+9.2)Show when knock servce will be work
+
+- name: enable int knockd
+          lineinfile:
+            path: /etc/default/knockd
+            regexp: '#KNOCKD_OPTS'
+            line: 'KNOCKD_OPTS="-i eth1"'
+
+9.3) change config knock service .
+this is config started if i knock to vm on the 7000,3000,9000 port,and add allow rules for iptables- open ssh 
+
+        - name: configured knockd
+          template:
+            src: Knockd/knockd_conf.j2
+            dest: /etc/knockd.conf
+            owner: root
+            group: root
+            mode: 0755
+*************conf knock********************************
+[options]
+        logfile = /var/log/knockd.log
+        interface = eth1
+[openSSH]
+        sequence = 7000,3000,9000
+        seq_timeout = 10   #time open ports
+        tcpflags = syn   
+        Start_command = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT # add rules open 22 port 
+        cmd_timeout= 10
+        Stop_command = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+*****************************************************
+9.4 Change conf service for knock. 
+add Requires=network.target 
+and WantedBy=multi-user.target
+And people write this bag,if service autoreboot dead
+***************************************************
+[Unit]
+Description=Port-Knock Daemon
+After=network.target
+Requires=network.target
+Documentation=man:knockd(1)
+
+[Service]
+EnvironmentFile=-/etc/default/knockd
+ExecStartPre=/bin/sleep 1
+ExecStart=/usr/sbin/knockd $KNOCKD_OPTS
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+SuccessExitStatus=0 2 15
+ProtectSystem=full
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+
+[Install]
+WantedBy=multi-user.target
+***************************************************
+Check service -its ok
+
+● knockd.service - Port-Knock Daemon
+     Loaded: loaded (/lib/systemd/system/knockd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sat 2023-10-07 10:20:50 UTC; 3h 27min ago
+       Docs: man:knockd(1)
+    Process: 389 ExecStartPre=/bin/sleep 1 (code=exited, status=0/SUCCESS)
+   Main PID: 400 (knockd)
+      Tasks: 1 (limit: 510)
+     Memory: 780.0K
+        CPU: 8ms
+     CGroup: /system.slice/knockd.service
+             └─400 /usr/sbin/knockd -i eth1
+
+Warning: some journal files were not opened due to insufficient permissions
+9.5) Restart vm
+
+9.6) I generated key for centRout vm and copy this key
+ - name: Generate an ssh-keygen
+          become: yes
+          openssh_keypair:
+            path: /root/.ssh/id_rsa
+            owner: root
+            group: root
+
+        - name: Copy id_rsa to main vm
+          fetch:
+            src: /root/.ssh/id_rsa.pub
+            dest: "{{ inventory_hostname }}_id_rsa.pub"
+            flat: yes 
+    
+        - name: Copy to InetRouter
+          copy:
+            src: "{{ inventory_hostname }}_id_rsa.pub"
+            dest: /root/.ssh/authorized_keys
+            mode: '0600'
+          delegate_to: inetRouter
+9.7) Create my script on the centralRouter
+***************************************************
+- name: script knock
+          template:
+            src: Knockd/script.sh 
+            dest: /root/
+            owner: root
+            group: root
+            mode: 0777
+*************************************************
+
+9.8) this is script knock to remoute server and open port 22 for InetRouter check
+
+#!/bin/bash
+knock -v 192.168.255.13 7000 3000 9000
+ssh 192.168.255.13
+expect yes 
+
 
 
 
