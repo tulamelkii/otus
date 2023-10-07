@@ -11,7 +11,7 @@ We have:inetRouter,centralRouter,inetRouter and inetServer
 
 First step: We mast create route rules for this vm
 
-***********************************config inetRouter*******************************
+*********config inetRouter*******
 
 allow-hotplug eth0
 
