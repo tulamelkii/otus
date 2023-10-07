@@ -13,6 +13,7 @@
         - tcpdump
         - knockd
         - curl
+        - nmap
         state: latest
          
     - name: enable forwarding  
@@ -185,7 +186,12 @@
           template:
             src: Temp_nginx/nginx.j2
             dest: /etc/nginx/sites-enabled/default 
-       
+        
+        - name: new temlpate
+          template:
+            src: Temp_nginx/example.html
+            dest: /var/www/html/index.nginx-debian.html
+        
         - name: service nginx
           service:
             name: nginx

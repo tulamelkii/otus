@@ -28,8 +28,6 @@ COMMIT
 :INPUT ACCEPT [1:44]
 :OUTPUT ACCEPT [17:1300]
 :POSTROUTING ACCEPT [33:2524]
-#-A PREROUTING -p tcp -m multiport --dports 80,8080,53,443 -j DNAT --to-destination 192.168.255.13
 -A POSTROUTING -o eth0 -j SNAT --to-source 10.0.2.15
 COMMIT
-# Completed on Tue Oct  3 21:51:01 2023
 
