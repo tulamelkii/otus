@@ -11,11 +11,14 @@ We have:inetRouter,centralRouter,inetRouter and inetServer
 
 First step: We mast create route rules for this vm
 
-********************************************config inetRouter*******************************
+***********************************config inetRouter*******************************
 
 allow-hotplug eth0
+
 iface eth0 inet dhcp
+
 auto eth1
+
 iface eth1 inet static
 
       address 192.168.255.13
