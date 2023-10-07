@@ -10,8 +10,7 @@ We have:inetRouter,centralRouter,inetRouter and inetServer
 ![image](https://github.com/tulamelkii/otus/assets/130311206/82bc1d27-2460-444f-b171-abab798267ed)
 
 First step: We mast create route rules for this vm
-
-********************************************config inetRouter*************************************
+********************************************config inetRouter*******************************
 
 allow-hotplug eth0
 
