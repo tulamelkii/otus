@@ -16,6 +16,7 @@ target: learn to creatre for iptables rules
    
 3)see this site  nginx localhost
 
-![image](https://github.com/tulamelkii/otus/assets/130311206/c43afc8d-d0ec-41c5-b502-a0141c49f70b)
+![image](https://github.com/tulamelkii/otus/assets/130311206/6dbad1d8-354e-4569-a5bb-9ac28c2b106d)
+
 
 Full install amd commit this [ReadME](https://github.com/tulamelkii/otus/blob/iptables/ReadME)
