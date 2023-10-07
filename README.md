@@ -18,4 +18,4 @@ target: learn to creatre for iptables rules
 
 ![image](https://github.com/tulamelkii/otus/assets/130311206/c43afc8d-d0ec-41c5-b502-a0141c49f70b)
 
-Full install amd commit this https://github.com/tulamelkii/otus/blob/iptables/README.md
+Full install amd commit this ReadME
