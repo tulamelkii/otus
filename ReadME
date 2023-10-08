@@ -67,7 +67,7 @@ end
 end
 end
 
-3) Create forrwardibg for all Vm
+2) Create forrwardibg for all Vm
  - name: enable forwarding  
       sysctl:
         name: net.ipv4.conf.all.forwarding
@@ -290,7 +290,7 @@ host_key_checking = false
 -A INPUT -i eth0 -p tcp -m tcp --dport 22 -j ACCEPT               # allow 22 for vagrant and ansible 2 rules
 -A INPUT -i eth2 -p tcp -m tcp --dport 22 -j ACCEPT               # allow 22
 -A INPUT -i eth1 -p tcp -m tcp --dport 22 -j DROP
--A FORWARD -i eth0 -o eth1 -p tcp -j ACCEPT                       # forwaring frames( i don't use masqurade)
+-A FORWARD -i eth0 -o eth1 -p tcp -j ACCEPT                       # forwaring frames( i don't use Masquerade)
 -A FORWARD -i eth1 -o eth0 -p tcp -j ACCEPT
 -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT   # And this rulles for table output accept all and drop
 -A OUTPUT -p tcp -m multiport --dports 80,8080,53 -j ACCEPT     
