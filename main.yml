@@ -1,0 +1,26 @@
+ - name: install all hosts
+   hosts: vm
+   become: true
+   tasks:
+    - name: install update and program
+      apt:
+        update_cache: yes
+        name: 
+        - traceroute
+        - tcpdump
+        - nmap
+        - frr
+        - frr-pythontools
+        state: latest
+         
+    - name: enable forwarding  
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state: present  
+
+    - name: change config frr
+      lineinfile:
+        path: /etc/frr/daemons
+        regexp: 'ospfd='
+        line: 'ospfd=yes'
