@@ -6,7 +6,8 @@ I bilded this stend from is Vagrand+Ansible
 
 We have:inetRouter,centralRouter,inetRouter and inetServer
 
-![image](https://github.com/tulamelkii/otus/assets/130311206/82bc1d27-2460-444f-b171-abab798267ed)
+![image](https://github.com/tulamelkii/otus/assets/130311206/6e603cc6-5b5e-421f-9ea4-d390bba6de09)
+
 
 target: learn to creatre for iptables rules
 
