@@ -1,0 +1,12 @@
+[Router1]
+Router1 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router1/virtualbox/private_key
+[Router2]
+Router2 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router2/virtualbox/private_key
+[Router3]
+Router3 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router3/virtualbox/private_key
+
+[vm:children]
+Router1
+Router2
+Router3
+
