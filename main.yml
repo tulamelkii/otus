@@ -1,6 +1,10 @@
  - name: install all hosts
    hosts: vm
    become: true
+     #   vars_files:
+     # - host
+
+
    tasks:
     - name: install update and program
       apt:
@@ -24,32 +28,33 @@
         path: /etc/frr/daemons
         regexp: 'ospfd='
         line: 'ospfd=yes'
+    
     - name: tamplate Rout1 frr
       template:
-        src: templ_frr.conf
+        src: templ.jinja2
         dest: /etc/frr/frr.conf
         owner: frr
         group: frr
         mode: 0644
-      when: (ansible_hostname == "Router1")
+     # when: (ansible_hostname == "Router1")
 
-    - name: temp2
-      template:
-        src: templ_frr.conf2
-        dest: /etc/frr/frr.conf
-        owner: frr
-        group: frr
-        mode: 0644
-      when: (ansible_hostname == "Router2")
+        # - name: temp2
+        #template:
+        #src: templ_frr.conf2
+        #dest: /etc/frr/frr.conf
+        #owner: frr
+        #group: frr
+        #mode: 0644
+        #when: (ansible_hostname == "Router2")
 
-    - name:
-      template:
-        src: templ_frr.conf3
-        dest: /etc/frr/frr.conf
-        owner: frr
-        group: frr
-        mode: 0644
-      when: (ansible_hostname == "Router3")
+        #- name:
+        #template:
+        #src: templ_frr.conf3
+        #dest: /etc/frr/frr.conf
+        #owner: frr
+        #group: frr
+        #mode: 0644
+        #when: (ansible_hostname == "Router3")
 
     - name: restart
       service:
@@ -57,15 +62,15 @@
         state: restarted
         enabled: true
 
-    - name: reboot all hosts
-      block:
-      - shell: systemctl reboot
-        async: 300
-        poll: 0
-        ignore_errors: true
+          # - name: reboot all hosts
+          #block:
+          #- shell: systemctl reboot
+          #async: 300
+          #poll: 0
+          #ignore_errors: true
 
-      - name: wait for system hosts
-        wait_for_connection:
-          delay: 60
-          timeout: 300
+          #- name: wait for system hosts
+          #wait_for_connection:
+          #delay: 60
+          #timeout: 300
 

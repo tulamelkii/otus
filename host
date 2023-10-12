@@ -1,9 +1,9 @@
 [Router1]
-Router1 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router1/virtualbox/private_key
+Router1 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router1/virtualbox/private_key router_id=1.1.1.1 router_id_enable=true
 [Router2]
-Router2 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router2/virtualbox/private_key
+Router2 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router2/virtualbox/private_key router_id=2.2.2.2 router_id_enable=true
 [Router3]
-Router3 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router3/virtualbox/private_key
+Router3 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router3/virtualbox/private_key router_id=3.3.3.3 router_id_enable=true
 
 [vm:children]
 Router1
