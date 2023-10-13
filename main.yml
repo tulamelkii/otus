@@ -1,0 +1,62 @@
+---
+ - name: install all hosts
+   hosts: vm
+   become: true
+   vars_files:
+     - vars.yml
+   tasks:
+    - name: install update and program
+      apt:
+        update_cache: yes
+        name: 
+        - traceroute
+        - tcpdump
+        - nmap
+        - frr
+        - frr-pythontools
+        state: latest
+         
+    - name: enable forwarding  
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state: present  
+
+    - name: change config frr
+      lineinfile:
+        path: /etc/frr/daemons
+        regexp: 'ospfd='
+        line: 'ospfd=yes'
+
+    - name: set up asynchronous routing
+      sysctl:
+        name: net.ipv4.conf.all.rp_filter
+        value: '0'
+        state: present
+    
+    - name: tamplates frr
+      template:
+        src: templ.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0644
+
+    - name: restart
+      service:
+        name: frr
+        state: restarted
+        enabled: true
+
+    - name: reboot all hosts
+      block:
+      - shell: systemctl reboot
+        async: 300
+        poll: 0
+        ignore_errors: true
+
+      - name: wait for system hosts
+        wait_for_connection:
+        delay: 60
+        timeout: 300
+...

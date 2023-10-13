@@ -1,0 +1,68 @@
+!Config ospf
+!
+frr version 7.5.1
+frr defaults traditional
+hostname {{ ansible_hostname }}
+log syslog informational
+no ipv6 forwarding
+service integrated-vtysh-configi
+!
+!Config interface eth1
+!
+interface {{ ansible_eth1.device }}
+ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}
+ip ospf mtu-ignore 
+!
+{% if ansible_hostname == 'Router1' %}
+ip ospf cost 1000
+{% elif ansible_hostname == 'Router2' and symmetric_routing == true %}
+ip ospf cost 1000
+{% else %}
+!ip ospf cost 450
+{% endif %}
+!
+{% if ansible_hostname == 'Router1' %}
+!ip ospf cost 1000
+{% else %}
+!ip ospf cost 450
+{% endif %}
+!
+ip ospf hello-interval 10
+ip ospf dead-interval 30
+!
+!Config interface eth2
+!
+interface {{ ansible_eth2.device }}
+ip address {{ ansible_eth2.ipv4.address }}/{{ ansible_eth2.ipv4.prefix }}
+ip ospf mtu-ignore
+ip ospf hello-interval 10
+ip ospf dead-interval 30
+!
+!Config interface eth3
+!
+interface {{ ansible_eth3.device }}
+ip address {{ ansible_eth3.ipv4.address}}/{{ ansible_eth3.ipv4.prefix }}
+ip ospf mtu-ignore
+ip ospf hello-interval 10
+ip ospf dead-interval 30
+!
+router ospf
+!add router id
+{% if router_id_enable == false %}!{% endif %}router-id {{ router_id }}
+network {{ ansible_eth1.ipv4.network }}/{{ ansible_eth1.ipv4.prefix }} area 0
+network {{ ansible_eth2.ipv4.network}}/{{ ansible_eth2.ipv4.prefix }} area 0
+network {{ ansible_eth3.ipv4.network }}/{{ ansible_eth3.ipv4.prefix }} area 0
+!Add Neighbor
+{% if ansible_hostname == 'Router1' %} 
+neighbor 10.0.10.2 
+neighbor 10.0.12.2 
+{% endif %}
+{% if ansible_hostname == 'Router2' %} 
+neighbor 10.0.10.1
+neighbor 10.0.11.1 
+{% endif %}
+{% if ansible_hostname == 'Router3' %}
+neighbor 10.0.12.1
+neighbor 10.0.11.2 
+{% endif %}
+
