@@ -12,7 +12,7 @@ service integrated-vtysh-configi
 interface {{ ansible_eth1.device }}                                        
 ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}   
 ip ospf mtu-ignore
-{% if ansible_hostname == 'Router1' %}
+{% if ansible_hostname == 'Router1' and default_routing == true  %}
 ip ospf cost 1000
 {% elif ansible_hostname == 'Router2' and symmetric_routing == true %}
 ip ospf cost 1000
@@ -27,7 +27,7 @@ ip ospf dead-interval 30
 interface {{ ansible_eth2.device }}
 ip address {{ ansible_eth2.ipv4.address }}/{{ ansible_eth2.ipv4.prefix }}
 ip ospf mtu-ignore
-!ip ospf cost 45
+!ip ospf cost 450
 ip ospf hello-interval 10
 ip ospf dead-interval 30
 !
@@ -36,7 +36,7 @@ ip ospf dead-interval 30
 interface {{ ansible_eth3.device }}
 ip address {{ ansible_eth3.ipv4.address}}/{{ ansible_eth3.ipv4.prefix }}
 ip ospf mtu-ignore
-!ip ospf cost 45
+!ip ospf cost 450
 ip ospf hello-interval 10
 ip ospf dead-interval 30
 !
