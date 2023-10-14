@@ -17,23 +17,39 @@ Our target this task:
 
 
 * i have save function tags for ansible if i forget*
+  
 * - name: tamplates frr
+    
       template:
+    
         src: templ.j2
+    
         dest: /etc/frr/frr.conf
+    
         owner: frr
+    
         group: frr
+    
         mode: 0644
-      tags: 
+    
+      tags:
+     
         - setup_ospf
 
     - name: restart
+      
       service:
+      
         name: frr
+      
         state: restarted
+      
         enabled: true
+      
       tags:
+      
         - setup_ospf
+          
 and play localadm@DEB:~/otus$ ansible-playbook -i host main.yml -t setup_ospf
 
 [WARNING]: Found both group and host with same name: Router1
