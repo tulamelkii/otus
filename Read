@@ -142,9 +142,9 @@ service integrated-vtysh-configi
 interface {{ ansible_eth1.device }}                                        
 ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}   
 ip ospf mtu-ignore
-{% if ansible_hostname == 'Router1' %}                     #if Router 1 then cost Rout eth1 1000
+{% if ansible_hostname == 'Router1' and default_routing == true %}  #if var = fals then defaul ospf and if var=false then coast eth1= 1000
 ip ospf cost 1000
-{% elif ansible_hostname == 'Router2' and symmetric_routing == true %} # if Rout2 and symmetric =true then coast 1000 eth1
+{% elif ansible_hostname == 'Router2' and symmetric_routing == true %}  # if Router2 and vars: symmetric =true then coast 1000 eth1
 ip ospf cost 1000    
 {% else %}
 !ip ospf cost 450
@@ -208,7 +208,11 @@ neighbor 10.0.11.2
         wait_for_connection:
         delay: 60
         timeout: 300
-*************************************************
+________________________________________________________________________________
+If i have default prefernce, i choosing default_routing=false in vars
+If i wana be asymmetric route, i choosing default_routing=true in vars
+if i wana be symmetric route and cost 1000 i choosing symmetric_routing=true
+_________________________________________________________________________________
 9)Check service-ok
 
 frr.service - FRRouting
