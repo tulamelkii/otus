@@ -12,7 +12,7 @@ service integrated-vtysh-configi
 interface {{ ansible_eth1.device }}                                        
 ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}   
 ip ospf mtu-ignore
-{% if ansible_hostname == 'Router1' and default_routing == true  %}
+{% if ansible_hostname == 'Router1' and asymmetric_routing == true  %}
 ip ospf cost 1000
 {% elif ansible_hostname == 'Router2' and symmetric_routing == true %}
 ip ospf cost 1000
