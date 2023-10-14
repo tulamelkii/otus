@@ -41,12 +41,16 @@
         owner: frr
         group: frr
         mode: 0644
+      tags: 
+        - setup_ospf
 
     - name: restart
       service:
         name: frr
         state: restarted
         enabled: true
+      tags:
+        - setup_ospf
 
     - name: reboot all hosts
       block:

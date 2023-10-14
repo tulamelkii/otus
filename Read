@@ -1,0 +1,564 @@
+1)Create 3 Routers in Vagrant and add --nested-hw-virt
+**********************************************************
+# -*- mode: ruby -*-
+# vim: set ft=ruby
+
+MACHINES = {
+:Router1 => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "Router1",
+        :net => [
+                   {ip: '10.0.10.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r1-r2"},
+                   {ip: '10.0.12.1', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r1-r3"},
+                   {ip: '192.168.10.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net1"},
+                   {ip: '192.168.56.10', adapter: 5},
+       
+        ]
+  },
+
+:Router2 => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "Router2",
+        :net => [
+             
+                   {ip: '10.0.10.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r1-r2"},
+                   {ip: '10.0.11.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r2-r3"},
+                   {ip: '192.168.20.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net2"},
+                   {ip: '192.168.56.11', adapter: 5},
+
+                ]
+},
+
+:Router3 => {
+        :box_name => "debian/bullseye64",
+        :vm_name => "Router3",
+        :net => [
+                   {ip: '10.0.12.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r2-r3"},
+                   {ip: '10.0.11.1', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r1-r3"},
+                   {ip: '192.168.30.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net3"},
+                   {ip: '192.168.56.12', adapter: 5},   
+                ]
+  },
+}
+Vagrant.configure("2") do |config|
+
+  MACHINES.each do |boxname, boxconfig|
+    
+    config.vm.define boxname do |box|
+   
+      box.vm.box = boxconfig[:box_name]
+      box.vm.host_name = boxconfig[:vm_name]
+      boxconfig[:net].each do |ipconf|
+      box.vm.network "private_network", ip: ipconf[:ip], virtualbox__intnet: ipconf[:virtualbox__intnet], netmask: ipconf[:netmask], adapter: ipconf[:adapter]
+      end
+       box.vm.provider :virtualbox do |v|
+        v.customize ['modifyvm', :id, '--nested-hw-virt', 'on']
+      end
+
+  
+ if boxconfig[:vm_name] == "Router3"
+       box.vm.provision "ansible" do |ansible|
+        ansible.playbook = "main.yml"
+        ansible.inventory_path = "host"
+        ansible.host_key_checking = "false"
+        ansible.limit = "all"
+       end
+      end
+    end
+  end
+end
+********************************************************************
+2)reate host file for ansible
+*******************************************************************
+[Router1]
+Router1 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2222 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router1/virtualbox/private_key router_id=1.1.1.1 router_id_enable=true
+[Router2]
+Router2 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2200 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router2/virtualbox/private_key router_id=2.2.2.2 router_id_enable=true
+[Router3]
+Router3 ansible_host=127.0.0.1 ansible_user=vagrant ansible_port=2201 ansible_private_key_file=/home/localadm/otus/.vagrant/machines/Router3/virtualbox/private_key router_id=3.3.3.3 router_id_enable=true
+
+[vm:children]
+Router1
+Router2
+Router3
+********************************************************************
+3)Create ansible and install programs for work
+tasks:
+    - name: install update and program
+      apt:
+        update_cache: yes
+        name: 
+        - traceroute
+        - tcpdump
+        - nmap
+        - frr
+        - frr-pythontools
+        state: latest
+*******************************************************************
+4)enable forvardin
+ - name: enable forwarding  
+      sysctl:
+        name: net.ipv4.conf.all.forwarding
+        value: '1'
+        state: present  
+******************************************************************
+5)enable access for - asymmetrical Route
+- name: set up asynchronous routing
+      sysctl:
+        name: net.ipv4.conf.all.rp_filter
+        value: '0'
+        state: present
+******************************************************************
+6)Change preference for frr and enabled access ospf
+- name: change config frr
+      lineinfile:
+        path: /etc/frr/daemons
+        regexp: 'ospfd='
+        line: 'ospfd=yes'
+****************************************************************
+7)I wana be create template and automation
+This is template bring vars from gathering facts in 3 Routers and paste for frr.conf
+
+  - name: tamplates frr
+      template:
+        src: templ.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0644
+
+**************************Templ********************************
+!Config ospf
+!version frr
+frr version 7.5.1
+frr defaults traditional
+hostname {{ ansible_hostname }}                                            
+log syslog informational
+no ipv6 forwarding
+service integrated-vtysh-configi
+!
+!Config interface eth1
+!
+interface {{ ansible_eth1.device }}                                        
+ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}   
+ip ospf mtu-ignore
+{% if ansible_hostname == 'Router1' %}                     #if Router 1 then cost Rout eth1 1000
+ip ospf cost 1000
+{% elif ansible_hostname == 'Router2' and symmetric_routing == true %} # if Rout2 and symmetric =true then coast 1000 eth1
+ip ospf cost 1000    
+{% else %}
+!ip ospf cost 450
+{% endif %}
+ip ospf hello-interval 10
+ip ospf dead-interval 30
+!
+!Config interface eth2
+!
+interface {{ ansible_eth2.device }}
+ip address {{ ansible_eth2.ipv4.address }}/{{ ansible_eth2.ipv4.prefix }}
+ip ospf mtu-ignore
+!ip ospf cost 45
+ip ospf hello-interval 10
+ip ospf dead-interval 30
+!
+!Config interface eth3
+!
+interface {{ ansible_eth3.device }}
+ip address {{ ansible_eth3.ipv4.address}}/{{ ansible_eth3.ipv4.prefix }}
+ip ospf mtu-ignore
+!ip ospf cost 45
+ip ospf hello-interval 10
+ip ospf dead-interval 30
+!
+router ospf
+!add router id
+{% if router_id_enable == false %}!{% endif %}router-id {{ router_id }}             #add router-id
+network {{ ansible_eth1.ipv4.network }}/{{ ansible_eth1.ipv4.prefix }} area 0       # add zone for routers
+network {{ ansible_eth2.ipv4.network}}/{{ ansible_eth2.ipv4.prefix }} area 0
+network {{ ansible_eth3.ipv4.network }}/{{ ansible_eth3.ipv4.prefix }} area 0
+!Add Neighbor
+{% if ansible_hostname == 'Router1' %} 
+neighbor 10.0.10.2                                                                 #add neighbor for routers
+neighbor 10.0.12.2 
+{% endif %}
+{% if ansible_hostname == 'Router2' %} 
+neighbor 10.0.10.1
+neighbor 10.0.11.1 
+{% endif %}
+{% if ansible_hostname == 'Router3' %}
+neighbor 10.0.12.1
+neighbor 10.0.11.2 
+{% endif %}
+*************************************************
+8) restart service and reboot vm
+- name: restart
+      service:
+        name: frr
+        state: restarted
+        enabled: true
+
+    - name: reboot all hosts
+      block:
+      - shell: systemctl reboot
+        async: 300
+        poll: 0
+        ignore_errors: true
+
+      - name: wait for system hosts
+        wait_for_connection:
+        delay: 60
+        timeout: 300
+*************************************************
+9)Check service-ok
+
+frr.service - FRRouting
+     Loaded: loaded (/lib/systemd/system/frr.service; enabled; vendor preset: e>
+     Active: active (running) since Fri 2023-10-13 22:07:25 UTC; 47min ago
+       Docs: https://frrouting.readthedocs.io/en/latest/setup.html
+    Process: 225 ExecStart=/usr/lib/frr/frrinit.sh start (code=exited, status=0>
+     Status: "FRR Operational"
+      Tasks: 9 (limit: 510)
+     Memory: 21.9M
+        CPU: 2.528s
+     CGroup: /system.slice/frr.service
+             ├─282 /usr/lib/frr/watchfrr -d -F traditional zebra ospfd staticd
+             ├─332 /usr/lib/frr/zebra -d -F traditional -A 127.0.0.1 -s 90000000
+             ├─368 /usr/lib/frr/ospfd -d -F traditional -A 127.0.0.1
+             └─413 /usr/lib/frr/staticd -d -F traditional -A 127.0.0.1
+
+Oct 13 22:07:25 Router1 watchfrr[282]: ospfd state -> up : connect succeeded
+Oct 13 22:07:25 Router1 watchfrr[282]: zebra state -> up : connect succeeded
+Oct 13 22:07:25 Router1 watchfrr[282]: all daemons up, doing startup-complete n>
+Oct 13 22:07:25 Router1 frrinit.sh[225]: Started watchfrr.
+Oct 13 22:07:25 Router1 systemd[1]: Started FRRouting.
+Oct 13 22:07:35 Router1 zebra[332]: if_zebra_speed_update: eth0 old speed: 4294>
+Oct 13 22:07:35 Router1 zebra[332]: if_zebra_speed_update: eth1 old speed: 4294>
+Oct 13 22:07:35 Router1 zebra[332]: if_zebra_speed_update: eth2 old speed: 42
+**************************************************************
+10)check forwarding all and asimmetric
+***************************************************************
+root@Router1:/home/vagrant# sysctl net.ipv4.conf.all.rp_filter
+net.ipv4.conf.all.rp_filter = 0
+root@Router1:/home/vagrant# sysctl net.ipv4.conf.all.forwarding
+net.ipv4.conf.all.forwarding = 1
+**************************************************************
+11)check route
+****************************************************************
+root@Router1:/home/vagrant# ip r
+default via 10.0.2.2 dev eth0 
+10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15 
+10.0.10.0/30 dev eth1 proto kernel scope link src 10.0.10.1 
+10.0.11.0/30 nhid 37 proto ospf metric 20 
+	nexthop via 10.0.10.2 dev eth1 weight 1 
+	nexthop via 10.0.12.2 dev eth2 weight 1 
+10.0.12.0/30 dev eth2 proto kernel scope link src 10.0.12.1 
+192.168.10.0/24 dev eth3 proto kernel scope link src 192.168.10.1 
+192.168.20.0/24 nhid 33 via 10.0.10.2 dev eth1 proto ospf metric 20 
+192.168.30.0/24 nhid 38 via 10.0.12.2 dev eth2 proto ospf metric 20 
+192.168.56.0/24 dev eth4 proto kernel scope link src 192.168.56.10
+********************************************************************
+default via 10.0.2.2 dev eth0 
+10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15 
+10.0.10.0/30 dev eth1 proto kernel scope link src 10.0.10.2 
+10.0.11.0/30 dev eth2 proto kernel scope link src 10.0.11.2 
+10.0.12.0/30 nhid 39 proto ospf metric 20 
+	nexthop via 10.0.10.1 dev eth1 weight 1 
+	nexthop via 10.0.11.1 dev eth2 weight 1 
+192.168.10.0/24 nhid 33 via 10.0.10.1 dev eth1 proto ospf metric 20 
+192.168.20.0/24 dev eth3 proto kernel scope link src 192.168.20.1 
+192.168.30.0/24 nhid 40 via 10.0.11.1 dev eth2 proto ospf metric 20 
+192.168.56.0/24 dev eth4 proto kernel scope link src 192.168.56.11
+******************************************************************
+agrant@Router3:~$ ip r
+default via 10.0.2.2 dev eth0 
+10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15 
+10.0.10.0/30 nhid 37 proto ospf metric 20 
+	nexthop via 10.0.12.1 dev eth2 weight 1 
+	nexthop via 10.0.11.2 dev eth1 weight 1 
+10.0.11.0/30 dev eth1 proto kernel scope link src 10.0.11.1 
+10.0.12.0/30 dev eth2 proto kernel scope link src 10.0.12.2 
+192.168.10.0/24 nhid 33 via 10.0.12.1 dev eth2 proto ospf metric 20 
+192.168.20.0/24 nhid 38 via 10.0.11.2 dev eth1 proto ospf metric 20 
+192.168.30.0/24 dev eth3 proto kernel scope link src 192.168.30.1 
+192.168.56.0/24 dev eth4 proto kernel scope link src 192.168.56.12 
+******************************************************************
+12)go to vtysh and check Routers {1..3} and we watch ospf route
+******************************************************************
+Router1# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 10.0.2.2, eth0, 00:06:54
+C>* 10.0.2.0/24 is directly connected, eth0, 00:06:54
+O   10.0.10.0/30 [110/100] is directly connected, eth1, weight 1, 00:06:45
+C>* 10.0.10.0/30 is directly connected, eth1, 00:06:58
+O>* 10.0.11.0/30 [110/200] via 10.0.10.2, eth1, weight 1, 00:06:19
+  *                        via 10.0.12.2, eth2, weight 1, 00:06:19
+O   10.0.12.0/30 [110/100] is directly connected, eth2, weight 1, 00:06:45
+C>* 10.0.12.0/30 is directly connected, eth2, 00:06:58
+O   192.168.10.0/24 [110/100] is directly connected, eth3, weight 1, 00:06:45
+C>* 192.168.10.0/24 is directly connected, eth3, 00:06:58
+O>* 192.168.20.0/24 [110/200] via 10.0.10.2, eth1, weight 1, 00:06:24
+O>* 192.168.30.0/24 [110/200] via 10.0.12.2, eth2, weight 1, 00:06:19
+C>* 192.168.56.0/24 is directly connected, eth4, 00:06:58
+
+*********************************************************************
+Router2# show ip r
+% Ambiguous command: show ip r
+Router2# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 10.0.2.2, eth0, 00:09:53
+C>* 10.0.2.0/24 is directly connected, eth0, 00:09:53
+O   10.0.10.0/30 [110/100] is directly connected, eth1, weight 1, 00:09:41
+C>* 10.0.10.0/30 is directly connected, eth1, 00:09:54
+O   10.0.11.0/30 [110/100] is directly connected, eth2, weight 1, 00:09:15
+C>* 10.0.11.0/30 is directly connected, eth2, 00:09:54
+O>* 10.0.12.0/30 [110/200] via 10.0.10.1, eth1, weight 1, 00:09:15
+  *                        via 10.0.11.1, eth2, weight 1, 00:09:15
+O>* 192.168.10.0/24 [110/200] via 10.0.10.1, eth1, weight 1, 00:09:20
+O   192.168.20.0/24 [110/100] is directly connected, eth3, weight 1, 00:09:41
+C>* 192.168.20.0/24 is directly connected, eth3, 00:09:54
+O>* 192.168.30.0/24 [110/200] via 10.0.11.1, eth2, weight 1, 00:09:15
+C>* 192.168.56.0/24 is directly connected, eth4, 00:09:54
+
+*********************************************************************
+vagrant@Router3:~$ sudo vtysh 
+
+Hello, this is FRRouting (version 7.5.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+Router3# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 10.0.2.2, eth0, 00:15:36
+C>* 10.0.2.0/24 is directly connected, eth0, 00:15:36
+O>* 10.0.10.0/30 [110/200] via 10.0.11.2, eth1, weight 1, 00:14:54
+  *                        via 10.0.12.1, eth2, weight 1, 00:14:54
+O   10.0.11.0/30 [110/100] is directly connected, eth1, weight 1, 00:15:21
+C>* 10.0.11.0/30 is directly connected, eth1, 00:15:34
+O   10.0.12.0/30 [110/100] is directly connected, eth2, weight 1, 00:15:21
+C>* 10.0.12.0/30 is directly connected, eth2, 00:15:34
+O>* 192.168.10.0/24 [110/200] via 10.0.12.1, eth2, weight 1, 00:14:54
+O>* 192.168.20.0/24 [110/200] via 10.0.11.2, eth1, weight 1, 00:14:54
+O   192.168.30.0/24 [110/100] is directly connected, eth3, weight 1, 00:15:21
+C>* 192.168.30.0/24 is directly connected, eth3, 00:15:34
+C>* 192.168.56.0/24 is directly connected, eth4, 00:15:34
+
+*************************************************************************
+13)Check ping
+agrant@Router1:~$ ping 192.168.30.1
+PING 192.168.30.1 (192.168.30.1) 56(84) bytes of data.
+64 bytes from 192.168.30.1: icmp_seq=1 ttl=63 time=2.11 ms
+64 bytes from 192.168.30.1: icmp_seq=2 ttl=63 time=2.16 ms
+^Z
+[1]+  Stopped                 ping 192.168.30.1
+vagrant@Router1:~$ ping 192.168.20.1
+PING 192.168.20.1 (192.168.20.1) 56(84) bytes of data.
+64 bytes from 192.168.20.1: icmp_seq=1 ttl=64 time=1.07 ms
+64 bytes from 192.168.20.1: icmp_seq=2 ttl=64 time=1.01 ms
+^Z
+[2]+  Stopped                 ping 192.168.20.1
+vagrant@Router1:~$ ping 192.168.10.1
+PING 192.168.10.1 (192.168.10.1) 56(84) bytes of data.
+64 bytes from 192.168.10.1: icmp_seq=1 ttl=64 time=0.045 ms
+64 bytes from 192.168.10.1: icmp_seq=2 ttl=64 time=0.065 ms
+^X64 bytes from 192.168.10.1: icmp_seq=3 ttl=64 time=0.073 ms
+^Z
+[3]+  Stopped                 ping 192.168.10.1
+*************************************************************************
+14)check traceroute
+***********************************************************************
+Router3# traceroute 192.168.10.1
+traceroute to 192.168.10.1 (192.168.10.1), 30 hops max, 60 byte packets
+ 1  192.168.10.1 (192.168.10.1)  0.979 ms  0.879 ms  0.798 ms
+Router3# traceroute 192.168.20.1
+traceroute to 192.168.20.1 (192.168.20.1), 30 hops max, 60 byte packets
+ 1  192.168.20.1 (192.168.20.1)  0.687 ms  0.914 ms  0.996 ms
+Router3# traceroute 192.168.30.1
+traceroute to 192.168.30.1 (192.168.30.1), 30 hops max, 60 byte packets
+ 1  192.168.30.1 (192.168.30.1)  0.047 ms  0.015 ms  0.012 ms
+
+**********************************************************************
+13) enable cost 1000 for eth1 asimmetric route 
+**********************************************************************
+vagrant@Router1:~$ sudo vtysh 
+
+Hello, this is FRRouting (version 7.5.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
+
+Router1# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP,
+       O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+       F - PBR, f - OpenFabric,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+
+K>* 0.0.0.0/0 [0/0] via 10.0.2.2, eth0, 00:00:12
+C>* 10.0.2.0/24 is directly connected, eth0, 00:00:12
+O   10.0.10.0/30 [110/1000] is directly connected, eth1, weight 1, 00:00:15
+C>* 10.0.10.0/30 is directly connected, eth1, 00:00:15
+O   10.0.12.0/30 [110/100] is directly connected, eth2, weight 1, 00:00:02
+C>* 10.0.12.0/30 is directly connected, eth2, 00:00:15
+O   192.168.10.0/24 [110/100] is directly connected, eth3, weight 1, 00:00:02
+C>* 192.168.10.0/24 is directly connected, eth3, 00:00:15
+C>* 192.168.56.0/24 is directly connected, eth4, 00:00:15
+
+**************************************************************************
+14)disable eth1 and ping going
+**************************************************************************
+vagrant@Router1:~$ sudo ip link set eth1 down
+vagrant@Router1:~$ ip a |grep state
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+3: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast state DOWN group defau
+15)ping
+PING 192.168.10.1 (192.168.10.1) 56(84) bytes of data.
+64 bytes from 192.168.10.1: icmp_seq=1 ttl=64 time=0.050 ms
+64 bytes from 192.168.10.1: icmp_seq=2 ttl=64 time=0.068 ms
+64 bytes from 192.168.10.1: icmp_seq=3 ttl=64 time=0.071 ms
+^Z
+[1]+  Stopped                 ping 192.168.10.1
+vagrant@Router1:~$ ping 192.168.20.1
+PING 192.168.20.1 (192.168.20.1) 56(84) bytes of data.
+64 bytes from 192.168.20.1: icmp_seq=1 ttl=63 time=2.18 ms
+64 bytes from 192.168.20.1: icmp_seq=2 ttl=63 time=2.04 ms
+64 bytes from 192.168.20.1: icmp_seq=3 ttl=63 time=2.20 ms
+^Z
+[2]+  Stopped                 ping 192.168.20.1
+vagrant@Router1:~$ ping 192.168.30.1
+PING 192.168.30.1 (192.168.30.1) 56(84) bytes of data.
+64 bytes from 192.168.30.1: icmp_seq=1 ttl=64 time=1.11 ms
+64 bytes from 192.168.30.1: icmp_seq=2 ttl=64 time=0.977 ms
+64 bytes from 192.168.30.1: icmp_seq=3 ttl=64 time=1.10 ms
+^Z
+[3]+  Stopped                 ping 192.168.30.1
+*************************************************************************
+15)up interface in Router1 and wath asimmetric route
+ping 
+vagrant@Router1:~$ ping -I 192.168.10.1 192.168.20.1
+PING 192.168.20.1 (192.168.20.1) from 192.168.10.1 : 56(84) bytes of data.
+64 bytes from 192.168.20.1: icmp_seq=1 ttl=64 time=1.74 ms
+64 bytes from 192.168.20.1: icmp_seq=2 ttl=64 time=1.59 ms
+64 bytes from 192.168.20.1: icmp_seq=3 ttl=64 time=1.78 ms
+64 bytes from 192.168.20.1: icmp_seq=4 ttl=64 time=1.86 ms
+***********************************************************************
+16)We wath to route goint to eth2(router 2) 
+***********************************************************************
+vagrant@Router2:~$ sudo tcpdump -i eth2 
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth2, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+14:31:31.967642 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 80, length 64
+14:31:32.929515 IP 10.0.11.2 > ospf-all.mcast.net: OSPFv2, Hello, length 48
+14:31:32.974081 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 81, length 64
+14:31:33.976809 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 82, length 64
+14:31:35.022090 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 83, length 64
+14:31:35.201633 IP 10.0.11.1 > ospf-all.mcast.net: OSPFv2, Hello, length 48
+14:31:36.039639 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 84, length 64
+14:31:37.041759 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 85, length 64
+14:31:38.048969 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 86, length 64
+14:31:39.066015 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 87, length 64
+14:31:40.069366 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 88, length 64
+14:31:41.074003 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 12314, seq 89, length 64
+********************************************************************
+17)Going back to eth1 (Router2) it's asimmetrical routs
+**********************************************************************
+vagrant@Router2:~$ sudo tcpdump -i eth1
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth1, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+14:36:33.449902 IP 10.0.10.2 > ospf-all.mcast.net: OSPFv2, Hello, length 48
+14:36:33.571322 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 374, length 64
+14:36:34.668856 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 375, length 64
+14:36:35.581501 IP 10.0.10.1 > ospf-all.mcast.net: OSPFv2, Hello, length 48
+14:36:35.704307 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 376, length 64
+14:36:36.706272 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 377, length 64
+14:36:37.628608 ARP, Request who-has 10.0.10.1 tell 10.0.10.2, length 28
+14:36:37.629790 ARP, Reply 10.0.10.1 is-at 08:00:27:6a:01:5e (oui Unknown), length 46
+14:36:37.707222 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 378, length 64
+14:36:38.713752 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 379, length 64
+14:36:39.753926 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 380, length 64
+14:36:40.755464 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 381, length 64
+14:36:41.762279 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 382, length 64
+14:36:42.764048 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 12314, seq 383, length 64
+*************************************************************************
+18)symmetric route
+We mast enable symmetric_routing == true
+And check
+vagrant@Router1:~$ ping -I 192.168.10.1 192.168.20.1
+PING 192.168.20.1 (192.168.20.1) from 192.168.10.1 : 56(84) bytes of data.
+64 bytes from 192.168.20.1: icmp_seq=1 ttl=63 time=1.92 ms
+64 bytes from 192.168.20.1: icmp_seq=2 ttl=63 time=2.07 ms
+64 bytes from 192.168.20.1: icmp_seq=3 ttl=63 time=1.89 ms
+64 bytes from 192.168.20.1: icmp_seq=4 ttl=63 time=2.06 ms
+64 bytes from 192.168.20.1: icmp_seq=5 ttl=63 time=2.11 ms
+
+19) Watch tcpdump Router2 eth2 (and we watch package going and outfoing with intrfaces2)
+vagrant@Router2:~$ sudo tcpdump -i eth2
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on eth2, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+16:41:58.408660 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 45371, seq 296, length 64
+16:41:58.408703 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 45371, seq 296, length 64
+16:41:59.408082 ARP, Request who-has 10.0.11.1 tell 10.0.11.2, length 28
+16:41:59.409113 ARP, Reply 10.0.11.1 is-at 08:00:27:61:57:ff (oui Unknown), length 46
+16:41:59.448392 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 45371, seq 297, length 64
+16:41:59.448436 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 45371, seq 297, length 64
+16:42:00.458341 IP 192.168.10.1 > 192.168.20.1: ICMP echo request, id 45371, seq 298, length 64
+16:42:00.458384 IP 192.168.20.1 > 192.168.10.1: ICMP echo reply, id 45371, seq 298, length 64
+
+20)And i lern new interisting function ansible tag (play block ansible tag)
+ - name: tamplates frr
+      template:
+        src: templ.j2
+        dest: /etc/frr/frr.conf
+        owner: frr
+        group: frr
+        mode: 0644
+      tags: 
+        - setup_ospf
+
+    - name: restart
+      service:
+        name: frr
+        state: restarted
+        enabled: true
+      tags:
+        - setup_ospf
+
+localadm@DEB:~/otus$ ansible-playbook -i host main.yml -t setup_ospf 
+[WARNING]: Found both group and host with same name: Router1
+[WARNING]: Found both group and host with same name: Router3
+[WARNING]: Found both group and host with same name: Router2
+
+PLAY [install all hosts] *******************************************************************************
+
+TASK [Gathering Facts] *********************************************************************************
+ok: [Router3]
+ok: [Router1]
+ok: [Router2]
+
+TASK [tamplates frr] ***********************************************************************************
+ok: [Router3]
+ok: [Router2]
+ok: [Router1]
+
+TASK [restart] *****************************************************************************************
+changed: [Router3]
+changed: [Router2]
+changed: [Router1]
+
+PLAY RECAP *********************************************************************************************
+Router1                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+Router2                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+Router3                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
