@@ -1,6 +1,6 @@
 This is stend OSPF
 
-We have 3 Routers
+We have 3 Routers 
 
 Our target this task:
 
@@ -9,6 +9,10 @@ Our target this task:
 2)Using simmetric route and asimmetric
 
 3)Configured ospf 
+
+1)This is task i little automatisation. i don't have create 3 templates for ospf and write only one. This templayt bring gathering facts in ansible (-m setup)
+2) if you have asymmetric routing or symmetric,default preferense, change vars (asymmetric_routing == true or symmetric_routing == true)
+
 
 Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/ospf/Read)
 
@@ -30,44 +34,5 @@ Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/ospf/Re
         tags:
           - setup_ospf
           
-and play localadm@DEB:~/otus$ ansible-playbook -i host main.yml -t setup_ospf
+* ansible-playbook -i host main.yml -t setup_ospf
 
-[WARNING]: Found both group and host with same name: Router1
-
-[WARNING]: Found both group and host with same name: Router3
-
-[WARNING]: Found both group and host with same name: Router2
-
-PLAY [install all hosts] *****************************************************
-
-TASK [Gathering Facts] *******************************************************
-
-ok: [Router3]
-
-ok: [Router1]
-
-ok: [Router2]
-
-TASK [tamplates frr] *********************************************************
-
-ok: [Router3]
-
-ok: [Router2]
-
-ok: [Router1]
-
-TASK [restart] ***************************************************************
-
-changed: [Router3]
-
-changed: [Router2]
-
-changed: [Router1]
-
-PLAY RECAP *******************************************************************
-
-Router1                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-
-Router2                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-
-Router3                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
