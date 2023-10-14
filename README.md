@@ -11,7 +11,15 @@ Our target this task:
 3)Configured ospf 
 
 1)This is task i little automatisation. i don't have create 3 templates for ospf and write only one. This templayt bring gathering facts in ansible (-m setup)
-2) if you have asymmetric routing or symmetric,default preferense, change vars (asymmetric_routing == true or symmetric_routing == true)
+2) if you have asymmetric routing or symmetric,default preferense, change vars
+________________________________________________________________________________
+
+If i have default prefernce, i choosing default_routing=false in vars
+
+If i wana be asymmetric route, i choosing default_routing=true in vars
+
+if i wana be symmetric route and cost 1000 i choosing symmetric_routing=true
+_________________________________________________________________________________
 
 
 Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/ospf/Read)
