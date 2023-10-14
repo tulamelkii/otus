@@ -1,4 +1,4 @@
-This is sten ospf
+This is stend OSPF
 
 We have 3 Routers
 
