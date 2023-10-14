@@ -42,9 +42,9 @@ and play localadm@DEB:~/otus$ ansible-playbook -i host main.yml -t setup_ospf
 
 [WARNING]: Found both group and host with same name: Router2
 
-PLAY [install all hosts] *******************************************************************************
+PLAY [install all hosts] *******************************************************
 
-TASK [Gathering Facts] *********************************************************************************
+TASK [Gathering Facts] *********************************************************
 
 ok: [Router3]
 
@@ -52,7 +52,7 @@ ok: [Router1]
 
 ok: [Router2]
 
-TASK [tamplates frr] ***********************************************************************************
+TASK [tamplates frr] *********************************************************
 
 ok: [Router3]
 
@@ -60,7 +60,7 @@ ok: [Router2]
 
 ok: [Router1]
 
-TASK [restart] *****************************************************************************************
+TASK [restart] *******************************************************************
 
 changed: [Router3]
 
@@ -68,7 +68,7 @@ changed: [Router2]
 
 changed: [Router1]
 
-PLAY RECAP *********************************************************************************************
+PLAY RECAP *************************************************************************
 
 Router1                    : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
