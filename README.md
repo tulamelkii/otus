@@ -18,7 +18,7 @@ Our target this task:
 
 * i have save function tags for ansible if i forget*
   
-* - name: tamplates frr
+    - name: tamplates frr
     
       template:
     
