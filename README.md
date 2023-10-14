@@ -10,6 +10,10 @@ Our target this task:
 
 3)Configured ospf 
 
+Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/ospf/Read)
+
+
+
 
 
 ![image](https://github.com/tulamelkii/otus/assets/130311206/68322138-334d-4714-aa72-b3368f0ab728)
