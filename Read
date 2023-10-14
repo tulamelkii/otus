@@ -209,9 +209,9 @@ neighbor 10.0.11.2
         delay: 60
         timeout: 300
 ________________________________________________________________________________
-If i have default prefernce, i choosing default_routing=false in vars
-If i wana be asymmetric route, i choosing default_routing=true in vars
-if i wana be symmetric route and cost 1000 i choosing symmetric_routing=true
+If i have default prefernce, i choosing asymmetric_routing == true in vars
+If i wana be default route, i choosing asymmetric_routing == false in vars
+if i wana be symmetric route and cost 1000,i choosing symmetric_routing=true
 _________________________________________________________________________________
 9)Check service-ok
 
