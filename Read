@@ -132,15 +132,15 @@ This is template bring vars from gathering facts in 3 Routers and paste for frr.
 !version frr
 frr version 7.5.1
 frr defaults traditional
-hostname {{ ansible_hostname }}                                            
+hostname {{ ansible_hostname }}                                          #hostname router                                          
 log syslog informational
 no ipv6 forwarding
 service integrated-vtysh-configi
 !
 !Config interface eth1
 !
-interface {{ ansible_eth1.device }}                                        
-ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}   
+interface {{ ansible_eth1.device }}                                       #interface eth1                  
+ip address {{ ansible_eth1.ipv4.address }}/{{ansible_eth1.ipv4.prefix}}   # ip address interface and prefix
 ip ospf mtu-ignore
 {% if ansible_hostname == 'Router1' and default_routing == true %}  #if var = fals then defaul ospf and if var=false then coast eth1= 1000
 ip ospf cost 1000
