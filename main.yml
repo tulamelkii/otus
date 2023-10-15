@@ -2,55 +2,81 @@
  - name: install all hosts
    hosts: vm
    become: true
-   vars_files:
-     - vars.yml
    tasks:
     - name: install update and program
       apt:
         update_cache: yes
-        name: 
-        - traceroute
-        - tcpdump
-        - nmap
-        - frr
-        - frr-pythontools
+        name:
+        - openvpn
+        - iperf3
         state: latest
-         
-    - name: enable forwarding  
-      sysctl:
-        name: net.ipv4.conf.all.forwarding
-        value: '1'
-        state: present  
-
-    - name: change config frr
-      lineinfile:
-        path: /etc/frr/daemons
-        regexp: 'ospfd='
-        line: 'ospfd=yes'
-
-    - name: set up asynchronous routing
-      sysctl:
-        name: net.ipv4.conf.all.rp_filter
-        value: '0'
-        state: present
     
-    - name: tamplates frr
-      template:
-        src: templ.j2
-        dest: /etc/frr/frr.conf
-        owner: frr
-        group: frr
-        mode: 0644
-      tags: 
-        - setup_ospf
+    - name: install server
+      block:
+        - name: generate key openvpn
+          shell: openvpn --genkey secret /etc/openvpn/static.key
 
-    - name: restart
-      service:
-        name: frr
-        state: restarted
-        enabled: true
-      tags:
-        - setup_ospf
+        - name: copy generate key for local machine
+          fetch:
+            src: /etc/openvpn/static.key
+            dest: "serv_pref/static.key"
+            flat: yes
+
+        - name: create conf file openvpn
+          file:
+            path: /etc/openvpn/server.conf
+            state: absent
+            owner: root
+            group: root
+
+        - name: create template 
+          template:
+            src: templ_ovpn/server.j2
+            dest: /etc/openvpn/server.conf
+         
+        - name: create file service openvpn
+          file:
+            path: /etc/systemd/system/openvpn@client.service
+            state: absent
+            owner: root
+            group: root
+         
+        - name: create template service
+          template:
+            src: serv_pref/service.j2
+            dest: /etc/systemd/system/openvpn@.service
+        - name: start service
+          service:
+            name: openvpn@server.service
+            state: started
+            enabled: true
+      when: (ansible_hostname == "Server")
+    
+    - name: install config client
+      block:
+        - name: create file serv.conf for client
+          template:
+            src: templ_ovpn/client.j2
+            dest: /etc/openvpn/server.conf
+        - name: create file
+          file:
+            path: /etc/openvpn/static.key
+            state: absent
+      when: (ansible_hostname == "Client")
+
+    - name: Copy to Client
+      block:
+        - name:
+          copy:
+            src: serv_pref/static.key
+            dest:  /etc/openvpn/static.key
+            mode: '0600'
+          delegate_to: Client
+      when: (ansible_hostname == "Server")
+
+        
+         
+
 
     - name: reboot all hosts
       block:

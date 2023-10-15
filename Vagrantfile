@@ -2,41 +2,26 @@
 # vim: set ft=ruby
 
 MACHINES = {
-:Router1 => {
+:Server => {
         :box_name => "debian/bullseye64",
-        :vm_name => "Router1",
+        :vm_name => "Server",
         :net => [
-                   {ip: '10.0.10.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r1-r2"},
-                   {ip: '10.0.12.1', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r1-r3"},
-                   {ip: '192.168.10.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net1"},
-                   {ip: '192.168.56.10', adapter: 5},
+                   {ip: '192.168.20.2', adapter: 2, netmask: "255.255.255.0", virtualbox__intnet: "net2"},
+                   {ip: '192.168.56.10', adapter: 3},
        
         ]
   },
 
-:Router2 => {
+:Client => {
         :box_name => "debian/bullseye64",
-        :vm_name => "Router2",
+        :vm_name => "Client",
         :net => [
-             
-                   {ip: '10.0.10.2', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r1-r2"},
-                   {ip: '10.0.11.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r2-r3"},
-                   {ip: '192.168.20.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net2"},
-                   {ip: '192.168.56.11', adapter: 5},
+                   {ip: '192.168.20.3', adapter: 2 , netmask: "255.255.255.0", virtualbox__intnet: "net2"},
+                   {ip: '192.168.56.11', adapter: 3},
 
                 ]
 },
 
-:Router3 => {
-        :box_name => "debian/bullseye64",
-        :vm_name => "Router3",
-        :net => [
-                   {ip: '10.0.11.1', adapter: 2, netmask: "255.255.255.252", virtualbox__intnet: "r2-r3"},
-                   {ip: '10.0.12.2', adapter: 3, netmask: "255.255.255.252", virtualbox__intnet: "r1-r3"},
-                   {ip: '192.168.30.1', adapter: 4, netmask: "255.255.255.0", virtualbox__intnet: "net3"},
-                   {ip: '192.168.56.12', adapter: 5},   
-                ]
-  },
 }
 Vagrant.configure("2") do |config|
 
@@ -54,7 +39,7 @@ Vagrant.configure("2") do |config|
       end
 
   
- if boxconfig[:vm_name] == "Router3"
+ if boxconfig[:vm_name] == "Client"
        box.vm.provision "ansible" do |ansible|
         ansible.playbook = "main.yml"
         ansible.inventory_path = "host"
