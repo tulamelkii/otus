@@ -6,7 +6,7 @@ Our target this task:
 
 1)How work frr
 
-2)Using simmetric route and asimmetric
+2)Using symmetric route and asymmetric
 
 3)Configured ospf 
 
