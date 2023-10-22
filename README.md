@@ -2,7 +2,7 @@ Stend Open Vpn
 
 Target: 
 
-1)Create tun and tap drivers for connect
+1)Create tun and tap drivers for connect OpenVpn 
 
 2)Create easy-rsa
 
