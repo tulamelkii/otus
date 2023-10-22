@@ -1,0 +1,167 @@
+---
+ - name: install all hosts
+   hosts: vm
+   become: true
+   vars_files:
+     - var.yml
+   tasks:
+    - name: install update and program
+      apt:
+        update_cache: yes
+        name:
+        - openvpn
+        - iperf3
+        - nmap
+        - ntp
+        - tcpdump
+        state: latest
+
+    - name: Update NTP configuration
+      template:
+        src: ntp.j2
+        dest: /etc/ntp.conf
+    
+    - name: start service
+      service:
+            name: ntp
+            state: started
+            enabled: true
+
+    - name: install server
+      block:
+        - name: generate key openvpn
+          shell: openvpn --genkey secret /etc/openvpn/static.key
+
+        - name: create conf file openvpn
+          file:
+            path: /etc/openvpn/server.conf
+            state: absent
+            owner: root
+            group: root
+
+        - name: create template 
+          template:
+            src: templ_ovpn/templ.j2
+            dest: /etc/openvpn/server.conf
+          tags: 
+            - rest_vpn
+
+        - name: create file service openvpn
+          file:
+            path: /etc/systemd/system/openvpn@client.service
+            state: absent
+            owner: root
+            group: root
+         
+        - name: create template service
+          template:
+            src: serv_pref/service.j2
+            dest: /etc/systemd/system/openvpn@.service
+
+        - name: create pki dir
+          stat:
+            path: /etc/openvpn/pki/
+          register: pki_dir
+        - name: comand with pki
+          block:
+            - name: check folder and init pki
+              shell: |
+                /usr/share/easy-rsa/easyrsa init-pki
+                echo 'rasvpn' | /usr/share/easy-rsa/easyrsa build-ca nopass
+                echo 'rasvpn' | /usr/share/easy-rsa/easyrsa gen-req server nopass
+                echo 'yes' | /usr/share/easy-rsa/easyrsa sign-req server server
+                /usr/share/easy-rsa/easyrsa gen-dh
+                echo 'client' | /usr/share/easy-rsa/easyrsa gen-req client nopass
+                echo 'yes' | /usr/share/easy-rsa/easyrsa sign-req client client
+              args:
+                chdir: /etc/openvpn/  
+          when: not pki_dir.stat.exists
+
+        - name: copy generate key for local machine
+          fetch:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            flat: yes
+          with_items:
+            - { src: "/etc/openvpn/static.key", dest: "cert/static.key" }  
+            - { src: "/etc/openvpn/pki/ca.crt", dest: "cert/ca.crt" }
+            - { src: "/etc/openvpn/pki/issued/client.crt", dest: "cert/client.crt" }
+            - { src: "/etc/openvpn/pki/private/client.key", dest: "cert/client.key"}
+              
+        - name: start service
+          service:
+            name: openvpn@server.service
+            state: started
+            enabled: true
+          tags: 
+            - rest_vpn
+      when: (ansible_hostname == "Server")
+
+    - name: install config client
+      block:
+        - name: create file client.conf for client
+          template:
+            src: templ_ovpn/templ.j2
+            dest: /etc/openvpn/client.conf
+          tags: 
+            - rest_vpn
+
+        - name: create file
+          file:
+            path: /etc/openvpn/static.key
+            state: absent
+         
+        - name: start service
+          service:
+            name: openvpn@client.service
+            enabled: true
+          tags: 
+            - rest_vpn
+      when: (ansible_hostname == "Client")
+      notify:
+        - restart vpn_client
+
+    - name: Copy to Client
+      block:
+        - name:
+          copy:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            mode: '0600'
+          delegate_to: Client
+          with_items:
+          - { src: "cert/static.key", dest: "/etc/openvpn/static.key" }
+          - { src: "cert/ca.crt", dest: "/ca.crt" }
+          - { src: "cert/client.crt", dest: "/client.crt" }
+          - { src: "cert/client.key", dest: "/client.key" }
+      when: (ansible_hostname == "Server")
+      notify:
+        - restart vpn_server
+
+   handlers:
+     - name: restart vpn_server
+       service: 
+         name: openvpn@server
+         state: restarted
+         enabled: true
+     
+     - name: restart vpn_client
+       service: 
+         name: openvpn@client
+         state: restarted
+         enabled: true
+
+
+       
+     - name: reboot all hosts
+       block:
+       - shell: systemctl reboot
+         async: 300
+         poll: 0
+         ignore_errors: true
+
+       - name: wait for system hosts
+         wait_for_connection:
+         delay: 60
+         timeout: 300
+...
