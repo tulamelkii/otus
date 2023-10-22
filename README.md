@@ -32,5 +32,5 @@ Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/Vpn/Rea
           when: not pki_dir.stat.exists  # pki_dir-register: pki_dir ; stat-modul ; exists - Return Values (with module stat)
 
     
-*This is module checking if no folder pki here then run commands and if folder here then skip block
+*This is module checking: if not folder pki here then run commands else if folder here then skip block
  
