@@ -10,7 +10,7 @@ Target:
 
 
 
-*- name: create pki dir
+        - name: create pki dir
           stat:
             path: /etc/openvpn/pki/
           register: pki_dir
