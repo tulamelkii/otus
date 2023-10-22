@@ -6,6 +6,8 @@ Target:
 
 2)Create easy-rsa
 
+Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/Vpn/Read)
+
 ![image](https://github.com/tulamelkii/otus/assets/130311206/5b531897-3b39-4acc-bb30-77e34cad2ca7)
 
 
