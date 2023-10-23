@@ -31,13 +31,7 @@ tun
 
 
 
-
-
-
 this is two differences metods: 
-
-
-
 
 
 1) tun transfer mor then tap (tun 783 Mbits > tap 771 Mbits)
@@ -46,9 +40,9 @@ this is two differences metods:
    
 4) Tun less retry 206 < 355
    
-but if we comapre interval tap take the test 40.4 and tun 40.8 and if we try simmillar interval, this is values may be was idential
+5) but if we comapre interval tap take the test 40.4 and tun 40.8 and if we try simmillar interval, this is values may be was idential
 
-but it is to diferent metod work for vpn
+
 
 -TUN devices work at the IP level and they operate with Layer 3 packets (IP packets).
 
