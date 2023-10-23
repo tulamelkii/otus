@@ -13,13 +13,13 @@ Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/Vpn/Rea
 
 conclusion:
 
-tap                                                                                      tun
+tap                                                                                                 tun
 
-[ ID]     Interval         Transfer     Bitrate      Retr                               [ ID]     Interval         Transfer     Bitrate       Retr
+[ ID]     Interval         Transfer     Bitrate      Retr                                           [ ID]     Interval         Transfer     Bitrate       Retr
 
-[  5]   0.00-40.00  sec   771 MBytes   162 Mbits/sec  355      sender                   [  5]   0.00-40.00  sec   784 MBytes   164 Mbits/sec  206      sender
-
-[  5]   0.00-40.04  sec   769 MBytes   161 Mbits/sec          receiver                  [  5]   0.00-40.08  sec   783 MBytes   164 Mbits/sec          receiver
+[  5]   0.00-40.00  sec   771 MBytes   162 Mbits/sec  355      sender                               [  5]   0.00-40.00  sec   784 MBytes   164 Mbits/sec  206      sender
+ 
+[  5]   0.00-40.04  sec   769 MBytes   161 Mbits/sec          receiver                              [  5]   0.00-40.08  sec   783 MBytes   164 Mbits/sec          receiver
 
 
 this is two differences metods: 
