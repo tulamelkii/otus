@@ -66,7 +66,6 @@ A lot of piple use TUN metod,TAP - very specific, if he work only two liers
 
 TUN is generally used more because it tends to meet the requirements for most VPN users,  TAP is used for more specific situations where you need to bridge networks at the Ethernet level.
  
-********************************check eaysy-ras server**********************
 
 
 
