@@ -31,7 +31,13 @@ tun
 
 
 
+
+
+
 this is two differences metods: 
+
+
+
 
 
 1) tun transfer mor then tap (tun 783 Mbits > tap 771 Mbits)
