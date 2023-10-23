@@ -11,6 +11,55 @@ Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/Vpn/Rea
 ![image](https://github.com/tulamelkii/otus/assets/130311206/5b531897-3b39-4acc-bb30-77e34cad2ca7)
 
 
+conclusion:
+
+tap 
+
+[ ID] Interval           Transfer     Bitrate         Retr
+
+[  5]   0.00-40.00  sec   771 MBytes   162 Mbits/sec  355             sender
+
+[  5]   0.00-40.04  sec   769 MBytes   161 Mbits/sec                  receiver
+
+tun
+
+[ ID] Interval           Transfer     Bitrate         Retr
+
+[  5]   0.00-40.00  sec   784 MBytes   164 Mbits/sec  206             sender
+
+[  5]   0.00-40.08  sec   783 MBytes   164 Mbits/sec                  receiver
+
+this is two differences metods: 
+
+1) tun transfer mor then tap (tun 783 Mbits > tap 771 Mbits)
+   
+2) tun better by speed Bitrate ( 164 Mbits > 162 Mbits)
+   
+4) Tun less retry 206 < 355
+   
+but if we comapre interval tap take the test 40.4 and tun 40.8 and if we try simmillar interval, this is values may be was idential
+
+but it is to diferent metod work for vpn
+
+-TUN devices work at the IP level and they operate with Layer 3 packets (IP packets).
+
+-TUN encapsulate the IP packets inside the VPN protocol
+
+-TUN is used with routing
+
+-TAP devices work at the Ethernet (MAC) level and work Laers 2
+
+-TAP encapsulate the Ethernet frames inside the VPN 
+
+-TAP is used with Ethernet bridging
+
+A lot of piple use TUN metod,TAP - very specific, if he work only two liers
+
+TUN is generally used more because it tends to meet the requirements for most VPN users,  TAP is used for more specific situations where you need to bridge networks at the Ethernet level.
+ 
+********************************************check eaysy-ras server**********************
+
+
 
         - name: create pki dir 
           stat:                     
