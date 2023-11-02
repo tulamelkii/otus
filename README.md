@@ -24,6 +24,7 @@ Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/iptable
 
 ***
 ○ apt install iptables-persistent netfilter-persistent (this is need for save rules or reload)
+
 ○ netfilter-persistent start (start netfiler)
 
   netfilter-persistent reload
