@@ -21,3 +21,13 @@ target: learn to creatre for iptables rules
 
 
 Full install and commit [ReadME](https://github.com/tulamelkii/otus/blob/iptables/ReadME)
+
+***
+○ apt install iptables-persistent netfilter-persistent (this is need for save rules or reload)
+○ netfilter-persistent start (start netfiler)
+
+  netfilter-persistent reload
+  
+  netfilter-persistent save (save /vim/etc/iptables/rules.v4)
+
+
