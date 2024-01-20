@@ -16,6 +16,11 @@ localadm@DEB:~$ docker image ls
 REPOSITORY         TAG       IMAGE ID       CREATED          SIZE
 tulamelki/nginx3   latest    aa34e73653c9   49 minutes ago   22.5MB
 --And push this images
+*********************************************
+Create tag
+docker tag <image id> user_docker/image_my
+docker push user_docker/image_my
+*************************************************
 localadm@DEB:~$ docker push tulamelki/nginx3
 Using default tag: latest
 The push refers to repository [docker.io/tulamelki/nginx3]
